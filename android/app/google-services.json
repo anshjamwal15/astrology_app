@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "563065754732",
+    "project_id": "mindaro-astrology-app",
+    "storage_bucket": "mindaro-astrology-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:563065754732:android:7bf89fc20f8e48d44c7449",
+        "android_client_info": {
+          "package_name": "com.example.astrology_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCtkS8Df2FDgVQ8Av5BZHsbDrZr7TfUfI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:563065754732:android:5152e20105459ebd4c7449",
+        "android_client_info": {
+          "package_name": "com.example.mindaro_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCtkS8Df2FDgVQ8Av5BZHsbDrZr7TfUfI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

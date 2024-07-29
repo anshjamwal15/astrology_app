@@ -1,0 +1,22 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "mindaro-astrology-app",
+                    "appId": "1:563065754732:android:5152e20105459ebd4c7449",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "mindaro-astrology-app",
+                    "configurations": {
+                        "android": "1:563065754732:android:5152e20105459ebd4c7449",
+                        "ios": "1:563065754732:ios:971558039dd33fcf4c7449"
+                    }
+                }
+            }
+        }
+    }
+}
