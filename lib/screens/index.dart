@@ -46,7 +46,7 @@ class AppView extends StatelessWidget {
         onGeneratePages: (profile, pages) {
           return [
             if (profile.name == AppStatus.authenticated.name) const MaterialPage(child: SupportScreen()),
-            MaterialPage(child: const HomeScreen()),
+            const MaterialPage(child: HomeScreen()),
           ];
         },
       ),

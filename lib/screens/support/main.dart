@@ -19,7 +19,7 @@ class _SupportScreenState extends State<SupportScreen> {
       extendBody: true,
       appBar: const CustomAppBar(),
       drawer: const CustomAppDrawer(),
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppConstants.bgColor,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           vertical: size.height * 0.04,

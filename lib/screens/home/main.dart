@@ -1,4 +1,5 @@
 import 'package:astrology_app/components/index.dart';
+import 'package:astrology_app/constants/index.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
       extendBody: true,
       appBar: const CustomAppBar(),
       drawer: const CustomAppDrawer(),
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppConstants.bgColor,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           vertical: size.height * 0.04,

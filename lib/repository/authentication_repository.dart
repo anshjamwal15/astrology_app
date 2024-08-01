@@ -127,6 +127,11 @@ class AuthenticationRepository {
 
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
+  late final Box<User> _box;
+
+  Future<void> initialize() async {
+    _box = await Hive.openBox<User>('authBox');
+  }
 
   Stream<User> get user {
     return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
@@ -136,14 +141,12 @@ class AuthenticationRepository {
     });
   }
 
-  User get currentUser {
-    final box = Hive.box('authBox');
-    return box.get(userCacheKey, defaultValue: User.empty);
+  Future<User> get currentUser async {
+    return _box.get(userCacheKey, defaultValue: User.empty) ?? User.empty;
   }
 
   Future<void> _writeUserToCache(User user) async {
-    final box = await Hive.openBox('authBox');
-    await box.put(userCacheKey, user);
+    await _box.put(userCacheKey, user);
   }
 
   Future<void> signUp({required String email, required String password}) async {
