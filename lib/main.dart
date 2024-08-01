@@ -1,5 +1,6 @@
 import 'package:astrology_app/repository/authentication_repository.dart';
 import 'package:astrology_app/screens/auth/login_test.dart';
+import 'package:astrology_app/screens/communication/chat/index.dart';
 import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/screens/index.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const LoginTest(),
+      home: const ChatScreen(),
     );
   }
 }
