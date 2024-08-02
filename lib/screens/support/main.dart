@@ -2,6 +2,9 @@ import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
 import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/screens/communication/chat/index.dart';
+import 'package:astrology_app/screens/communication/video/index.dart';
+import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:flutter/material.dart';
 
 class SupportScreen extends StatefulWidget {
@@ -82,50 +85,74 @@ class _SupportScreenState extends State<SupportScreen> {
                           SizedBox(width: size.width * 0.18),
                           Column(
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.green.shade100,
-                                ),
-                                width: size.width * 0.16,
-                                height: size.height * 0.03,
-                                child: const Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "Chat",
-                                    style: TextStyle(color: Colors.black),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const ChatScreen()),
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.green.shade100,
+                                  ),
+                                  width: size.width * 0.16,
+                                  height: size.height * 0.03,
+                                  child: const Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "Chat",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
                                   ),
                                 ),
                               ),
                               SizedBox(height: size.height * 0.01),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.green.shade100,
-                                ),
-                                width: size.width * 0.16,
-                                height: size.height * 0.03,
-                                child: const Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "Call",
-                                    style: TextStyle(color: Colors.black),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const VoiceCall()),
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.green.shade100,
+                                  ),
+                                  width: size.width * 0.16,
+                                  height: size.height * 0.03,
+                                  child: const Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "Call",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
                                   ),
                                 ),
                               ),
                               SizedBox(height: size.height * 0.01),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.green.shade100,
-                                ),
-                                width: size.width * 0.16,
-                                height: size.height * 0.03,
-                                child: const Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "Meeting",
-                                    style: TextStyle(color: Colors.black),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const VideoCallScreen()),
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.green.shade100,
+                                  ),
+                                  width: size.width * 0.16,
+                                  height: size.height * 0.03,
+                                  child: const Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "Meeting",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
                                   ),
                                 ),
                               ),

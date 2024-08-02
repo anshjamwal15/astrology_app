@@ -34,7 +34,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _messages.add(Message(text: text, isSentByMe: true));
       _messages
-          .add(Message(text: text, isSentByMe: false)); // Simulated response
+          .add(Message(text: text, isSentByMe: false));
     });
     _controller.clear();
   }

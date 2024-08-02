@@ -1,5 +1,6 @@
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/screens/support/main.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -104,30 +105,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(
                   height: size.height * 0.26,
                   width: size.width * 0.45,
-                  child: Container(
-                    height: size.height * 0.26,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(20)),
-                      image: DecorationImage(
-                        image: const AssetImage(
-                          "assets/images/business_support.jpg",
-                        ),
-                        fit: BoxFit.cover,
-                        colorFilter: ColorFilter.mode(
-                          Colors.black.withOpacity(0.4),
-                          BlendMode.darken,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SupportScreen()),
+                      );
+                    },
+                    child: Container(
+                      height: size.height * 0.26,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        image: DecorationImage(
+                          image: const AssetImage(
+                            "assets/images/business_support.jpg",
+                          ),
+                          fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            Colors.black.withOpacity(0.4),
+                            BlendMode.darken,
+                          ),
                         ),
                       ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-                      child: Text(
-                        "Business Support",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: size.height * 0.04,
-                          fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                        child: Text(
+                          "Business Support",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: size.height * 0.04,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -137,30 +146,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(
                   height: size.height * 0.26,
                   width: size.width * 0.45,
-                  child: Container(
-                    height: size.height * 0.26,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(20)),
-                      image: DecorationImage(
-                        image: const AssetImage(
-                          "assets/images/prof_skills.jpg",
-                        ),
-                        fit: BoxFit.cover,
-                        colorFilter: ColorFilter.mode(
-                          Colors.black.withOpacity(0.4),
-                          BlendMode.darken,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SupportScreen()),
+                      );
+                    },
+                    child: Container(
+                      height: size.height * 0.26,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        image: DecorationImage(
+                          image: const AssetImage(
+                            "assets/images/prof_skills.jpg",
+                          ),
+                          fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            Colors.black.withOpacity(0.4),
+                            BlendMode.darken,
+                          ),
                         ),
                       ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-                      child: Text(
-                        "Professional Skills",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: size.height * 0.04,
-                          fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                        child: Text(
+                          "Professional Skills",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: size.height * 0.04,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -174,30 +191,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(
                   height: size.height * 0.26,
                   width: size.width * 0.45,
-                  child: Container(
-                    height: size.height * 0.26,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(20)),
-                      image: DecorationImage(
-                        image: const AssetImage(
-                          "assets/images/points.jpg",
-                        ),
-                        fit: BoxFit.cover,
-                        colorFilter: ColorFilter.mode(
-                          Colors.black.withOpacity(0.4),
-                          BlendMode.darken,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SupportScreen()),
+                      );
+                    },
+                    child: Container(
+                      height: size.height * 0.26,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        image: DecorationImage(
+                          image: const AssetImage(
+                            "assets/images/points.jpg",
+                          ),
+                          fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            Colors.black.withOpacity(0.4),
+                            BlendMode.darken,
+                          ),
                         ),
                       ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-                      child: Text(
-                        "Personal Points",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: size.height * 0.04,
-                          fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                        child: Text(
+                          "Personal Points",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: size.height * 0.04,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -207,30 +232,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(
                   height: size.height * 0.26,
                   width: size.width * 0.45,
-                  child: Container(
-                    height: size.height * 0.26,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(20)),
-                      image: DecorationImage(
-                        image: const AssetImage(
-                          "assets/images/academic.jpg",
-                        ),
-                        fit: BoxFit.cover,
-                        colorFilter: ColorFilter.mode(
-                          Colors.black.withOpacity(0.4),
-                          BlendMode.darken,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SupportScreen()),
+                      );
+                    },
+                    child: Container(
+                      height: size.height * 0.26,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        image: DecorationImage(
+                          image: const AssetImage(
+                            "assets/images/academic.jpg",
+                          ),
+                          fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            Colors.black.withOpacity(0.4),
+                            BlendMode.darken,
+                          ),
                         ),
                       ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-                      child: Text(
-                        "Academic Issues",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: size.height * 0.04,
-                          fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                        child: Text(
+                          "Academic Issues",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: size.height * 0.04,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
