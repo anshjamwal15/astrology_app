@@ -1,7 +1,8 @@
 import 'package:astrology_app/models/user.dart';
+import 'package:astrology_app/services/database_helper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:hive/hive.dart';
 import 'package:astrology_app/models/index.dart';
 
 class SignUpWithEmailAndPasswordFailure implements Exception {
@@ -122,37 +123,37 @@ class AuthenticationRepository {
   AuthenticationRepository({
     firebase_auth.FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
+    DatabaseHelper? databaseHelper,
   })  : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
+        _googleSignIn = googleSignIn ?? GoogleSignIn.standard(),
+        _databaseHelper = databaseHelper ?? DatabaseHelper();
 
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
-  late final Box<User> _box;
-
-  Future<void> initialize() async {
-    _box = await Hive.openBox<User>('authBox');
-  }
+  final DatabaseHelper _databaseHelper;
 
   Stream<User> get user {
     return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
       final user = firebaseUser == null ? User.empty : firebaseUser.toUser;
-      await _writeUserToCache(user);
+      if (firebaseUser != null) {
+        await _databaseHelper.insertUser(user);
+      } else {
+        await _databaseHelper.deleteUser();
+      }
       return user;
     });
   }
 
   Future<User> get currentUser async {
-    return _box.get(userCacheKey, defaultValue: User.empty) ?? User.empty;
-  }
-
-  Future<void> _writeUserToCache(User user) async {
-    await _box.put(userCacheKey, user);
+    return await _databaseHelper.getUser() ?? User.empty;
   }
 
   Future<void> signUp({required String email, required String password}) async {
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw SignUpWithEmailAndPasswordFailure.fromCode(e.code);
     } catch (_) {
@@ -165,8 +166,8 @@ class AuthenticationRepository {
       final googleUser = await _googleSignIn.signIn();
       final googleAuth = await googleUser!.authentication;
       firebase_auth.AuthCredential credential =
-          firebase_auth.GoogleAuthProvider.credential(
-              accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
+      firebase_auth.GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
       await _firebaseAuth.signInWithCredential(credential);
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw LogInWithGoogleFailure.fromCode(e.code);
@@ -196,6 +197,7 @@ class AuthenticationRepository {
       await Future.wait([
         _firebaseAuth.signOut(),
         _googleSignIn.signOut(),
+        _databaseHelper.deleteUser(),
       ]);
     } catch (_) {
       throw LogOutFailure();
@@ -205,6 +207,6 @@ class AuthenticationRepository {
 
 extension on firebase_auth.User {
   User get toUser {
-    return User(id: uid, email: email, name: displayName, photo: photoURL);
+    return User(id: uid, email: email!, name: displayName!, photo: photoURL!, mobile: '', creationDate: Timestamp.now());
   }
 }

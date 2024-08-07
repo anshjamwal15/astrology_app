@@ -13,14 +13,12 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Hive.initFlutter();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // final authenticationRepository = AuthenticationRepository();
-  // await authenticationRepository.initialize();
-  // await authenticationRepository.user.first;
+  final authenticationRepository = AuthenticationRepository();
+  await authenticationRepository.user.first;
 
-  // runApp(App(authenticationRepository: authenticationRepository));
+  runApp(App(authenticationRepository: authenticationRepository));
   runApp(const MyApp());
 }
 

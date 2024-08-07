@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:astrology_app/models/index.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:bloc/bloc.dart';
@@ -15,7 +14,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         authenticationRepository.currentUser.then(
             (user) => user != User.empty
                 ? AppState.authenticated(user)
-                : const AppState.unauthenticated()
+                : AppState.unauthenticated()
         ) as AppState
       ) {
     on<_AppUserChanged>(_onUserChanged);
@@ -30,9 +29,9 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   void _onUserChanged(_AppUserChanged event, Emitter<AppState> emit) {
     emit(
-      event.user.isNotEmpty
+      event.user != User.empty
           ? AppState.authenticated(event.user)
-          : const AppState.unauthenticated(),
+          : AppState.unauthenticated(),
     );
   }
 
