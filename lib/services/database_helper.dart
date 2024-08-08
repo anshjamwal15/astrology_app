@@ -30,7 +30,9 @@ class DatabaseHelper {
             id TEXT PRIMARY KEY,
             email TEXT,
             name TEXT,
-            photo TEXT
+            photo TEXT,
+            mobile TEXT,
+            creation_date INTEGER 
           )
           ''',
         );

@@ -46,6 +46,10 @@ class LogInWithEmailAndPasswordFailure implements Exception {
 
   factory LogInWithEmailAndPasswordFailure.fromCode(String code) {
     switch (code) {
+      case 'invalid-credential':
+        return const LogInWithEmailAndPasswordFailure(
+          'Invalid credentials, Please try again.'
+        );
       case 'invalid-email':
         return const LogInWithEmailAndPasswordFailure(
           'Email is not valid or badly formatted.',
@@ -186,6 +190,7 @@ class AuthenticationRepository {
         password: password,
       );
     } on firebase_auth.FirebaseAuthException catch (e) {
+      print(e.code);
       throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
     } catch (_) {
       throw const LogInWithEmailAndPasswordFailure();
@@ -207,6 +212,6 @@ class AuthenticationRepository {
 
 extension on firebase_auth.User {
   User get toUser {
-    return User(id: uid, email: email!, name: displayName!, photo: photoURL!, mobile: '', creationDate: Timestamp.now());
+    return User(email: email!);
   }
 }

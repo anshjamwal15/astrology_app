@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton({super.key});
+  const CustomButton({super.key, required this.onPressed});
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +20,7 @@ class CustomButton extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 130, vertical: 10),
       ),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      },
+      onPressed: onPressed,
       child: Text(
         'LOGIN',
         style: GoogleFonts.acme(

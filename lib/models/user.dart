@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User extends Equatable {
   const User({
-    required this.id,
-    required this.name,
     required this.email,
-    required this.mobile,
-    required this.photo,
-    required this.creationDate,
+    this.id = '',
+    this.name = '',
+    this.mobile = '',
+    this.photo = '',
+    this.creationDate,
   });
 
   final String id;
@@ -16,15 +16,15 @@ class User extends Equatable {
   final String email;
   final String mobile;
   final String photo;
-  final Timestamp creationDate;
+  final Timestamp? creationDate;
 
-  static final empty = User(
+  static const empty = User(
+    email: '',
     id: '',
     name: '',
-    email: '',
     mobile: '',
     photo: '',
-    creationDate: Timestamp(0, 0),
+    creationDate: null,
   );
 
   /// Convenience getter to determine whether the current user is empty.
@@ -38,12 +38,12 @@ class User extends Equatable {
 
   static User fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      email: map['email'] as String,
-      mobile: map['mobile'] as String,
-      photo: map['photo'] as String,
-      creationDate: map['creation_date'] as Timestamp,
+      id: map['id'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      mobile: map['mobile'] as String? ?? '',
+      photo: map['photo'] as String? ?? '',
+      creationDate: map['creation_date'] as Timestamp?,
     );
   }
 
@@ -61,12 +61,12 @@ class User extends Equatable {
   factory User.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return User(
-      id: data['id'] ?? '',
-      name: data['name'] ?? '',
-      email: data['email'] ?? '',
-      mobile: data['mobile'] ?? '',
-      photo: data['photo'] ?? '',
-      creationDate: data['creation_date'] ?? Timestamp(0, 0),
+      id: data['id'] as String? ?? '',
+      name: data['name'] as String? ?? '',
+      email: data['email'] as String? ?? '',
+      mobile: data['mobile'] as String? ?? '',
+      photo: data['photo'] as String? ?? '',
+      creationDate: data['creation_date'] as Timestamp?,
     );
   }
 }

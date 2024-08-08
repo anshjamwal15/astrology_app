@@ -10,13 +10,7 @@ part 'app_state.dart';
 class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc({required AuthenticationRepository authenticationRepository})
       : _authenticationRepository = authenticationRepository,
-        super(
-        authenticationRepository.currentUser.then(
-            (user) => user != User.empty
-                ? AppState.authenticated(user)
-                : AppState.unauthenticated()
-        ) as AppState
-      ) {
+        super(const AppState.unauthenticated()) {
     on<_AppUserChanged>(_onUserChanged);
     on<AppLogoutRequested>(_onLogoutRequested);
     _userSubscription = _authenticationRepository.user.listen(
@@ -31,7 +25,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     emit(
       event.user != User.empty
           ? AppState.authenticated(event.user)
-          : AppState.unauthenticated(),
+          : const AppState.unauthenticated(),
     );
   }
 
