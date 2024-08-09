@@ -3,7 +3,6 @@ import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/screens/auth/login_test.dart';
 import 'package:astrology_app/screens/home/main.dart';
-import 'package:astrology_app/screens/support/main.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,7 +51,6 @@ class AppView extends StatelessWidget {
       home: FlowBuilder<AppStatus>(
         state: context.select((AppBloc bloc) => bloc.state.status),
         onGeneratePages: (status, pages) {
-          print('Current status: ${status.name}');
           if (status == AppStatus.authenticated) {
             return [const MaterialPage(child: HomeScreen())];
           }

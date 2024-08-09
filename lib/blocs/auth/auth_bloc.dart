@@ -16,7 +16,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         emit(Authenticated());
       } catch (e) {
-        emit(AuthError(e.toString()));
+        if (e is SignUpWithEmailAndPasswordFailure) {
+          emit(AuthError(e.message));
+        } else {
+          emit(AuthError('An unknown error occurred'));
+        }
         emit(UnAuthenticated());
       }
     });
@@ -43,7 +47,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await authRepository.logInWithGoogle();
         emit(Authenticated());
       } catch (e) {
-        emit(AuthError(e.toString()));
+        if (e is LogInWithGoogleFailure) {
+          emit(AuthError(e.message));
+        } else {
+          emit(AuthError('An unknown error occurred'));
+        }
         emit(UnAuthenticated());
       }
     });

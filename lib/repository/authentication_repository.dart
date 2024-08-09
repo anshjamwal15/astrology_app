@@ -1,6 +1,5 @@
 import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/services/database_helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:astrology_app/models/index.dart';
@@ -48,8 +47,7 @@ class LogInWithEmailAndPasswordFailure implements Exception {
     switch (code) {
       case 'invalid-credential':
         return const LogInWithEmailAndPasswordFailure(
-          'Invalid credentials, Please try again.'
-        );
+            'Invalid credentials, Please try again.');
       case 'invalid-email':
         return const LogInWithEmailAndPasswordFailure(
           'Email is not valid or badly formatted.',
@@ -170,12 +168,16 @@ class AuthenticationRepository {
       final googleUser = await _googleSignIn.signIn();
       final googleAuth = await googleUser!.authentication;
       firebase_auth.AuthCredential credential =
-      firebase_auth.GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
+          firebase_auth.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
       await _firebaseAuth.signInWithCredential(credential);
     } on firebase_auth.FirebaseAuthException catch (e) {
+      print(e.code);
       throw LogInWithGoogleFailure.fromCode(e.code);
-    } catch (_) {
+    } catch (e) {
+      print(e);
       throw const LogInWithGoogleFailure();
     }
   }
@@ -190,7 +192,6 @@ class AuthenticationRepository {
         password: password,
       );
     } on firebase_auth.FirebaseAuthException catch (e) {
-      print(e.code);
       throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
     } catch (_) {
       throw const LogInWithEmailAndPasswordFailure();

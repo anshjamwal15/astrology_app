@@ -1,4 +1,3 @@
-import 'package:astrology_app/screens/home/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
