@@ -1,7 +1,10 @@
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/screens/support/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -49,59 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Row(
               children: [
-                // SizedBox(
-                //   height: size.height * 0.26,
-                //   width: size.width * 0.45,
-                //   child: Container(
-                //     height: size.height * 0.26,
-                //     decoration: BoxDecoration(
-                //       borderRadius: BorderRadius.all(Radius.circular(20)),
-                //       image: DecorationImage(
-                //         image: AssetImage("assets/images/business_support.jpg"),
-                //         fit: BoxFit.cover,
-                //         colorFilter: ColorFilter.mode(
-                //           Colors.black.withOpacity(0.2),
-                //           BlendMode.darken,
-                //         ),
-                //       ),
-                //     ),
-                //     child: Stack(
-                //       children: [
-                //         Positioned.fill(
-                //           child: Container(
-                //             decoration: BoxDecoration(
-                //               borderRadius:
-                //                   BorderRadius.all(Radius.circular(20)),
-                //               gradient: LinearGradient(
-                //                 colors: [
-                //                   Colors.black54,
-                //                   Colors.transparent,
-                //                   Colors.transparent,
-                //                   Colors.black54
-                //                 ],
-                //                 begin: Alignment.topCenter,
-                //                 end: Alignment.bottomCenter,
-                //                 stops: [0, 0, 0.4, 1],
-                //               ),
-                //             ),
-                //           ),
-                //         ),
-                //         Padding(
-                //           padding: const EdgeInsets.only(top: 150, left: 10),
-                //           child: Text(
-                //             "Business support",
-                //             textAlign: TextAlign.center,
-                //             style: TextStyle(
-                //               color: Colors.white,
-                //               fontSize: size.height * 0.028,
-                //               fontWeight: FontWeight.bold,
-                //             ),
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
                 SizedBox(
                   height: size.height * 0.26,
                   width: size.width * 0.45,
@@ -109,13 +59,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SupportScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider(
+                            create: (context) =>
+                                MentorCubit(FirebaseFirestore.instance),
+                            child: const SupportScreen(),
+                          ),
+                        ),
                       );
                     },
                     child: Container(
                       height: size.height * 0.26,
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
                         image: DecorationImage(
                           image: const AssetImage(
                             "assets/images/business_support.jpg",
@@ -150,13 +107,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SupportScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const SupportScreen()),
                       );
                     },
                     child: Container(
                       height: size.height * 0.26,
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
                         image: DecorationImage(
                           image: const AssetImage(
                             "assets/images/prof_skills.jpg",
@@ -195,13 +154,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SupportScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const SupportScreen()),
                       );
                     },
                     child: Container(
                       height: size.height * 0.26,
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
                         image: DecorationImage(
                           image: const AssetImage(
                             "assets/images/points.jpg",
@@ -236,13 +197,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SupportScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const SupportScreen()),
                       );
                     },
                     child: Container(
                       height: size.height * 0.26,
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
                         image: DecorationImage(
                           image: const AssetImage(
                             "assets/images/academic.jpg",
@@ -278,37 +241,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-/* 
-  NavigationBar(
-            shadowColor: Colors.black,
-            backgroundColor: Colors.white,
-            destinations: [
-              Container(
-                height: size.height * 0.08,
-                width: double.maxFinite,
-                child: Column(
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.home),
-                    ),
-                    Text("Home")
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.chat_rounded),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.call),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.meeting_room),
-              ),
-            ],
-          )
-*/

@@ -34,14 +34,14 @@ class Mentor extends Equatable {
   final String nationality;
   final String userId;
   final String x;
-  final DocumentReference country;
-  final DocumentReference status;
-  final DocumentReference gender;
-  final DocumentReference languages;
-  final DocumentReference pincode;
-  final DocumentReference howToKnow;
-  final DocumentReference currentEmployment;
-  final DocumentReference skillSet;
+  final String country;
+  final String status;
+  final String gender;
+  final String languages;
+  final String pincode;
+  final String howToKnow;
+  final String currentEmployment;
+  final String skillSet;
 
   const Mentor({
     required this.id,
@@ -164,14 +164,14 @@ class Mentor extends Equatable {
       nationality: map['nationality'] as String,
       userId: map['user_id'] as String,
       x: map['x'] as String,
-      country: map['country']['value'] as DocumentReference,
-      status: map['status']['value'] as DocumentReference,
-      gender: map['gender']['value'] as DocumentReference,
-      languages: map['languages']['value'] as DocumentReference,
-      pincode: map['pincode']['value'] as DocumentReference,
-      howToKnow: map['how_to_know']['value'] as DocumentReference,
-      currentEmployment: map['current_employment']['value'] as DocumentReference,
-      skillSet: map['skill_set']['value'] as DocumentReference,
+      country: map['country']['value'] as String,
+      status: map['status']['value'] as String,
+      gender: map['gender']['value'] as String,
+      languages: map['languages']['value'] as String,
+      pincode: map['pincode']['value'] as String,
+      howToKnow: map['how_to_know']['value'] as String,
+      currentEmployment: map['current_employment']['value'] as String,
+      skillSet: map['skill_set']['value'] as String,
     );
   }
 
@@ -220,8 +220,19 @@ class Mentor extends Equatable {
     };
   }
 
-  factory Mentor.fromFirestore(DocumentSnapshot doc) {
+  static Future<Mentor> fromFirestore(DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
+    final user = await data['user_id'].get();
+    final country = await data['country'].get();
+    // final status = await data['status'].get();
+    // final gender = await data['gender'].get();
+    // final languages = await data['languages'].get();
+    // final pincode = await data['pincode'].get();
+    // final howToKnow = await data['how_to_know'].get();
+    // final currentEmployment = await data['current_employment'].get();
+    // final skillSet = await data['skill_set'].get();
+    print(user);
+    print(country);
     return Mentor(
       id: data['id'] ?? '',
       youtube: data['youtube'] ?? '',
@@ -235,7 +246,7 @@ class Mentor extends Equatable {
       linkedin: data['linkedin'] ?? '',
       elevatorPitch: data['elevator_pitch'] ?? '',
       password: data['password'] ?? '',
-      dateTime: data['date_time']['value'],
+      dateTime: data['date_time'],
       banAccount: data['ban_account'] ?? '',
       bankName: data['bank_name'] ?? '',
       currency: data['currency'] ?? '',
@@ -253,16 +264,16 @@ class Mentor extends Equatable {
       ratingCount: data['rating_count'] ?? 0,
       upi: data['upi'] ?? '',
       nationality: data['nationality'] ?? '',
-      userId: data['user_id'] ?? '',
+      userId: '',
       x: data['x'] ?? '',
-      country: data['country']['value'],
-      status: data['status']['value'],
-      gender: data['gender']['value'],
-      languages: data['languages']['value'],
-      pincode: data['pincode']['value'],
-      howToKnow: data['how_to_know']['value'],
-      currentEmployment: data['current_employment']['value'],
-      skillSet: data['skill_set']['value'],
+      country: data['country'],
+      status: data['status'],
+      gender: data['gender'],
+      languages: data['languages'],
+      pincode: data['pincode'],
+      howToKnow: data['how_to_know'],
+      currentEmployment: data['current_employment'],
+      skillSet: data['skill_set'],
     );
   }
 }

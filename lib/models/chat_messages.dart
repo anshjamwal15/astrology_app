@@ -2,14 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 class ChatMessages extends Equatable {
-  final String id;
   final Timestamp dateTime;
   final String message;
   final List<String> members;
   final String sentBy;
 
   const ChatMessages({
-    required this.id,
     required this.dateTime,
     required this.message,
     required this.members,
@@ -17,11 +15,10 @@ class ChatMessages extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, dateTime, message, members, sentBy];
+  List<Object?> get props => [dateTime, message, members, sentBy];
 
   static ChatMessages fromMap(Map<String, dynamic> map) {
     return ChatMessages(
-      id: map['id'] as String,
       dateTime: (map['date_time'] as Timestamp),
       message: map['message'] as String,
       members: List<String>.from(map['members'] as List),
@@ -31,7 +28,6 @@ class ChatMessages extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'date_time': dateTime,
       'message': message,
       'members': members,
@@ -42,7 +38,6 @@ class ChatMessages extends Equatable {
   factory ChatMessages.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return ChatMessages(
-      id: data['id'] ?? '',
       dateTime: data['date_time']?['value'] as Timestamp,
       message: data['message'] ?? '',
       members: List<String>.from(data['members'] ?? []),

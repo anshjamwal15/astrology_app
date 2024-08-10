@@ -1,5 +1,5 @@
 import 'package:astrology_app/models/user.dart';
-import 'package:astrology_app/services/database_helper.dart';
+import 'package:astrology_app/services/DAOs/user_dao.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:astrology_app/models/index.dart';
@@ -125,30 +125,32 @@ class AuthenticationRepository {
   AuthenticationRepository({
     firebase_auth.FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
-    DatabaseHelper? databaseHelper,
+    UserDao? userDao,
   })  : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn.standard(),
-        _databaseHelper = databaseHelper ?? DatabaseHelper();
+        _userDao = userDao ?? UserDao();
 
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
-  final DatabaseHelper _databaseHelper;
+  final UserDao _userDao;
+  // late User currentUser = User.empty;
 
   Stream<User> get user {
     return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
       final user = firebaseUser == null ? User.empty : firebaseUser.toUser;
       if (firebaseUser != null) {
-        await _databaseHelper.insertUser(user);
+        await _userDao.insertUser(user);
       } else {
-        await _databaseHelper.deleteUser();
+        await _userDao.deleteUser();
       }
       return user;
     });
   }
 
-  Future<User> get currentUser async {
-    return await _databaseHelper.getUser() ?? User.empty;
-  }
+  // TODO: fix it
+  // Future<void> getCurrentUser() async {
+  //   currentUser = (await _userDao.getUser())!;
+  // }
 
   Future<void> signUp({required String email, required String password}) async {
     try {
@@ -174,10 +176,8 @@ class AuthenticationRepository {
       );
       await _firebaseAuth.signInWithCredential(credential);
     } on firebase_auth.FirebaseAuthException catch (e) {
-      print(e.code);
       throw LogInWithGoogleFailure.fromCode(e.code);
     } catch (e) {
-      print(e);
       throw const LogInWithGoogleFailure();
     }
   }
@@ -203,7 +203,7 @@ class AuthenticationRepository {
       await Future.wait([
         _firebaseAuth.signOut(),
         _googleSignIn.signOut(),
-        _databaseHelper.deleteUser(),
+        _userDao.deleteUser(),
       ]);
     } catch (_) {
       throw LogOutFailure();
