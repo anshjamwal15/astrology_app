@@ -12,7 +12,7 @@ class MentorInitial extends MentorState {}
 class MentorLoading extends MentorState {}
 
 class MentorLoaded extends MentorState {
-  final List<Mentor> mentors;
+  final List<Future<Mentor>> mentors;
 
   const MentorLoaded(this.mentors);
 

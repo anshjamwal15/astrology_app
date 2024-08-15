@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
@@ -222,17 +225,15 @@ class Mentor extends Equatable {
 
   static Future<Mentor> fromFirestore(DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
-    final user = await data['user_id'].get();
-    final country = await data['country'].get();
-    // final status = await data['status'].get();
-    // final gender = await data['gender'].get();
-    // final languages = await data['languages'].get();
-    // final pincode = await data['pincode'].get();
-    // final howToKnow = await data['how_to_know'].get();
-    // final currentEmployment = await data['current_employment'].get();
-    // final skillSet = await data['skill_set'].get();
-    print(user);
-    print(country);
+    final user = await getRefDocumentData(data['user_id']);
+    final country = await getRefDocumentData(data['country']);
+    final status = await getRefDocumentData(data['status']);
+    final gender = await getRefDocumentData(data['gender']);
+    final languages = await getRefDocumentData(data['languages']);
+    final pincode = await getRefDocumentData(data['pincode']);
+    final howToKnow = await getRefDocumentData(data['how_to_know']);
+    final currentEmployment = await getRefDocumentData(data['current_employment']);
+    final skillSet = await getRefDocumentData(data['skill_set']);
     return Mentor(
       id: data['id'] ?? '',
       youtube: data['youtube'] ?? '',
@@ -264,16 +265,18 @@ class Mentor extends Equatable {
       ratingCount: data['rating_count'] ?? 0,
       upi: data['upi'] ?? '',
       nationality: data['nationality'] ?? '',
-      userId: '',
+      userId: await user?['name'] ?? '',
       x: data['x'] ?? '',
-      country: data['country'],
-      status: data['status'],
-      gender: data['gender'],
-      languages: data['languages'],
-      pincode: data['pincode'],
-      howToKnow: data['how_to_know'],
-      currentEmployment: data['current_employment'],
-      skillSet: data['skill_set'],
+      country: await country?['name'] ?? '',
+      status: await status?['title'] ?? '',
+      gender: filterTrueValues(gender!) ?? '',
+      languages: await languages?['language'] ?? '',
+      pincode: (await pincode?['pincode']).toString() ?? '',
+      howToKnow: await howToKnow?['title'] ?? '',
+      currentEmployment: filterTrueValues(currentEmployment!) ?? '',
+      skillSet: await skillSet?['title'] ?? '',
     );
   }
+
+
 }
