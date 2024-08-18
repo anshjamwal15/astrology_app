@@ -43,7 +43,6 @@ class _SupportScreenState extends State<SupportScreen> {
               return const Center(child: CircularProgressIndicator());
             } else if (state is MentorLoaded) {
               final mentors = state.mentors;
-
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -55,7 +54,8 @@ class _SupportScreenState extends State<SupportScreen> {
                         return const Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
                         return const Center(
-                            child: Text('Error loading mentor'));
+                          child: Text('Error loading mentor'),
+                        );
                       } else if (snapshot.hasData) {
                         final mentor = snapshot.data!;
                         return Padding(
@@ -111,8 +111,9 @@ class _SupportScreenState extends State<SupportScreen> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const ChatScreen()),
+                                              builder: (context) =>
+                                                  const ChatScreen(),
+                                            ),
                                           );
                                         },
                                         child: Container(
@@ -128,7 +129,8 @@ class _SupportScreenState extends State<SupportScreen> {
                                             child: Text(
                                               "Chat",
                                               style: TextStyle(
-                                                  color: Colors.black),
+                                                color: Colors.black,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -139,8 +141,9 @@ class _SupportScreenState extends State<SupportScreen> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const VoiceCall()),
+                                              builder: (context) =>
+                                                  const VoiceCall(),
+                                            ),
                                           );
                                         },
                                         child: Container(

@@ -29,7 +29,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(Loading());
       try {
         await authRepository.logInWithEmailAndPassword(
-            email: event.email, password: event.password,);
+          email: event.email,
+          password: event.password,
+        );
         emit(Authenticated());
       } catch (e) {
         if (e is LogInWithEmailAndPasswordFailure) {

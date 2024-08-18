@@ -1,4 +1,4 @@
-const String createTables = '''
+const String userTable = '''
   CREATE TABLE user(
     id TEXT PRIMARY KEY,
     email TEXT,

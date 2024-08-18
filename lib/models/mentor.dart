@@ -243,7 +243,7 @@ class Mentor extends Equatable {
       whatSpecificExp: data['what_specific_exp'] ?? '',
       city: data['city'] ?? '',
       mostSuccessfulMentoringExp: data['most_successful_mentoring_exp'] ?? '',
-      rating: data['rating'] ?? '',
+      rating: data['rating'].toString() ?? '',
       linkedin: data['linkedin'] ?? '',
       elevatorPitch: data['elevator_pitch'] ?? '',
       password: data['password'] ?? '',

@@ -24,7 +24,7 @@ class DatabaseHelper {
       path,
       version: 1,
       onCreate: (db, version) {
-        return db.execute(createTables);
+        return db.execute(userTable);
       },
     );
   }

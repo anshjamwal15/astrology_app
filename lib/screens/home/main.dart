@@ -2,6 +2,7 @@ import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/screens/support/main.dart';
+import 'package:astrology_app/services/user_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    String? userName = UserManager.instance.user?.name;
     return Scaffold(
       extendBody: true,
       appBar: const CustomAppBar(),
@@ -32,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "Hello, Rohit",
+              "Hello, ${userName?.isEmpty == true ? "New User" : userName ?? "New User"}",
               style: TextStyle(
                 color: Colors.black45,
                 fontSize: size.height * 0.035,

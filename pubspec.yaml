@@ -27,6 +27,7 @@ dependencies:
   sqflite: ^2.3.3+1
   path: ^1.9.0
   cloud_firestore: ^5.2.1
+  badges: ^3.1.2
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
@@ -9,6 +10,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final Size size = MediaQuery.of(context).size;
     return AppBar(
       backgroundColor: Colors.white,
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.blue
+      ),
       actions: [
         SizedBox(
           height: size.height * 0.4,

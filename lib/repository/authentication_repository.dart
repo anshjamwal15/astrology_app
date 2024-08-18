@@ -1,5 +1,6 @@
 import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/services/DAOs/user_dao.dart';
+import 'package:astrology_app/services/user_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:astrology_app/models/index.dart';
@@ -175,6 +176,7 @@ class AuthenticationRepository {
         idToken: googleAuth.idToken,
       );
       await _firebaseAuth.signInWithCredential(credential);
+      await UserManager.instance.loadUser();
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw LogInWithGoogleFailure.fromCode(e.code);
     } catch (e) {
@@ -213,6 +215,6 @@ class AuthenticationRepository {
 
 extension on firebase_auth.User {
   User get toUser {
-    return User(email: email!);
+    return User(email: email!, name: displayName!);
   }
 }
