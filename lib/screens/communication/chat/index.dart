@@ -1,36 +1,45 @@
+import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
 import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/models/chat_messages.dart';
+import 'package:astrology_app/services/user_manager.dart';
+import 'package:astrology_app/utils/app_utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
-
+  const ChatScreen({super.key, required this.mentorId});
+  final String mentorId;
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final List<Message> _messages = [
-    Message(
-        isSentByMe: true,
-        text:
-            "Hello, I am doing good, thanks for asking. How about you? Hello, I am doing good, thanks for asking. How about you?"),
-    Message(isSentByMe: false, text: "How're you?"),
-    Message(isSentByMe: false, text: "Hello"),
-    Message(isSentByMe: true, text: "Hello"),
-
-  ];
   final TextEditingController _controller = TextEditingController();
+  final user = UserManager.instance.user;
+
+  @override
+  void initState() {
+    super.initState();
+    context
+        .read<ChatBloc>()
+        .add(LoadChatMessages((user?.id ?? "") + widget.mentorId));
+  }
 
   void _sendMessage(String text) {
     if (text.isEmpty) return;
-    setState(() {
-      _messages.add(Message(text: text, isSentByMe: true));
-      _messages
-          .add(Message(text: text, isSentByMe: false));
-    });
+    final newMessage = ChatMessages(
+      dateTime: Timestamp.now(),
+      message: text,
+      members: [user?.id ?? "", widget.mentorId],
+      sentBy: user?.id ?? "",
+    );
+    context
+        .read<ChatBloc>()
+        .add(SendMessage((user?.id ?? "") + widget.mentorId, newMessage));
     _controller.clear();
   }
 
@@ -46,11 +55,25 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
-              child: ListView.builder(
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[_messages.length - 1 - index];
-                  return ChatMessageWidget(message: message);
+              child: BlocBuilder<ChatBloc, ChatState>(
+                builder: (context, state) {
+                  if (state is ChatLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is ChatLoaded) {
+                    final messages = state.messages.reversed.toList();
+                    return ListView.builder(
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final message = messages[index];
+                        return ChatMessageWidget(
+                            message: message, currentUserId: user?.id ?? "");
+                      },
+                    );
+                  } else if (state is ChatError) {
+                    return Center(child: Text('Error: ${state.error}'));
+                  } else {
+                    return const Center(child: Text('No messages'));
+                  }
                 },
               ),
             ),
@@ -149,32 +172,34 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class ChatMessageWidget extends StatelessWidget {
-  final Message message;
-
-  const ChatMessageWidget({super.key, required this.message});
+  final ChatMessages message;
+  final String currentUserId;
+  const ChatMessageWidget(
+      {super.key, required this.message, required this.currentUserId});
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    final isSentByMe = message.sentBy == currentUserId;
     return Align(
-      alignment:
-          message.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: message.isSentByMe ? Colors.black : Colors.white,
+          color: isSentByMe ? Colors.black : Colors.white,
           borderRadius: BorderRadius.only(
-            topLeft: message.isSentByMe
+            topLeft: isSentByMe
                 ? const Radius.circular(10)
                 : const Radius.circular(0),
             bottomLeft: const Radius.circular(10),
             bottomRight: const Radius.circular(10),
-            topRight:
-                message.isSentByMe ? Radius.circular(0) : Radius.circular(10),
+            topRight: isSentByMe
+                ? const Radius.circular(0)
+                : const Radius.circular(10),
           ),
           border: Border.all(
-            color: message.isSentByMe ? Colors.white : Colors.black,
+            color: isSentByMe ? Colors.white : Colors.black,
             width: 0.2,
           ),
         ),
@@ -182,23 +207,25 @@ class ChatMessageWidget extends StatelessWidget {
           maxWidth: size.width * 0.7,
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              message.text,
+              message.message,
               style: GoogleFonts.acme(
-                  color: message.isSentByMe ? Colors.white : Colors.black),
+                color: isSentByMe ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              formatTimestamp(message.dateTime),
+              style: GoogleFonts.acme(
+                fontSize: 10,
+                color: isSentByMe ? Colors.white70 : Colors.black54,
+              ),
             ),
           ],
         ),
       ),
     );
   }
-}
-
-class Message {
-  final String text;
-  final bool isSentByMe;
-
-  Message({required this.text, required this.isSentByMe});
 }

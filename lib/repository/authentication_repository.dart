@@ -215,6 +215,6 @@ class AuthenticationRepository {
 
 extension on firebase_auth.User {
   User get toUser {
-    return User(email: email!, name: displayName!);
+    return User(email: email!, name: displayName!, id: uid);
   }
 }

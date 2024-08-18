@@ -1,5 +1,7 @@
 
+import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/blocs/index.dart';
+import 'package:astrology_app/repository/chat_repository.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/home/main.dart';
@@ -24,7 +26,6 @@ class App extends StatelessWidget {
           BlocProvider(
             create: (_) => AppBloc(authenticationRepository: _authenticationRepository),
           ),
-          // Provide AuthBloc here if needed
           BlocProvider(
             create: (_) => AuthBloc(authRepository: _authenticationRepository),
           ),

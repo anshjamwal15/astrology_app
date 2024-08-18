@@ -110,7 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const SupportScreen()),
+                          builder: (context) => const SupportScreen(),
+                        ),
                       );
                     },
                     child: Container(
@@ -157,7 +158,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const SupportScreen()),
+                          builder: (context) => const SupportScreen(),
+                        ),
                       );
                     },
                     child: Container(
@@ -200,14 +202,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const SupportScreen()),
+                          builder: (context) => const SupportScreen(),
+                        ),
                       );
                     },
                     child: Container(
                       height: size.height * 0.26,
                       decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(20)),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(20),
+                        ),
                         image: DecorationImage(
                           image: const AssetImage(
                             "assets/images/academic.jpg",

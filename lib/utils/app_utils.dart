@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 Future<Map<String, dynamic>?> getRefDocumentData(DocumentReference ref) async {
   try {
@@ -46,4 +47,9 @@ String filterTrueValues(Map<String, dynamic> inputMap) {
     }
   }
   return '';
+}
+
+String formatTimestamp(Timestamp timestamp) {
+  DateTime dateTime = timestamp.toDate();
+  return DateFormat('hh:mm a').format(dateTime);
 }

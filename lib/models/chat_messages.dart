@@ -19,7 +19,7 @@ class ChatMessages extends Equatable {
 
   static ChatMessages fromMap(Map<String, dynamic> map) {
     return ChatMessages(
-      dateTime: (map['date_time'] as Timestamp),
+      dateTime: map['date_time'] as Timestamp,
       message: map['message'] as String,
       members: List<String>.from(map['members'] as List),
       sentBy: map['sent_by'] as String,
@@ -38,7 +38,7 @@ class ChatMessages extends Equatable {
   factory ChatMessages.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return ChatMessages(
-      dateTime: data['date_time']?['value'] as Timestamp,
+      dateTime: data['date_time'] as Timestamp,
       message: data['message'] ?? '',
       members: List<String>.from(data['members'] ?? []),
       sentBy: data['sent_by'] ?? '',
