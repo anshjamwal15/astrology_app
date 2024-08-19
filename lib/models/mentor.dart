@@ -36,6 +36,7 @@ class Mentor extends Equatable {
   final String upi;
   final String nationality;
   final String userId;
+  final String userName;
   final String x;
   final String country;
   final String status;
@@ -78,6 +79,7 @@ class Mentor extends Equatable {
     required this.upi,
     required this.nationality,
     required this.userId,
+    required this.userName,
     required this.x,
     required this.country,
     required this.status,
@@ -122,6 +124,7 @@ class Mentor extends Equatable {
     upi,
     nationality,
     userId,
+    userName,
     x,
     country,
     status,
@@ -166,6 +169,7 @@ class Mentor extends Equatable {
       upi: map['upi'] as String,
       nationality: map['nationality'] as String,
       userId: map['user_id'] as String,
+      userName: map['user_id'] as String,
       x: map['x'] as String,
       country: map['country']['value'] as String,
       status: map['status']['value'] as String,
@@ -265,7 +269,8 @@ class Mentor extends Equatable {
       ratingCount: data['rating_count'] ?? 0,
       upi: data['upi'] ?? '',
       nationality: data['nationality'] ?? '',
-      userId: await user?['name'] ?? '',
+      userName: await user?['name'] ?? '',
+      userId: await user?['id'] ?? '',
       x: data['x'] ?? '',
       country: await country?['name'] ?? '',
       status: await status?['title'] ?? '',

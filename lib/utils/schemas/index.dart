@@ -5,6 +5,6 @@ const String userTable = '''
     name TEXT,
     photo TEXT,
     mobile TEXT,
-    creation_date INTEGER 
+    date_time INTEGER 
   )
 ''';

@@ -25,3 +25,21 @@ class SendMessage extends ChatEvent {
   @override
   List<Object> get props => [chatId, message];
 }
+
+class LoadUsersWhoMessaged extends ChatEvent {
+  final String userId;
+
+  const LoadUsersWhoMessaged(this.userId);
+
+  @override
+  List<Object> get props => [userId];
+}
+
+class _ChatMessagesUpdated extends ChatEvent {
+  final List<ChatMessages> messages;
+
+  const _ChatMessagesUpdated(this.messages);
+
+  @override
+  List<Object> get props => [messages];
+}

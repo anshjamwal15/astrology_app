@@ -9,6 +9,7 @@ import 'package:astrology_app/screens/communication/chat/index.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
 import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
+import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,6 +31,7 @@ class _SupportScreenState extends State<SupportScreen> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    final userId = UserManager.instance.user?.id;
     return Scaffold(
       extendBody: true,
       appBar: const CustomAppBar(),
@@ -61,155 +63,159 @@ class _SupportScreenState extends State<SupportScreen> {
                         );
                       } else if (snapshot.hasData) {
                         final mentor = snapshot.data!;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    "assets/images/user-1.jpg",
-                                    scale: 8,
-                                  ),
-                                  SizedBox(
-                                    width: size.width * 0.02,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${mentor.firstName} ${mentor.lastName}',
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
+                        if (mentor.userId != userId) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.white,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/user-1.jpg",
+                                      scale: 8,
+                                    ),
+                                    SizedBox(
+                                      width: size.width * 0.02,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${mentor.firstName} ${mentor.lastName}',
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        "Business support | ${mentor.rating}/ 5",
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
+                                        Text(
+                                          "Business support | ${mentor.rating}/ 5",
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        "${mentor.totalExpYrs} years | 1 Rs/ minute",
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
+                                        Text(
+                                          "${mentor.totalExpYrs} years | 1 Rs/ minute",
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: size.width * 0.18),
-                                  Column(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  BlocProvider(
-                                                create: (context) =>
-                                                    ChatBloc(_chatRepository),
-                                                child: ChatScreen(
-                                                  mentorId: mentor.id,
+                                      ],
+                                    ),
+                                    SizedBox(width: size.width * 0.18),
+                                    Column(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    BlocProvider(
+                                                  create: (context) =>
+                                                      ChatBloc(_chatRepository),
+                                                  child: ChatScreen(
+                                                    mentorId: mentor.userId,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.green.shade100,
+                                            ),
+                                            width: size.width * 0.16,
+                                            height: size.height * 0.03,
+                                            child: const Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Chat",
+                                                style: TextStyle(
+                                                  color: Colors.black,
                                                 ),
                                               ),
                                             ),
-                                          );
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            color: Colors.green.shade100,
                                           ),
-                                          width: size.width * 0.16,
-                                          height: size.height * 0.03,
-                                          child: const Align(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              "Chat",
-                                              style: TextStyle(
-                                                color: Colors.black,
+                                        ),
+                                        SizedBox(height: size.height * 0.01),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const VoiceCall(),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.green.shade100,
+                                            ),
+                                            width: size.width * 0.16,
+                                            height: size.height * 0.03,
+                                            child: const Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Call",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      SizedBox(height: size.height * 0.01),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const VoiceCall(),
+                                        SizedBox(height: size.height * 0.01),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const VideoCallScreen(),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.green.shade100,
                                             ),
-                                          );
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            color: Colors.green.shade100,
-                                          ),
-                                          width: size.width * 0.16,
-                                          height: size.height * 0.03,
-                                          child: const Align(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              "Call",
-                                              style: TextStyle(
-                                                color: Colors.black,
+                                            width: size.width * 0.16,
+                                            height: size.height * 0.03,
+                                            child: const Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Meeting",
+                                                style: TextStyle(
+                                                    color: Colors.black),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      SizedBox(height: size.height * 0.01),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const VideoCallScreen(),
-                                            ),
-                                          );
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            color: Colors.green.shade100,
-                                          ),
-                                          width: size.width * 0.16,
-                                          height: size.height * 0.03,
-                                          child: const Align(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              "Meeting",
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          return const Center(child: Text('No data available'));
+                        }
                       } else {
                         return const Center(child: Text('No data available'));
                       }

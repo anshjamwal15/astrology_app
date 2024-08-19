@@ -28,3 +28,14 @@ class ChatError extends ChatState {
   @override
   List<Object> get props => [error];
 }
+
+class UsersLoading extends ChatState {}
+
+class UsersLoaded extends ChatState {
+  final List<User> users;
+
+  const UsersLoaded(this.users);
+
+  @override
+  List<Object> get props => [users];
+}

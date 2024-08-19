@@ -7,34 +7,49 @@ class User extends Equatable {
     this.id = '',
     this.name = '',
     this.mobile = '',
-    this.photo = '',
-    this.creationDate,
+    this.country = '',
+    this.dateTime,
+    this.howToKnow = '',
+    this.password = '',
+    this.rating = '',
+    this.ratingCount = '',
+    this.status = '',
+    this.token = '',
+    this.userType = '',
   });
 
   final String id;
   final String name;
   final String email;
   final String mobile;
-  final String photo;
-  final Timestamp? creationDate;
+  final String country;
+  final Timestamp? dateTime;
+  final String howToKnow;
+  final String password;
+  final String rating;
+  final String ratingCount;
+  final String status;
+  final String token;
+  final String userType;
 
-  static const empty = User(
-    email: '',
-    id: '',
-    name: '',
-    mobile: '',
-    photo: '',
-    creationDate: null,
-  );
-
-  /// Convenience getter to determine whether the current user is empty.
-  bool get isEmpty => this == User.empty;
-
-  /// Convenience getter to determine whether the current user is not empty.
   bool get isNotEmpty => this != User.empty;
 
   @override
-  List<Object?> get props => [id, name, email, mobile, photo, creationDate];
+  List<Object?> get props => [
+    id,
+    name,
+    email,
+    mobile,
+    country,
+    dateTime,
+    howToKnow,
+    password,
+    rating,
+    ratingCount,
+    status,
+    token,
+    userType,
+  ];
 
   static User fromMap(Map<String, dynamic> map) {
     return User(
@@ -42,8 +57,15 @@ class User extends Equatable {
       name: map['name'] as String? ?? '',
       email: map['email'] as String? ?? '',
       mobile: map['mobile'] as String? ?? '',
-      photo: map['photo'] as String? ?? '',
-      creationDate: map['creation_date'] as Timestamp?,
+      dateTime: map['date_time'] as Timestamp?,
+      // country: map['country'] as String? ?? '',
+      // howToKnow: map['how_to_know'] as String? ?? '',
+      // password: map['password'] as String? ?? '',
+      // rating: map['rating'] as String? ?? '',
+      // ratingCount: map['rating_count'] as String? ?? '',
+      // status: map['status'] as String? ?? '',
+      // token: map['token'] as String? ?? '',
+      // userType: map['user_type'] as String? ?? '',
     );
   }
 
@@ -53,8 +75,15 @@ class User extends Equatable {
       'name': name,
       'email': email,
       'mobile': mobile,
-      'photo': photo,
-      'creation_date': creationDate,
+      'date_time': dateTime,
+      // 'country': country,
+      // 'how_to_know': howToKnow,
+      // 'password': password,
+      // 'rating': rating,
+      // 'rating_count': ratingCount,
+      // 'status': status,
+      // 'token': token,
+      // 'user_type': userType,
     };
   }
 
@@ -65,8 +94,17 @@ class User extends Equatable {
       name: data['name'] as String? ?? '',
       email: data['email'] as String? ?? '',
       mobile: data['mobile'] as String? ?? '',
-      photo: data['photo'] as String? ?? '',
-      creationDate: data['creation_date'] as Timestamp?,
+      country: data['country'] as String? ?? '',
+      dateTime: data['date_time'] as Timestamp?,
+      howToKnow: data['how_to_know'] as String? ?? '',
+      password: data['password'] as String? ?? '',
+      rating: data['rating'] as String? ?? '',
+      ratingCount: data['rating_count'] as String? ?? '',
+      status: data['status'] as String? ?? '',
+      token: data['token'] as String? ?? '',
+      userType: data['user_type'] as String? ?? '',
     );
   }
+
+  static const empty = User(email: '');
 }

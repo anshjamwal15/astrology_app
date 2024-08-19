@@ -1,4 +1,5 @@
 import 'package:astrology_app/models/chat_messages.dart';
+import 'package:astrology_app/models/index.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatRepository {
@@ -16,7 +17,10 @@ class ChatRepository {
       if (chatDoc.exists) {
         return chatId;
       } else {
-        await FirebaseFirestore.instance.collection('chat_messages').doc(chatId).set({
+        await FirebaseFirestore.instance
+            .collection('chat_messages')
+            .doc(chatId)
+            .set({
           'members': members,
           'created_at': Timestamp.now(),
         });
@@ -56,5 +60,36 @@ class ChatRepository {
         .doc(chatId)
         .collection('messages')
         .add(message.toMap());
+  }
+
+  Future<List<User>> getUsersWhoMessaged(String userId) async {
+    // Step 1: Query the 'messages' collection group to find the most recent messages
+    QuerySnapshot messagesSnapshot = await _firestore
+        .collectionGroup('messages')
+        .where('members', arrayContains: userId)
+        .orderBy('date_time', descending: true)
+        .get();
+      print(messagesSnapshot);
+    // Step 2: Collect the sender IDs from the messages
+    Set<String> userIds = {};
+    for (var messageDoc in messagesSnapshot.docs) {
+      var messageData = messageDoc.data() as Map<String, dynamic>;
+
+      String? senderId = messageData['sent_by'];
+      if (senderId != null && senderId != userId) {
+        userIds.add(senderId);
+      }
+    }
+
+    // Step 3: Fetch user details for each sender ID
+    List<User> users = [];
+    for (String id in userIds) {
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(id).get();
+      if (userDoc.exists) {
+        users.add(User.fromFirestore(userDoc));
+      }
+    }
+
+    return users;
   }
 }

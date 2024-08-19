@@ -26,7 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     context
         .read<ChatBloc>()
-        .add(LoadChatMessages((user?.id ?? "") + widget.mentorId));
+        .add(LoadChatMessages(_createChatId([user?.id ?? "", widget.mentorId])));
   }
 
   void _sendMessage(String text) {
@@ -39,7 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
     context
         .read<ChatBloc>()
-        .add(SendMessage((user?.id ?? "") + widget.mentorId, newMessage));
+        .add(SendMessage(_createChatId(newMessage.members), newMessage));
     _controller.clear();
   }
 
@@ -66,7 +66,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       itemBuilder: (context, index) {
                         final message = messages[index];
                         return ChatMessageWidget(
-                            message: message, currentUserId: user?.id ?? "");
+                          message: message,
+                          currentUserId: user?.id ?? "",
+                        );
                       },
                     );
                   } else if (state is ChatError) {
@@ -228,4 +230,9 @@ class ChatMessageWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+String _createChatId(List<String> members) {
+  members.sort();
+  return members.join('_').substring(0, 8);
 }
