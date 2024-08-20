@@ -14,49 +14,13 @@
       },
       "oauth_client": [
         {
-          "client_id": "563065754732-dt3gobbck75m0hk5u1681e16g093jof2.apps.googleusercontent.com",
+          "client_id": "563065754732-o0ssn724b6kvjkdvp7ovf9lmndskiipc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.astrology_app",
-            "certificate_hash": "287e1c984631f9b03a3bddceef43db5ff35a9143"
+            "certificate_hash": "126e5dc2f2ae1d49a66cedfbc581566183bbaef9"
           }
         },
-        {
-          "client_id": "563065754732-guchje5lsuee67524qp10fg0i711onns.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDCtkS8Df2FDgVQ8Av5BZHsbDrZr7TfUfI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "563065754732-guchje5lsuee67524qp10fg0i711onns.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "563065754732-8scdplo53bqqmka9t8gilprit4hqjfjq.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.astrologyApp"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:563065754732:android:5152e20105459ebd4c7449",
-        "android_client_info": {
-          "package_name": "com.example.mindaro_app"
-        }
-      },
-      "oauth_client": [
         {
           "client_id": "563065754732-guchje5lsuee67524qp10fg0i711onns.apps.googleusercontent.com",
           "client_type": 3

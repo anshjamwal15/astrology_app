@@ -11,7 +11,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.white,
       systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: Colors.blue
+        statusBarColor: Colors.blue.shade900
       ),
       actions: [
         SizedBox(

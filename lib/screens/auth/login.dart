@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginTest extends StatefulWidget {
-  const LoginTest({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<LoginTest> createState() => _LoginTestState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginTestState extends State<LoginTest> {
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 

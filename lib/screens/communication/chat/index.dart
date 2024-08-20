@@ -11,8 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, required this.mentorId});
-  final String mentorId;
+  const ChatScreen({super.key, required this.senderId});
+  final String senderId;
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
@@ -26,7 +26,10 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     context
         .read<ChatBloc>()
-        .add(LoadChatMessages(_createChatId([user?.id ?? "", widget.mentorId])));
+        .add(MarkMessagesAsRead(_createChatId([user?.id ?? "", widget.senderId]), user?.id ?? ""));
+    context
+        .read<ChatBloc>()
+        .add(LoadChatMessages(_createChatId([user?.id ?? "", widget.senderId])));
   }
 
   void _sendMessage(String text) {
@@ -34,7 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final newMessage = ChatMessages(
       dateTime: Timestamp.now(),
       message: text,
-      members: [user?.id ?? "", widget.mentorId],
+      members: [user?.id ?? "", widget.senderId],
       sentBy: user?.id ?? "",
     );
     context
@@ -58,7 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: BlocBuilder<ChatBloc, ChatState>(
                 builder: (context, state) {
                   if (state is ChatLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(child: CircularProgressIndicator(color: Colors.blue.shade900));
                   } else if (state is ChatLoaded) {
                     final messages = state.messages.reversed.toList();
                     return ListView.builder(

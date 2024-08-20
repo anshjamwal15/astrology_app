@@ -29,6 +29,9 @@ class App extends StatelessWidget {
           BlocProvider(
             create: (_) => AuthBloc(authRepository: _authenticationRepository),
           ),
+          BlocProvider(
+            create: (_) => ChatBloc(ChatRepository()),
+          )
         ],
         child: const AppView(),
       ),
@@ -55,7 +58,7 @@ class AppView extends StatelessWidget {
           if (status == AppStatus.authenticated) {
             return [const MaterialPage(child: HomeScreen())];
           }
-          return [const MaterialPage(child: LoginTest())];
+          return [const MaterialPage(child: LoginScreen())];
         },
       ),
     );

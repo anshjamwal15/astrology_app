@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:astrology_app/models/chat_list_messages.dart';
 import 'package:astrology_app/models/chat_messages.dart';
 import 'package:astrology_app/models/user.dart'; // Import the User model
 import 'package:astrology_app/repository/chat_repository.dart';
@@ -42,8 +43,25 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadUsersWhoMessaged>((event, emit) async {
       emit(UsersLoading());
       try {
-        List<User> users = await chatRepository.getUsersWhoMessaged(event.userId);
+        List<ChatListMessages> users = await chatRepository.getUsersWhoMessaged(event.userId);
         emit(UsersLoaded(users));
+      } catch (e) {
+        emit(ChatError(e.toString()));
+      }
+    });
+
+    on<MarkMessagesAsRead>((event, emit) async {
+      try {
+        await chatRepository.markMessagesAsRead(event.chatId, event.userId);
+      } catch (e) {
+        emit(ChatError(e.toString()));
+      }
+    });
+
+    on<GetUnreadCount>((event, emit) async {
+      try {
+        final count = await chatRepository.getUnreadMessageCount(event.userId);
+        emit(UnreadCountLoaded(count));
       } catch (e) {
         emit(ChatError(e.toString()));
       }

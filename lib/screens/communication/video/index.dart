@@ -66,9 +66,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 ),
               )
             else
-              const Positioned.fill(
+              Positioned.fill(
                 child: Center(
-                  child: CircularProgressIndicator(color: Colors.white),
+                  child: CircularProgressIndicator(color: Colors.blue.shade900),
                 ),
               ),
             // Back button

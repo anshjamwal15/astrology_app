@@ -45,7 +45,9 @@ class _SupportScreenState extends State<SupportScreen> {
         child: BlocBuilder<MentorCubit, MentorState>(
           builder: (context, state) {
             if (state is MentorLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(
+                  child:
+                      CircularProgressIndicator(color: Colors.blue.shade900));
             } else if (state is MentorLoaded) {
               final mentors = state.mentors;
               return Column(
@@ -56,7 +58,9 @@ class _SupportScreenState extends State<SupportScreen> {
                     future: mentorFuture,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(
+                            child: CircularProgressIndicator(
+                                color: Colors.blue.shade900));
                       } else if (snapshot.hasError) {
                         return const Center(
                           child: Text('Error loading mentor'),
@@ -118,12 +122,8 @@ class _SupportScreenState extends State<SupportScreen> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    BlocProvider(
-                                                  create: (context) =>
-                                                      ChatBloc(_chatRepository),
-                                                  child: ChatScreen(
-                                                    mentorId: mentor.userId,
-                                                  ),
+                                                    ChatScreen(
+                                                  senderId: mentor.userId,
                                                 ),
                                               ),
                                             );

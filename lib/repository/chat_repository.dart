@@ -1,3 +1,4 @@
+import 'package:astrology_app/models/chat_list_messages.dart';
 import 'package:astrology_app/models/chat_messages.dart';
 import 'package:astrology_app/models/index.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -62,34 +63,67 @@ class ChatRepository {
         .add(message.toMap());
   }
 
-  Future<List<User>> getUsersWhoMessaged(String userId) async {
+  Future<List<ChatListMessages>> getUsersWhoMessaged(String userId) async {
     // Step 1: Query the 'messages' collection group to find the most recent messages
     QuerySnapshot messagesSnapshot = await _firestore
         .collectionGroup('messages')
         .where('members', arrayContains: userId)
         .orderBy('date_time', descending: true)
         .get();
-      print(messagesSnapshot);
-    // Step 2: Collect the sender IDs from the messages
-    Set<String> userIds = {};
+
+    // Step 2: Collect the last message for each unique user in the 'members' list
+    Map<String, ChatListMessages> latestMessages = {};
+
     for (var messageDoc in messagesSnapshot.docs) {
       var messageData = messageDoc.data() as Map<String, dynamic>;
+      Timestamp messageTimestamp = messageData['date_time'] as Timestamp;
+      List<dynamic> members = messageData['members'] as List<dynamic>;
 
-      String? senderId = messageData['sent_by'];
-      if (senderId != null && senderId != userId) {
-        userIds.add(senderId);
+      // Iterate through all members in the message
+      for (var memberId in members) {
+        if (memberId != userId && !latestMessages.containsKey(memberId)) {
+          DocumentSnapshot userDoc =
+              await _firestore.collection('users').doc(memberId).get();
+          if (userDoc.exists) {
+            String userName = userDoc['name'] as String;
+            bool isRead = (messageData['is_read'] as bool?) ?? false;
+            latestMessages[memberId] = ChatListMessages(
+              dateTime: messageTimestamp,
+              userName: userName,
+              message: messageData['message'] as String,
+              senderId: memberId,
+              isRead: isRead
+            );
+          }
+        }
       }
     }
+    return latestMessages.values.toList();
+  }
 
-    // Step 3: Fetch user details for each sender ID
-    List<User> users = [];
-    for (String id in userIds) {
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(id).get();
-      if (userDoc.exists) {
-        users.add(User.fromFirestore(userDoc));
-      }
+  Future<void> markMessagesAsRead(String chatId, String userId) async {
+    final batch = _firestore.batch();
+    final query = _firestore
+        .collection('chat_messages')
+        .doc(chatId)
+        .collection('messages')
+        .where('members', arrayContains: userId)
+        .where('is_read', isEqualTo: false);
+
+    final snapshot = await query.get();
+    for (final doc in snapshot.docs) {
+      batch.update(doc.reference, {'is_read': true});
     }
+    await batch.commit();
+  }
 
-    return users;
+  Future<int> getUnreadMessageCount(String userId) async {
+    final query = _firestore
+        .collectionGroup('messages')
+        .where('members', arrayContains: userId)
+        .where('is_read', isEqualTo: false);
+
+    final snapshot = await query.get();
+    return snapshot.docs.length;
   }
 }

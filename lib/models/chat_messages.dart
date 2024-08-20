@@ -6,16 +6,18 @@ class ChatMessages extends Equatable {
   final String message;
   final List<String> members;
   final String sentBy;
+  final bool isRead;
 
   const ChatMessages({
     required this.dateTime,
     required this.message,
     required this.members,
     required this.sentBy,
+    this.isRead = false,
   });
 
   @override
-  List<Object?> get props => [dateTime, message, members, sentBy];
+  List<Object?> get props => [dateTime, message, members, sentBy, isRead];
 
   static ChatMessages fromMap(Map<String, dynamic> map) {
     return ChatMessages(
@@ -23,6 +25,7 @@ class ChatMessages extends Equatable {
       message: map['message'] as String,
       members: List<String>.from(map['members'] as List),
       sentBy: map['sent_by'] as String,
+      isRead: map['is_read'] ?? false,
     );
   }
 
@@ -32,6 +35,7 @@ class ChatMessages extends Equatable {
       'message': message,
       'members': members,
       'sent_by': sentBy,
+      'is_read': isRead,
     };
   }
 
@@ -42,6 +46,7 @@ class ChatMessages extends Equatable {
       message: data['message'] ?? '',
       members: List<String>.from(data['members'] ?? []),
       sentBy: data['sent_by'] ?? '',
+      isRead: data['is_read'] ?? false,
     );
   }
 }

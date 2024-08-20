@@ -1,8 +1,13 @@
+import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/models/user.dart';
+import 'package:astrology_app/repository/authentication_repository.dart';
+import 'package:astrology_app/repository/chat_repository.dart';
+import 'package:astrology_app/screens/auth/login.dart';
+import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomAppDrawer extends StatefulWidget {
   const CustomAppDrawer({super.key});
@@ -12,8 +17,10 @@ class CustomAppDrawer extends StatefulWidget {
 }
 
 class _CustomAppDrawerState extends State<CustomAppDrawer> {
+  final _authRepository = AuthenticationRepository();
   @override
   Widget build(BuildContext context) {
+    context.read<ChatBloc>().add(GetUnreadCount(UserManager.instance.user!.id));
     final Size size = MediaQuery.of(context).size;
     User? user = UserManager.instance.user;
     return SafeArea(
@@ -75,31 +82,70 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                       Icons.account_balance_wallet,
                     ),
                     SizedBox(height: size.height * 0.03),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const badges.Badge(
-                          badgeContent: Text('3', style: TextStyle(color: Colors.white)),
-                          showBadge: false,
-                          child: Icon(Icons.email, color: Colors.black54, size: 25)
-                        ),
-                        SizedBox(width: size.width * 0.03),
-                        const Text(
-                          "Inbox",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ChatListScreen(),
                           ),
-                        ),
-                      ],
+                        );
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          BlocBuilder<ChatBloc, ChatState>(
+                            builder: (context, state) {
+                              int unreadCount = 0;
+                              if (state is UnreadCountLoaded) {
+                                unreadCount = state.count;
+                              }
+                              return badges.Badge(
+                                badgeContent: Text(
+                                  unreadCount.toString(),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                showBadge: unreadCount > 0,
+                                child: const Icon(
+                                  Icons.email_outlined,
+                                  size: 25,
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(width: size.width * 0.03),
+                          const Text(
+                            "Inbox",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(height: size.height * 0.03),
                     _drawerOptions(size, "Order History", Icons.history),
                     SizedBox(height: size.height * 0.03),
                     _drawerOptions(size, "Settings", Icons.settings),
                     SizedBox(height: size.height * 0.03),
-                    _drawerOptions(size, "Logout", Icons.logout),
+                    InkWell(
+                      onTap: () {},
+                      child: GestureDetector(
+                        onTap: () async {
+                          await _authRepository.logOut();
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginScreen()),
+                            );
+                          }
+                        },
+                        child: _drawerOptions(size, "Logout", Icons.logout),
+                      ),
+                    ),
                   ],
                 ),
               ),

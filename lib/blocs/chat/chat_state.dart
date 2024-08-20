@@ -32,10 +32,20 @@ class ChatError extends ChatState {
 class UsersLoading extends ChatState {}
 
 class UsersLoaded extends ChatState {
-  final List<User> users;
+  final List<ChatListMessages> users;
 
   const UsersLoaded(this.users);
 
   @override
   List<Object> get props => [users];
 }
+
+class UnreadCountLoaded extends ChatState {
+  final int count;
+
+  const UnreadCountLoaded(this.count);
+
+  @override
+  List<Object> get props => [count];
+}
+

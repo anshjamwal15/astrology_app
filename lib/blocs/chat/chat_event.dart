@@ -43,3 +43,22 @@ class _ChatMessagesUpdated extends ChatEvent {
   @override
   List<Object> get props => [messages];
 }
+
+class MarkMessagesAsRead extends ChatEvent {
+  final String chatId;
+  final String userId;
+
+  const MarkMessagesAsRead(this.chatId, this.userId);
+
+  @override
+  List<Object> get props => [chatId, userId];
+}
+
+class GetUnreadCount extends ChatEvent {
+  final String userId;
+
+  const GetUnreadCount(this.userId);
+
+  @override
+  List<Object> get props => [userId];
+}
