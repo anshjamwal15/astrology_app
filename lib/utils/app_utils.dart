@@ -53,3 +53,8 @@ String formatTimestamp(Timestamp timestamp) {
   DateTime dateTime = timestamp.toDate();
   return DateFormat('hh:mm a').format(dateTime);
 }
+
+String createCallRoom(List<String> members) {
+  members.sort();
+  return members.join('_').substring(0, 8);
+}

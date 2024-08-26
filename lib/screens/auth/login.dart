@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -53,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: size.height / 2,
                   width: size.width,
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 60),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Column(
                       children: [
                         Padding(
@@ -62,11 +63,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius:
-                              const BorderRadius.all(Radius.circular(30)),
+                                  const BorderRadius.all(Radius.circular(30)),
                               border: Border.all(color: Colors.black),
                             ),
                             child: _CustomTextField(
-                              key: const Key('loginForm_passwordInput_textField'),
+                              key: const Key(
+                                  'loginForm_passwordInput_textField',),
                               controller: _emailController,
                               keyboardType: TextInputType.text,
                               hintText: "Email",
@@ -81,11 +83,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius:
-                              const BorderRadius.all(Radius.circular(30)),
+                                  const BorderRadius.all(Radius.circular(30)),
                               border: Border.all(color: Colors.black),
                             ),
                             child: _CustomTextField(
-                              key: const Key('loginForm_passwordInput_textField'),
+                              key: const Key(
+                                  'loginForm_passwordInput_textField',),
                               keyboardType: TextInputType.text,
                               controller: _passwordController,
                               hintText: "Password",
@@ -95,30 +98,32 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(height: size.height * 0.02),
                         Padding(
-                          padding: const EdgeInsets.only(right: 50, left: 65),
-                          child: Row(
-                            children: [
-                              const Text(
-                                "By signing up, you agree to our ",
-                                style: TextStyle(
-                                  color: Colors.white70,
+                          padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                const TextSpan(
+                                  text: "By signing up, you agree to our ",
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "Terms of Use",
-                                style: GoogleFonts.acme(
-                                  color: Colors.black,
-                                  decoration: TextDecoration.underline,
-                                  fontWeight: FontWeight.bold,
+                                TextSpan(
+                                  text: "Terms of Use",
+                                  style: GoogleFonts.acme(
+                                    color: Colors.black,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                              const Text(
-                                " and",
-                                style: TextStyle(
-                                  color: Colors.white70,
+                                const TextSpan(
+                                  text: " and",
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                         Text(
@@ -126,17 +131,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: GoogleFonts.acme(
                             color: Colors.black,
                             decoration: TextDecoration.underline,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         SizedBox(height: size.height * 0.02),
                         CustomButton(onPressed: () {
                           context.read<AuthBloc>().add(
-                            SignInRequested(
-                              _emailController.text,
-                              _passwordController.text,
-                            ),
-                          );
+                                SignInRequested(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                ),
+                              );
                         }),
                         SizedBox(height: size.height * 0.01),
                         Padding(
@@ -157,13 +162,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: size.width * 0.02),
+                              SizedBox(width: size.width * 0.015),
                               const Text(
                                 "Or",
                                 style: TextStyle(
-                                    color: Colors.white70, fontSize: 20),
+                                    color: Colors.white70, fontSize: 20,),
                               ),
-                              SizedBox(width: size.width * 0.02),
+                              SizedBox(width: size.width * 0.015),
                               Container(
                                 width: size.width * 0.3,
                                 decoration: const BoxDecoration(
@@ -189,12 +194,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                                 side: const BorderSide(
-                                    color: Colors.white, width: 0.2),
+                                  color: Colors.white,
+                                  width: 0.2,
+                                ),
                               ),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 90, vertical: 10),
+                                horizontal: 90,
+                                vertical: 10,
+                              ),
                             ),
-                            onPressed: () => context.read<AuthBloc>().add(GoogleSignInRequested()),
+                            onPressed: () => context
+                                .read<AuthBloc>()
+                                .add(GoogleSignInRequested()),
                             child: Row(
                               children: [
                                 Image.asset(

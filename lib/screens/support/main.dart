@@ -8,6 +8,7 @@ import 'package:astrology_app/repository/chat_repository.dart';
 import 'package:astrology_app/screens/communication/chat/index.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
 import 'package:astrology_app/screens/communication/voice/index.dart';
+import 'package:astrology_app/screens/communication/waiting_screen.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,6 @@ class SupportScreen extends StatefulWidget {
 }
 
 class _SupportScreenState extends State<SupportScreen> {
-  final ChatRepository _chatRepository = ChatRepository();
   @override
   void initState() {
     super.initState();
@@ -46,8 +46,8 @@ class _SupportScreenState extends State<SupportScreen> {
           builder: (context, state) {
             if (state is MentorLoading) {
               return Center(
-                  child:
-                      CircularProgressIndicator(color: Colors.blue.shade900));
+                child: CircularProgressIndicator(color: Colors.blue.shade900),
+              );
             } else if (state is MentorLoaded) {
               final mentors = state.mentors;
               return Column(
@@ -59,8 +59,9 @@ class _SupportScreenState extends State<SupportScreen> {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(
-                            child: CircularProgressIndicator(
-                                color: Colors.blue.shade900));
+                          child: CircularProgressIndicator(
+                              color: Colors.blue.shade900,),
+                        );
                       } else if (snapshot.hasError) {
                         return const Center(
                           child: Text('Error loading mentor'),
@@ -184,7 +185,7 @@ class _SupportScreenState extends State<SupportScreen> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    const VideoCallScreen(),
+                                                    WaitingScreen(isUserACreating: true, userAId: userId, userBId: mentor.userId,),
                                               ),
                                             );
                                           },
@@ -201,7 +202,7 @@ class _SupportScreenState extends State<SupportScreen> {
                                               child: Text(
                                                 "Meeting",
                                                 style: TextStyle(
-                                                    color: Colors.black),
+                                                    color: Colors.black,),
                                               ),
                                             ),
                                           ),

@@ -4,6 +4,8 @@ import 'package:astrology_app/repository/authentication_repository.dart';
 import 'package:astrology_app/repository/chat_repository.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
+import 'package:astrology_app/screens/communication/video/index.dart';
+import 'package:astrology_app/screens/communication/waiting_screen.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
@@ -20,9 +22,9 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
   final _authRepository = AuthenticationRepository();
   @override
   Widget build(BuildContext context) {
-    context.read<ChatBloc>().add(GetUnreadCount(UserManager.instance.user!.id));
-    final Size size = MediaQuery.of(context).size;
     User? user = UserManager.instance.user;
+    context.read<ChatBloc>().add(GetUnreadCount(user!.id));
+    final Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Drawer(
         clipBehavior: Clip.hardEdge,
@@ -42,29 +44,31 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            user?.name.isNotEmpty == true
-                                ? user!.name
-                                : "New User",
+                            user.name.isNotEmpty == true ? user.name : "New User",
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           SizedBox(width: size.width * 0.01),
-                          const Icon(Icons.edit, size: 20)
+                          const Icon(Icons.edit, size: 20),
                         ],
                       ),
-                      Text(
-                        user?.email.isNotEmpty == true
-                            ? user!.email
-                            : "Not found",
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: size.width * 0.45),
+                        child: Text(
+                          user.email.isNotEmpty == true ? user.email : "Not found",
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                     ],
-                  ),
+                  )
+                  ,
                 ],
               ),
               Padding(
@@ -109,6 +113,7 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                                 child: const Icon(
                                   Icons.email_outlined,
                                   size: 25,
+                                  color: Colors.black54,
                                 ),
                               );
                             },
@@ -123,6 +128,23 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.03),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                WaitingScreen(userBId: user.id),
+                          ),
+                        );
+                      },
+                      child: _drawerOptions(
+                        size,
+                        "Join Meeting",
+                        Icons.meeting_room,
                       ),
                     ),
                     SizedBox(height: size.height * 0.03),
