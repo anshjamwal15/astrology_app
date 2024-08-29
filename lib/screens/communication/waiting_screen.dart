@@ -1,20 +1,22 @@
-import 'package:astrology_app/blocs/video_call/video_call_bloc.dart';
+import 'package:astrology_app/blocs/video/video_call_bloc.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
+import 'package:astrology_app/screens/home/main.dart';
+import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class WaitingScreen extends StatefulWidget {
-  final String? userAId;
-  final String? userBId;
-  final bool isUserACreating;
+  final bool isCreatingRoom;
+  final String? roomId;
 
   const WaitingScreen({
     super.key,
-    this.userAId,
-    this.userBId,
-    this.isUserACreating = false,
+    required this.isCreatingRoom,
+    this.roomId,
   });
 
   @override
@@ -22,14 +24,20 @@ class WaitingScreen extends StatefulWidget {
 }
 
 class _WaitingScreenState extends State<WaitingScreen> {
+  final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
+  final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+  final String userId = UserManager.instance.user!.id;
+
   @override
   void initState() {
     super.initState();
-    context.read<WebRTCBloc>().add(InitializeWebRTC());
-    if (widget.isUserACreating) {
-      context.read<WebRTCBloc>().add(CreateOffer(widget.userAId!, widget.userBId!));
-    } else {
-      context.read<WebRTCBloc>().add(JoinRoom(widget.userAId!));
+    _localRenderer.initialize();
+    _remoteRenderer.initialize();
+    context.read<VideoCallBloc>().add(OpenUserMedia(localRenderer: _localRenderer, remoteRenderer: _remoteRenderer));
+    if (widget.isCreatingRoom) {
+      context.read<VideoCallBloc>().add(CreateRoom(roomId: userId, remoteRenderer: _remoteRenderer));
+    } else if (widget.roomId != null) {
+      context.read<VideoCallBloc>().add(JoinRoom(mentorId: widget.roomId!, remoteRenderer: _remoteRenderer));
     }
   }
 
@@ -37,41 +45,46 @@ class _WaitingScreenState extends State<WaitingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppConstants.bgColor,
-      body: BlocListener<WebRTCBloc, WebRTCState>(
+      body: BlocConsumer<VideoCallBloc, VideoCallState>(
         listener: (context, state) {
-          print(state);
-          if (state.isCallActive) {
-            Navigator.push(
+          if (state is VideoCallRoomCreated || state is VideoCallJoined) {
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const VideoCallScreen(),
+                builder: (context) => VideoCallScreen(
+                  localRenderer: _localRenderer,
+                  remoteRenderer: _remoteRenderer,
+                  roomId: widget.isCreatingRoom ? userId : widget.roomId!,
+                ),
               ),
             );
           }
         },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 90),
-              child: Image.asset("assets/images/waiting.png", scale: 10),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8, left: 8),
-              child: Text(
-                "Please wait, while we connect your call...",
-                style: GoogleFonts.acme(
-                  color: Colors.black,
-                  fontSize: 18,
+        builder: (context, state) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 90),
+                child: Image.asset("assets/images/waiting.png", scale: 10),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8, left: 8),
+                child: Text(
+                  "Please wait, while we connect your call...",
+                  style: GoogleFonts.acme(
+                    color: Colors.black,
+                    fontSize: 18,
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: CircularProgressIndicator(color: Colors.blue.shade900),
-            ),
-          ],
-        ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: CircularProgressIndicator(color: Colors.blue.shade900),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

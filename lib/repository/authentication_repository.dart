@@ -2,7 +2,6 @@ import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/services/DAOs/user_dao.dart';
 import 'package:astrology_app/services/user_manager.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:astrology_app/models/index.dart';

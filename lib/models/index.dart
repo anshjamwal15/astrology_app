@@ -24,4 +24,3 @@ export 'transaction.dart';
 export 'transaction_details.dart';
 export 'user_type.dart';
 export 'wallet.dart';
-export 'video_call.dart';

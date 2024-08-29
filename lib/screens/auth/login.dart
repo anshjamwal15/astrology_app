@@ -271,6 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class _CustomTextField extends StatelessWidget {
+  @override
   final Key key;
   final TextInputType keyboardType;
   final String hintText;

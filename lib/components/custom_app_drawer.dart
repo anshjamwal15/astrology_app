@@ -1,15 +1,16 @@
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/repository/authentication_repository.dart';
-import 'package:astrology_app/repository/chat_repository.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
+import 'package:astrology_app/screens/communication/video/video_call_test.dart';
 import 'package:astrology_app/screens/communication/waiting_screen.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CustomAppDrawer extends StatefulWidget {
   const CustomAppDrawer({super.key});
@@ -20,6 +21,23 @@ class CustomAppDrawer extends StatefulWidget {
 
 class _CustomAppDrawerState extends State<CustomAppDrawer> {
   final _authRepository = AuthenticationRepository();
+
+  Future<void> _requestPermission() async {
+    await [
+      Permission.camera,
+      Permission.microphone,
+    ].request();
+  }
+
+  Future<bool> _checkPermission() async {
+    var camStatus = await Permission.camera.request();
+    var micStatus = await Permission.microphone.request();
+    if (camStatus.isDenied || micStatus.isDenied) {
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     User? user = UserManager.instance.user;
@@ -44,7 +62,9 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            user.name.isNotEmpty == true ? user.name : "New User",
+                            user.name.isNotEmpty == true
+                                ? user.name
+                                : "New User",
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
@@ -56,9 +76,12 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                         ],
                       ),
                       ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: size.width * 0.45),
+                        constraints:
+                            BoxConstraints(maxWidth: size.width * 0.45),
                         child: Text(
-                          user.email.isNotEmpty == true ? user.email : "Not found",
+                          user.email.isNotEmpty == true
+                              ? user.email
+                              : "Not found",
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
@@ -67,8 +90,7 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                         ),
                       ),
                     ],
-                  )
-                  ,
+                  ),
                 ],
               ),
               Padding(
@@ -132,18 +154,17 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                     ),
                     SizedBox(height: size.height * 0.03),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                WaitingScreen(userBId: user.id),
-                          ),
-                        );
+                      onTap: () async {
+                        final isGranted = await _checkPermission();
+                        if (isGranted) {
+                          _navigateToWaitingScreen(user.id);
+                        } else {
+                          _requestPermission();
+                        }
                       },
                       child: _drawerOptions(
                         size,
-                        "Join Meeting",
+                        "Create Meeting",
                         Icons.meeting_room,
                       ),
                     ),
@@ -161,7 +182,8 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const LoginScreen()),
+                                builder: (context) => const LoginScreen(),
+                              ),
                             );
                           }
                         },
@@ -173,6 +195,18 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToWaitingScreen(String userId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WaitingScreen(
+          isCreatingRoom: true,
+          roomId: userId,
         ),
       ),
     );

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:astrology_app/models/chat_list_messages.dart';
 import 'package:astrology_app/models/chat_messages.dart';
-import 'package:astrology_app/models/user.dart'; // Import the User model
 import 'package:astrology_app/repository/chat_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -17,7 +16,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadChatMessages>((event, emit) async {
       emit(ChatLoading());
       try {
-        _messagesSubscription?.cancel(); // Cancel any previous subscription
+        _messagesSubscription?.cancel();
         _messagesSubscription = chatRepository.getChatMessagesStream(event.chatId).listen(
               (messages) {
             add(_ChatMessagesUpdated(messages));

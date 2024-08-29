@@ -1,12 +1,11 @@
-import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
 import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/models/index.dart' as mentor;
-import 'package:astrology_app/repository/chat_repository.dart';
 import 'package:astrology_app/screens/communication/chat/index.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
+import 'package:astrology_app/screens/communication/video/video_call_test.dart';
 import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:astrology_app/screens/communication/waiting_screen.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
@@ -60,7 +59,8 @@ class _SupportScreenState extends State<SupportScreen> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(
                           child: CircularProgressIndicator(
-                              color: Colors.blue.shade900,),
+                            color: Colors.blue.shade900,
+                          ),
                         );
                       } else if (snapshot.hasError) {
                         return const Center(
@@ -185,7 +185,7 @@ class _SupportScreenState extends State<SupportScreen> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    WaitingScreen(isUserACreating: true, userAId: userId, userBId: mentor.userId,),
+                                                    WaitingScreen(isCreatingRoom: false, roomId: mentor.userId),
                                               ),
                                             );
                                           },
@@ -202,7 +202,8 @@ class _SupportScreenState extends State<SupportScreen> {
                                               child: Text(
                                                 "Meeting",
                                                 style: TextStyle(
-                                                    color: Colors.black,),
+                                                  color: Colors.black,
+                                                ),
                                               ),
                                             ),
                                           ),

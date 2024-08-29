@@ -1,6 +1,5 @@
 import 'package:astrology_app/models/chat_list_messages.dart';
 import 'package:astrology_app/models/chat_messages.dart';
-import 'package:astrology_app/models/index.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatRepository {

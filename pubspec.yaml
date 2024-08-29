@@ -16,11 +16,9 @@ dependencies:
   dot_navigation_bar: ^1.0.2
   firebase_core: ^3.3.0
   equatable: ^2.0.5
-  hive: ^2.2.3
   firebase_auth: ^5.1.4
   google_sign_in: ^6.2.1
   bloc: ^8.1.4
-  formz: ^0.7.0
   flow_builder: ^0.1.0
   google_fonts: ^6.2.1
   camera: ^0.11.0+1
@@ -30,6 +28,7 @@ dependencies:
   badges: ^3.1.2
   intl: ^0.19.0
   flutter_webrtc: ^0.11.6+hotfix.1
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
@@ -39,19 +38,9 @@ dev_dependencies:
   build_runner: ^2.4.11
 
 flutter:
-
   uses-material-design: true
-
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
-  #   - images/a_dot_ham.jpeg
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
   # fonts:
   #   - family: Schyler
   #     fonts:

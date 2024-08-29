@@ -1,5 +1,4 @@
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
-import 'package:astrology_app/repository/chat_repository.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';

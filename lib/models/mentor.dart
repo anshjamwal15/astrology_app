@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
@@ -247,7 +245,7 @@ class Mentor extends Equatable {
       whatSpecificExp: data['what_specific_exp'] ?? '',
       city: data['city'] ?? '',
       mostSuccessfulMentoringExp: data['most_successful_mentoring_exp'] ?? '',
-      rating: data['rating'].toString() ?? '',
+      rating: data['rating'].toString(),
       linkedin: data['linkedin'] ?? '',
       elevatorPitch: data['elevator_pitch'] ?? '',
       password: data['password'] ?? '',
@@ -266,7 +264,7 @@ class Mentor extends Equatable {
       photo: data['photo'] ?? '',
       displayName: data['display_name'] ?? '',
       highestQualification: data['highest_qualification'] ?? '',
-      ratingCount: data['rating_count'] ?? 0,
+      ratingCount: data['rating_count'],
       upi: data['upi'] ?? '',
       nationality: data['nationality'] ?? '',
       userName: await user?['name'] ?? '',
@@ -274,11 +272,11 @@ class Mentor extends Equatable {
       x: data['x'] ?? '',
       country: await country?['name'] ?? '',
       status: await status?['title'] ?? '',
-      gender: filterTrueValues(gender!) ?? '',
+      gender: filterTrueValues(gender!),
       languages: await languages?['language'] ?? '',
-      pincode: (await pincode?['pincode']).toString() ?? '',
+      pincode: (await pincode?['pincode']).toString(),
       howToKnow: await howToKnow?['title'] ?? '',
-      currentEmployment: filterTrueValues(currentEmployment!) ?? '',
+      currentEmployment: filterTrueValues(currentEmployment!),
       skillSet: await skillSet?['title'] ?? '',
     );
   }
