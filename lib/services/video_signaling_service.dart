@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -11,7 +10,15 @@ class VideoSignalingService {
       {
         'urls': [
           'stun:stun1.l.google.com:19302',
-          'stun:stun2.l.google.com:19302'
+          'stun:stun2.l.google.com:19302',
+          'stun:stun.1und1.de:3478',
+          'stun:stun.gmx.net:3478',
+          'stun:stun.l.google.com:19302',
+          'stun:stun3.l.google.com:19302',
+          'stun:stun4.l.google.com:19302',
+          'stun:23.21.150.121:3478',
+          'stun:stun.12connect.com:3478',
+          'stun:stun.12voip.com:3478'
         ]
       }
     ]

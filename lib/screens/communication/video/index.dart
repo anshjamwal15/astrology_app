@@ -23,6 +23,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   VideoSignalingService signaling = VideoSignalingService();
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+  bool isMuted = false;
 
   @override
   void initState() {
@@ -142,30 +143,14 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isMuted ? Colors.white : Colors.transparent,
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(color: Colors.white, width: 1),
                     ),
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () => _toggleMute(),
                       icon: const Icon(
                         Icons.mic_off,
-                        size: 24,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: size.width * 0.06),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: Colors.black, width: 1),
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.volume_up_sharp,
                         size: 24,
                         color: Colors.black,
                       ),
@@ -208,6 +193,28 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => const HomeScreen(),
+      ),
+    );
+  }
+
+  void _toggleMute() {
+    setState(() {
+      isMuted = !isMuted;
+    });
+    var audioTracks = _localRenderer.srcObject?.getAudioTracks();
+    if (audioTracks != null) {
+      for (var track in audioTracks) {
+        track.enabled = !isMuted;
+      }
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isMuted ? "Microphone muted" : "Microphone unmounted",
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blue,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
