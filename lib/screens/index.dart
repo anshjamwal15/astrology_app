@@ -1,10 +1,8 @@
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/blocs/index.dart';
-import 'package:astrology_app/blocs/video/video_call_bloc.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/home/main.dart';
-import 'package:astrology_app/services/signaling_service.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,9 +30,6 @@ class App extends StatelessWidget {
           BlocProvider(
             create: (_) => ChatBloc(ChatRepository()),
           ),
-          BlocProvider(
-            create: (_) => VideoCallBloc(signaling: Signaling()),
-          )
         ],
         child: const AppView(),
       ),

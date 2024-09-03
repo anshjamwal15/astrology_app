@@ -4,8 +4,7 @@ import 'package:astrology_app/repository/authentication_repository.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
-import 'package:astrology_app/screens/communication/video/video_call_test.dart';
-import 'package:astrology_app/screens/communication/waiting_screen.dart';
+import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
@@ -22,11 +21,17 @@ class CustomAppDrawer extends StatefulWidget {
 class _CustomAppDrawerState extends State<CustomAppDrawer> {
   final _authRepository = AuthenticationRepository();
 
-  Future<void> _requestPermission() async {
-    await [
-      Permission.camera,
-      Permission.microphone,
-    ].request();
+  Future<void> _requestPermission(bool isVideo) async {
+    if (isVideo) {
+      await [
+        Permission.camera,
+        Permission.microphone,
+      ].request();
+    } else {
+      await [
+        Permission.microphone,
+      ].request();
+    }
   }
 
   Future<bool> _checkPermission() async {
@@ -75,18 +80,18 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                           const Icon(Icons.edit, size: 20),
                         ],
                       ),
-                      ConstrainedBox(
-                        constraints:
-                            BoxConstraints(maxWidth: size.width * 0.45),
+                      SizedBox(
+                        width: size.width * 0.4,
                         child: Text(
                           user.email.isNotEmpty == true
                               ? user.email
                               : "Not found",
-                          style: const TextStyle(
-                            fontSize: 15,
+                          style: TextStyle(
+                            fontSize: size.width * 0.035,
                             fontWeight: FontWeight.w400,
-                            overflow: TextOverflow.ellipsis,
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                     ],
@@ -153,13 +158,35 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                       ),
                     ),
                     SizedBox(height: size.height * 0.03),
+                    InkWell(
+                      onTap: () async {
+                        final isGranted = await _checkPermission();
+                        if (isGranted) {
+                          _navigateToWaitingScreen(user.id, false);
+                        } else {
+                          _requestPermission(false);
+                        }
+                      },
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VoiceCall(roomId: user.id, isCreating: true),
+                            ),
+                          );
+                        },
+                        child: _drawerOptions(size, "Test video call", Icons.call),
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.03),
                     GestureDetector(
                       onTap: () async {
                         final isGranted = await _checkPermission();
                         if (isGranted) {
-                          _navigateToWaitingScreen(user.id);
+                          _navigateToWaitingScreen(user.id, true);
                         } else {
-                          _requestPermission();
+                          _requestPermission(true);
                         }
                       },
                       child: _drawerOptions(
@@ -200,16 +227,28 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
     );
   }
 
-  void _navigateToWaitingScreen(String userId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => WaitingScreen(
-          isCreatingRoom: true,
-          roomId: userId,
+  void _navigateToWaitingScreen(String userId, bool isVideo) {
+    if (isVideo) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VideoCallScreen(
+            isCreating: true,
+            roomId: userId,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VoiceCall(
+            isCreating: true,
+            roomId: userId,
+          ),
+        ),
+      );
+    }
   }
 }
 

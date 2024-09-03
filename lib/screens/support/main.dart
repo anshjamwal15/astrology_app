@@ -114,7 +114,7 @@ class _SupportScreenState extends State<SupportScreen> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(width: size.width * 0.18),
+                                    SizedBox(width: size.width * 0.12),
                                     Column(
                                       children: [
                                         GestureDetector(
@@ -155,7 +155,11 @@ class _SupportScreenState extends State<SupportScreen> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    const VoiceCall(),
+                                                    VoiceCall(
+                                                      roomId: mentor.userId,
+                                                      isCreating: false,
+                                                      mentorName: mentor.userName,
+                                                    ),
                                               ),
                                             );
                                           },
@@ -185,7 +189,10 @@ class _SupportScreenState extends State<SupportScreen> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    WaitingScreen(isCreatingRoom: false, roomId: mentor.userId),
+                                                    VideoCallScreen(
+                                                  roomId: mentor.userId,
+                                                  isCreating: false,
+                                                ),
                                               ),
                                             );
                                           },
