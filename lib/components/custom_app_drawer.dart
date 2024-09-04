@@ -45,8 +45,7 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    User? user = UserManager.instance.user;
-    context.read<ChatBloc>().add(GetUnreadCount(user!.id));
+    User user = UserManager.instance.user!;
     final Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Drawer(
@@ -200,22 +199,19 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                     SizedBox(height: size.height * 0.03),
                     _drawerOptions(size, "Settings", Icons.settings),
                     SizedBox(height: size.height * 0.03),
-                    InkWell(
-                      onTap: () {},
-                      child: GestureDetector(
-                        onTap: () async {
-                          await _authRepository.logOut();
-                          if (context.mounted) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginScreen(),
-                              ),
-                            );
-                          }
-                        },
-                        child: _drawerOptions(size, "Logout", Icons.logout),
-                      ),
+                    GestureDetector(
+                      onTap: () async {
+                        await _authRepository.logOut();
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                          );
+                        }
+                      },
+                      child: _drawerOptions(size, "Logout", Icons.logout),
                     ),
                   ],
                 ),

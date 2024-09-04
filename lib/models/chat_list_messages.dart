@@ -7,15 +7,17 @@ class ChatListMessages extends Equatable {
   final String message;
   final String senderId;
   final bool isRead;
+  final int messageCount;
 
   const ChatListMessages({
     required this.dateTime,
     required this.userName,
     required this.message,
     required this.senderId,
-    required this.isRead
+    required this.isRead,
+    required this.messageCount
   });
 
   @override
-  List<Object?> get props => [dateTime, userName, message, senderId, isRead];
+  List<Object?> get props => [dateTime, userName, message, senderId, isRead, messageCount];
 }

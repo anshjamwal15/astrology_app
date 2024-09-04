@@ -62,3 +62,12 @@ class GetUnreadCount extends ChatEvent {
   @override
   List<Object> get props => [userId];
 }
+
+class _ChatListUpdated extends ChatEvent {
+  final List<ChatListMessages> messages;
+
+  const _ChatListUpdated(this.messages);
+
+  @override
+  List<Object> get props => [messages];
+}

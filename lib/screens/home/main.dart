@@ -1,3 +1,4 @@
+import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
@@ -5,7 +6,6 @@ import 'package:astrology_app/screens/support/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,16 +16,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final user = UserManager.instance.user!;
 
   @override
   void initState() {
     super.initState();
+    context.read<ChatBloc>().add(GetUnreadCount(user.id));
   }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    String? userName = UserManager.instance.user?.name;
     return Scaffold(
       extendBody: true,
       appBar: const CustomAppBar(),
@@ -41,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "Hello, ${userName?.isEmpty == true ? "New User" : userName ?? "New User"}",
+              "Hello, ${user.name.isEmpty == true ? "New User" : user.name}",
               style: TextStyle(
                 color: Colors.black45,
                 fontSize: size.height * 0.035,

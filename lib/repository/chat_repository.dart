@@ -62,43 +62,50 @@ class ChatRepository {
         .add(message.toMap());
   }
 
-  Future<List<ChatListMessages>> getUsersWhoMessaged(String userId) async {
-    // Step 1: Query the 'messages' collection group to find the most recent messages
-    QuerySnapshot messagesSnapshot = await _firestore
-        .collectionGroup('messages')
+  Stream<List<ChatListMessages>> getUsersWhoMessaged(String userId) {
+    return _firestore.collectionGroup('messages')
         .where('members', arrayContains: userId)
         .orderBy('date_time', descending: true)
-        .get();
+        .snapshots()
+        .asyncMap((querySnapshot) async {
+      Map<String, ChatListMessages> latestMessages = {};
 
-    // Step 2: Collect the last message for each unique user in the 'members' list
-    Map<String, ChatListMessages> latestMessages = {};
+      for (var messageDoc in querySnapshot.docs) {
+        var messageData = messageDoc.data() as Map<String, dynamic>;
+        Timestamp messageTimestamp = messageData['date_time'] as Timestamp;
+        List<dynamic> members = messageData['members'] as List<dynamic>;
 
-    for (var messageDoc in messagesSnapshot.docs) {
-      var messageData = messageDoc.data() as Map<String, dynamic>;
-      Timestamp messageTimestamp = messageData['date_time'] as Timestamp;
-      List<dynamic> members = messageData['members'] as List<dynamic>;
+        // Iterate through all members in the message
+        for (var memberId in members) {
+          if (memberId != userId && !latestMessages.containsKey(memberId)) {
+            DocumentSnapshot userDoc = await _firestore.collection('users').doc(memberId).get();
 
-      // Iterate through all members in the message
-      for (var memberId in members) {
-        if (memberId != userId && !latestMessages.containsKey(memberId)) {
-          DocumentSnapshot userDoc =
-              await _firestore.collection('users').doc(memberId).get();
-          if (userDoc.exists) {
-            String userName = userDoc['name'] as String;
-            bool isRead = (messageData['is_read'] as bool?) ?? false;
-            latestMessages[memberId] = ChatListMessages(
-              dateTime: messageTimestamp,
-              userName: userName,
-              message: messageData['message'] as String,
-              senderId: memberId,
-              isRead: isRead
-            );
+            final countSnapshot = await _firestore
+                .collectionGroup('messages')
+                .where('members', arrayContains: userId)
+                .where('sent_by', isEqualTo: memberId)
+                .where('is_read', isEqualTo: false)
+                .get();
+
+            if (userDoc.exists) {
+              String userName = userDoc['name'] as String;
+              bool isRead = (messageData['is_read'] as bool?) ?? false;
+              latestMessages[memberId] = ChatListMessages(
+                  dateTime: messageTimestamp,
+                  userName: userName,
+                  message: messageData['message'] as String,
+                  senderId: memberId,
+                  isRead: isRead,
+                  messageCount: countSnapshot.docs.length
+              );
+            }
           }
         }
       }
-    }
-    return latestMessages.values.toList();
+      return latestMessages.values.toList();
+    });
   }
+
 
   Future<void> markMessagesAsRead(String chatId, String userId) async {
     final batch = _firestore.batch();
@@ -107,6 +114,7 @@ class ChatRepository {
         .doc(chatId)
         .collection('messages')
         .where('members', arrayContains: userId)
+        .where('sent_by', isNotEqualTo: userId)
         .where('is_read', isEqualTo: false);
 
     final snapshot = await query.get();
@@ -120,6 +128,7 @@ class ChatRepository {
     final query = _firestore
         .collectionGroup('messages')
         .where('members', arrayContains: userId)
+        .where('sent_by', isNotEqualTo: userId)
         .where('is_read', isEqualTo: false);
 
     final snapshot = await query.get();

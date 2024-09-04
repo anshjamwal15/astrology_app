@@ -1,6 +1,8 @@
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
+import 'package:astrology_app/screens/communication/chat/cubits/chat_message_list_cubit.dart';
 import 'package:astrology_app/services/user_manager.dart';
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:dot_navigation_bar/dot_navigation_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +26,6 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    context.read<ChatBloc>().add(GetUnreadCount(UserManager.instance.user!.id));
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: DotNavigationBar(
@@ -56,31 +57,47 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
           DotNavigationBarItem(
             icon: BlocBuilder<ChatBloc, ChatState>(
               builder: (context, state) {
-                int unreadCount = 0;
                 if (state is UnreadCountLoaded) {
-                  unreadCount = state.count;
-                }
-                return IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChatListScreen(),
+                  return IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider(
+                            create: (context) => ChatMessageListCubit(),
+                            child: const ChatListScreen(),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: badges.Badge(
+                      badgeContent: Text(
+                        state.count.toString(),
+                        style: const TextStyle(color: Colors.white),
                       ),
-                    );
-                  },
-                  icon: badges.Badge(
-                    badgeContent: Text(
-                      unreadCount.toString(),
-                      style: const TextStyle(color: Colors.white),
+                      showBadge: state.count > 0,
+                      child: const Icon(
+                        Icons.email_outlined,
+                        size: 25,
+                      ),
                     ),
-                    showBadge: unreadCount > 0,
-                    child: const Icon(
+                  );
+                } else {
+                  return IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ChatListScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
                       Icons.email_outlined,
                       size: 25,
                     ),
-                  ),
-                );
+                  );
+                }
               },
             ),
             selectedColor: Colors.pink,

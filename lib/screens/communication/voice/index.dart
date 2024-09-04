@@ -1,20 +1,21 @@
 import 'dart:async';
-
 import 'package:astrology_app/services/audio_signaling_service.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class VoiceCall extends StatefulWidget {
   final String? mentorName;
   final String roomId;
   final bool isCreating;
-  const VoiceCall(
-      {super.key,
-      required this.roomId,
-      required this.isCreating,
-      this.mentorName});
+
+  const VoiceCall({
+    super.key,
+    required this.roomId,
+    required this.isCreating,
+    this.mentorName,
+  });
 
   @override
   State<VoiceCall> createState() => _VoiceCallState();
@@ -25,12 +26,16 @@ class _VoiceCallState extends State<VoiceCall> {
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   int _seconds = 0;
+  bool _isMuted = false;
+  bool _isSpeakerOn = true;
 
   void _startTimer() {
     Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _seconds++;
-      });
+      if (mounted) {
+        setState(() {
+          _seconds++;
+        });
+      }
     });
   }
 
@@ -46,7 +51,7 @@ class _VoiceCallState extends State<VoiceCall> {
     await _remoteRenderer.initialize();
 
     MediaStream localStream =
-        await navigator.mediaDevices.getUserMedia({'audio': true});
+    await navigator.mediaDevices.getUserMedia({'audio': true});
 
     _localRenderer.srcObject = localStream;
 
@@ -128,7 +133,7 @@ class _VoiceCallState extends State<VoiceCall> {
                     Text(
                       _formatTime(_seconds),
                       style:
-                          GoogleFonts.acme(color: Colors.white, fontSize: 20),
+                      GoogleFonts.acme(color: Colors.white, fontSize: 20),
                     )
                   ],
                 ),
@@ -143,23 +148,31 @@ class _VoiceCallState extends State<VoiceCall> {
                       border: Border.all(color: Colors.white, width: 1),
                     ),
                     child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.mic_off,
-                          size: 24, color: Colors.white),
+                      onPressed: _toggleMute,
+                      icon: Icon(
+                        _isMuted ? Icons.mic_off : Icons.mic,
+                        size: 24,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  SizedBox(width: size.width * 0.04),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: Colors.white, width: 1),
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.volume_up_sharp,
-                          size: 24, color: Colors.white),
-                    ),
-                  ),
+                  // SizedBox(width: size.width * 0.04),
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(30),
+                  //     border: Border.all(color: Colors.white, width: 1),
+                  //   ),
+                  //   child: IconButton(
+                  //     onPressed: _toggleSpeaker,
+                  //     icon: Icon(
+                  //       _isSpeakerOn
+                  //           ? Icons.volume_up_sharp
+                  //           : Icons.volume_off,
+                  //       size: 24,
+                  //       color: Colors.white,
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(width: size.width * 0.04),
                   Container(
                     decoration: BoxDecoration(
@@ -168,11 +181,14 @@ class _VoiceCallState extends State<VoiceCall> {
                       border: Border.all(color: Colors.white, width: 0.2),
                     ),
                     child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.call_end,
-                          size: 24, color: Colors.white),
+                      onPressed: _hangUp,
+                      icon: const Icon(
+                        Icons.call_end,
+                        size: 24,
+                        color: Colors.white,
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ],
@@ -188,10 +204,17 @@ class _VoiceCallState extends State<VoiceCall> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  _getUserMedia() async {
-    final Map<String, dynamic> mediaConstraints = {'audio': true};
-    MediaStream stream =
-        await navigator.mediaDevices.getUserMedia(mediaConstraints);
-    _localRenderer.srcObject = stream;
+  void _toggleMute() {
+    setState(() {
+      _isMuted = !_isMuted;
+      _localRenderer.srcObject?.getAudioTracks().forEach((track) {
+        track.enabled = !_isMuted;
+      });
+    });
+  }
+
+  void _hangUp() {
+    signaling.hangUp(widget.roomId, _localRenderer.srcObject!, _remoteRenderer.srcObject!);
+    Navigator.pop(context);
   }
 }

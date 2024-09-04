@@ -17,8 +17,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       emit(ChatLoading());
       try {
         _messagesSubscription?.cancel();
-        _messagesSubscription = chatRepository.getChatMessagesStream(event.chatId).listen(
-              (messages) {
+        _messagesSubscription =
+            chatRepository.getChatMessagesStream(event.chatId).listen(
+          (messages) {
             add(_ChatMessagesUpdated(messages));
           },
         );
@@ -31,19 +32,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       emit(ChatLoaded(event.messages));
     });
 
+    on<_ChatListUpdated>((event, emit) {
+      emit(UsersLoaded(event.messages));
+    });
+
     on<SendMessage>((event, emit) async {
       try {
         await chatRepository.sendMessage(event.chatId, event.message);
-      } catch (e) {
-        emit(ChatError(e.toString()));
-      }
-    });
-
-    on<LoadUsersWhoMessaged>((event, emit) async {
-      emit(UsersLoading());
-      try {
-        List<ChatListMessages> users = await chatRepository.getUsersWhoMessaged(event.userId);
-        emit(UsersLoaded(users));
       } catch (e) {
         emit(ChatError(e.toString()));
       }

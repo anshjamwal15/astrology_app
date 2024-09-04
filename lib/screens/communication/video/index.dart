@@ -105,8 +105,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                               color: Colors.blue.shade900,
                             ),
                             SizedBox(width: size.width * 0.02),
-                            Text(
-                              "Please wait, ${signaling.connectionState.toString()}",
+                            const Text(
+                              "Please wait, connecting....",
                             ),
                           ],
                         ),
