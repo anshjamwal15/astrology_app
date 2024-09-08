@@ -4,7 +4,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 typedef StreamStateCallback = void Function(MediaStream stream);
 
-class VideoSignalingService {
+class SignalingService {
   Map<String, dynamic> configuration = {
     'iceServers': [
       {
@@ -29,14 +29,17 @@ class VideoSignalingService {
   StreamStateCallback? onAddRemoteStream;
   RTCPeerConnectionState? connectionState;
   RTCIceGatheringState? iceGatheringState;
+  RTCIceConnectionState? iceConnectionState;
 
   Future<String> createRoom(
     String roomId,
     MediaStream localStream,
     MediaStream remoteStream,
+      bool isVideo
   ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    DocumentReference roomRef = db.collection('video_rooms').doc(roomId);
+    var roomName = isVideo ? "video_rooms" : "audio_rooms";
+    DocumentReference roomRef = db.collection(roomName).doc(roomId);
 
     if (kDebugMode) {
       print('Create PeerConnection with configuration: $configuration');
@@ -140,9 +143,11 @@ class VideoSignalingService {
     String roomId,
     MediaStream localStream,
     MediaStream remoteStream,
+      bool isVideo
   ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    DocumentReference roomRef = db.collection('video_rooms').doc(roomId);
+    var roomName = isVideo ? "video_rooms" : "audio_rooms";
+    DocumentReference roomRef = db.collection(roomName).doc(roomId);
     var roomSnapshot = await roomRef.get();
     if (kDebugMode) {
       // print('Got room ${roomSnapshot.exists}');
@@ -234,6 +239,7 @@ class VideoSignalingService {
     String roomId,
     MediaStream localStream,
     MediaStream remoteStream,
+      bool isVideo
   ) async {
     List<MediaStreamTrack> tracks = localStream.getTracks();
     for (var track in tracks) {
@@ -244,7 +250,8 @@ class VideoSignalingService {
       if (peerConnection != null) peerConnection!.close();
 
     var db = FirebaseFirestore.instance;
-    var roomRef = db.collection('video_rooms').doc(roomId);
+    var roomName = isVideo ? "video_rooms" : "audio_rooms";
+    var roomRef = db.collection(roomName).doc(roomId);
     var calleeCandidates = await roomRef.collection('calleeCandidates').get();
     for (var document in calleeCandidates.docs) {
       document.reference.delete();
@@ -261,6 +268,71 @@ class VideoSignalingService {
     remoteStream.dispose();
   }
 
+  Future<void> updateMediaStatus(String roomId, String userType, {bool? isCameraOn, bool? isMicOn}) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    DocumentReference roomRef = db.collection('video_rooms').doc(roomId);
+
+    var roomSnapshot = await roomRef.get();
+    if (!roomSnapshot.exists) {
+      if (kDebugMode) {
+        print('Room does not exist: $roomId');
+      }
+      return;
+    }
+
+    String collectionPath = userType == 'caller' ? 'callerCandidates' : 'calleeCandidates';
+    DocumentReference mediaStatusRef = roomRef.collection(collectionPath).doc('mediaStatus');
+
+    Map<String, dynamic> updates = {};
+
+    if (isCameraOn != null) {
+      updates['camera'] = isCameraOn;
+    }
+
+    if (isMicOn != null) {
+      updates['microphone'] = isMicOn;
+    }
+
+    if (updates.isNotEmpty) {
+      await mediaStatusRef.update(updates);
+
+      if (kDebugMode) {
+        print('$userType media status updated: Camera - $isCameraOn, Mic - $isMicOn');
+      }
+    }
+  }
+
+
+
+  Stream<bool> checkRoomExists(String roomId) {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    DocumentReference roomRef = db.collection('video_rooms').doc(roomId);
+
+    return roomRef.snapshots().map((snapshot) {
+      if (!snapshot.exists) {
+        if (kDebugMode) {
+          print('Room does not exist: $roomId');
+        }
+        return false;
+      }
+      return true;
+    });
+  }
+
+
+  Stream<Map<String, dynamic>?> listenToStatus(String roomId, String userType) {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    DocumentReference roomRef = db.collection('video_rooms').doc(roomId);
+    String collectionPath = userType == 'caller' ? 'calleeCandidates' : 'callerCandidates';
+    return roomRef.collection(collectionPath).doc('mediaStatus').snapshots().map((snapshot) {
+      if (snapshot.exists) {
+        return snapshot.data() as Map<String, dynamic>?;
+      }
+      return null;
+    });
+  }
+
+
   void registerPeerConnectionListeners(MediaStream remoteStream) {
 
     peerConnection?.onConnectionState = (RTCPeerConnectionState state) {
@@ -276,9 +348,16 @@ class VideoSignalingService {
       }
     };
 
-    peerConnection?.onIceGatheringState = (RTCIceGatheringState state) {
+    peerConnection?.onIceConnectionState = (RTCIceConnectionState state) {
       if (kDebugMode) {
         print('ICE connection state change: $state');
+      }
+      iceConnectionState = state;
+    };
+
+    peerConnection?.onIceGatheringState = (RTCIceGatheringState state) {
+      if (kDebugMode) {
+        print('ICE gathering state change: $state');
       }
       iceGatheringState = state;
     };

@@ -74,7 +74,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                      color: Colors.black, width: 0.5),
+                                    color: Colors.black,
+                                    width: 0.5,
+                                  ),
                                 ),
                                 child: ClipOval(
                                   child: Image.asset(
@@ -85,10 +87,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(
-                                    bottom: 20, left: 10, top: 10),
+                                  bottom: 20,
+                                  left: 10,
+                                  top: 10,
+                                ),
                                 child: ConstrainedBox(
                                   constraints: BoxConstraints(
-                                      maxWidth: size.width * 0.65),
+                                    maxWidth: size.width * 0.65,
+                                  ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -183,7 +189,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 child: Text('Something went wrong! Please try again later.'));
           } else {
             return Center(
-                child: CircularProgressIndicator(color: Colors.blue.shade900));
+              child: CircularProgressIndicator(color: Colors.blue.shade900),
+            );
           }
         },
       ),

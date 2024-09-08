@@ -118,7 +118,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SupportScreen(),
+                          builder: (context) => BlocProvider(
+                            create: (context) =>
+                                MentorCubit(FirebaseFirestore.instance),
+                            child: const SupportScreen(),
+                          ),
                         ),
                       );
                     },
@@ -166,7 +170,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SupportScreen(),
+                          builder: (context) => BlocProvider(
+                            create: (context) =>
+                                MentorCubit(FirebaseFirestore.instance),
+                            child: const SupportScreen(),
+                          ),
                         ),
                       );
                     },
@@ -210,7 +218,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SupportScreen(),
+                          builder: (context) => BlocProvider(
+                            create: (context) =>
+                                MentorCubit(FirebaseFirestore.instance),
+                            child: const SupportScreen(),
+                          ),
                         ),
                       );
                     },
