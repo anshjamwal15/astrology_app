@@ -88,7 +88,10 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ChatListScreen(),
+                          builder: (context) => BlocProvider(
+                            create: (context) => ChatMessageListCubit(),
+                            child: const ChatListScreen(),
+                          ),
                         ),
                       );
                     },

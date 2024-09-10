@@ -2,6 +2,8 @@ import 'package:astrology_app/blocs/auth/auth_event.dart';
 import 'package:astrology_app/blocs/auth/auth_state.dart';
 import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/index.dart';
+import 'package:astrology_app/screens/auth/email_verification.dart';
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final Size size = MediaQuery.of(context).size;
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        printWarning(state);
         if (state is Authenticated) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Login Successful')),
@@ -36,6 +39,13 @@ class _LoginScreenState extends State<LoginScreen> {
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.error)),
+          );
+        } else if (state is CheckEmailVerification) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EmailVerification(),
+            ),
           );
         }
       },
@@ -68,7 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             child: _CustomTextField(
                               key: const Key(
-                                  'loginForm_passwordInput_textField',),
+                                'loginForm_passwordInput_textField',
+                              ),
                               controller: _emailController,
                               keyboardType: TextInputType.text,
                               hintText: "Email",
@@ -88,7 +99,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             child: _CustomTextField(
                               key: const Key(
-                                  'loginForm_passwordInput_textField',),
+                                'loginForm_passwordInput_textField',
+                              ),
                               keyboardType: TextInputType.text,
                               controller: _passwordController,
                               hintText: "Password",
@@ -98,7 +110,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(height: size.height * 0.02),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: size.width * 0.05,),
                           child: RichText(
                             text: TextSpan(
                               children: [
@@ -135,14 +148,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         SizedBox(height: size.height * 0.02),
-                        CustomButton(onPressed: () {
-                          context.read<AuthBloc>().add(
-                                SignInRequested(
-                                  _emailController.text,
-                                  _passwordController.text,
-                                ),
-                              );
-                        }),
+                        CustomButton(
+                          onPressed: () {
+                            context.read<AuthBloc>().add(
+                                  SignUpRequested(
+                                    _emailController.text,
+                                    _passwordController.text,
+                                  ),
+                                );
+                          },
+                          buttonName: "LOGIN",
+                        ),
                         SizedBox(height: size.height * 0.01),
                         Padding(
                           padding: const EdgeInsets.symmetric(
@@ -166,7 +182,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               const Text(
                                 "Or",
                                 style: TextStyle(
-                                    color: Colors.white70, fontSize: 20,),
+                                  color: Colors.white70,
+                                  fontSize: 20,
+                                ),
                               ),
                               SizedBox(width: size.width * 0.015),
                               Container(

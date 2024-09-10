@@ -1,6 +1,7 @@
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/screens/support/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
@@ -16,11 +17,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final user = UserManager.instance.user!;
+  late final model.User user;
 
   @override
   void initState() {
     super.initState();
+    user = UserManager.instance.user!;
     context.read<ChatBloc>().add(GetUnreadCount(user.id));
   }
 
@@ -42,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "Hello, ${user.name.isEmpty == true ? "New User" : user.name}",
+              "Hello, ${user.name.isEmpty == true ? "User" : user.name}",
               style: TextStyle(
                 color: Colors.black45,
                 fontSize: size.height * 0.035,

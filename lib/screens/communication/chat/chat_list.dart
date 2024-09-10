@@ -130,14 +130,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                           Text(
                                             user.message,
                                             style: TextStyle(
-                                              color: (user.senderId !=
-                                                          currentUser.id) ||
+                                              color: user.senderId !=
+                                                          currentUser.id &&
                                                       user.isRead
                                                   ? Colors.black54
                                                   : Colors.black,
                                               fontSize: 15,
-                                              fontWeight: (user.senderId !=
-                                                          currentUser.id) ||
+                                              fontWeight: user.senderId !=
+                                                          currentUser.id &&
                                                       user.isRead
                                                   ? FontWeight.bold
                                                   : FontWeight.w500,

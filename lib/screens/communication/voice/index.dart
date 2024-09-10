@@ -43,12 +43,12 @@ class _VoiceCallState extends State<VoiceCall> {
   void initState() {
     super.initState();
     _initializeRenderersAndMedia();
-    _startTimer();
 
     signaling.onAddRemoteStream = (stream) {
       setState(() {
         _remoteRenderer.srcObject = stream;
       });
+      _startTimer();
     };
   }
 
@@ -170,16 +170,16 @@ class _VoiceCallState extends State<VoiceCall> {
                             children: [
                               Container(
                                 decoration: BoxDecoration(
+                                  color: _isMuted ? Colors.white : Colors.transparent,
                                   borderRadius: BorderRadius.circular(30),
-                                  border:
-                                  Border.all(color: Colors.white, width: 1),
+                                  border: Border.all(color: Colors.white, width: 1),
                                 ),
                                 child: IconButton(
                                   onPressed: _toggleMute,
                                   icon: Icon(
                                     _isMuted ? Icons.mic_off : Icons.mic,
                                     size: 24,
-                                    color: Colors.white,
+                                    color: _isMuted ? Colors.red : Colors.white,
                                   ),
                                 ),
                               ),

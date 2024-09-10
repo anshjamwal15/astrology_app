@@ -68,7 +68,7 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                           Text(
                             user.name.isNotEmpty == true
                                 ? user.name
-                                : "New User",
+                                : "User",
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
@@ -105,12 +105,12 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                 child: Column(
                   children: [
                     _drawerOptions(size, "Home", Icons.home),
-                    SizedBox(height: size.height * 0.03),
-                    _drawerOptions(
-                      size,
-                      "Wallet Transactions",
-                      Icons.account_balance_wallet,
-                    ),
+                    // SizedBox(height: size.height * 0.03),
+                    // _drawerOptions(
+                    //   size,
+                    //   "Wallet Transactions",
+                    //   Icons.account_balance_wallet,
+                    // ),
                     SizedBox(height: size.height * 0.03),
                     GestureDetector(
                       onTap: () {
@@ -196,8 +196,6 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                     ),
                     SizedBox(height: size.height * 0.03),
                     _drawerOptions(size, "Order History", Icons.history),
-                    SizedBox(height: size.height * 0.03),
-                    _drawerOptions(size, "Settings", Icons.settings),
                     SizedBox(height: size.height * 0.03),
                     GestureDetector(
                       onTap: () async {

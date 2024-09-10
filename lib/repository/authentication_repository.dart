@@ -149,11 +149,6 @@ class AuthenticationRepository {
     });
   }
 
-  // TODO: fix it
-  // Future<void> getCurrentUser() async {
-  //   currentUser = (await _userDao.getUser())!;
-  // }
-
   Future<void> signUp({required String email, required String password}) async {
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
@@ -191,10 +186,12 @@ class AuthenticationRepository {
     required String password,
   }) async {
     try {
-      await _firebaseAuth.signInWithEmailAndPassword(
+      final userCred = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+      await UserManager.instance.loadUser();
+      await _userRepository.saveUser(userCred.user!.toUser);
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
     } catch (_) {
@@ -217,6 +214,6 @@ class AuthenticationRepository {
 
 extension on firebase_auth.User {
   User get toUser {
-    return User(email: email!, name: displayName!, id: uid);
+    return User(email: email!, name: displayName ?? "", id: uid);
   }
 }

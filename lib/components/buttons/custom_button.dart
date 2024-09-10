@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.onPressed});
+  const CustomButton({super.key, required this.onPressed, required this.buttonName});
   final VoidCallback onPressed;
+  final String buttonName;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class CustomButton extends StatelessWidget {
       ),
       onPressed: onPressed,
       child: Text(
-        'LOGIN',
+        buttonName,
         style: GoogleFonts.acme(
           fontSize: 20,
           shadows: [

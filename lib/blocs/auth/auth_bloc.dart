@@ -14,28 +14,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           email: event.email,
           password: event.password,
         );
-        emit(Authenticated());
+        emit(CheckEmailVerification());
       } catch (e) {
         if (e is SignUpWithEmailAndPasswordFailure) {
-          emit(AuthError(e.message));
-        } else {
-          emit(AuthError('An unknown error occurred'));
-        }
-        emit(UnAuthenticated());
-      }
-    });
-
-    on<SignInRequested>((event, emit) async {
-      emit(Loading());
-      try {
-        await authRepository.logInWithEmailAndPassword(
-          email: event.email,
-          password: event.password,
-        );
-        emit(Authenticated());
-      } catch (e) {
-        if (e is LogInWithEmailAndPasswordFailure) {
-          emit(AuthError(e.message));
+          if (e.message == "An account already exists for that email.") {
+            await authRepository.logInWithEmailAndPassword(
+              email: event.email,
+              password: event.password,
+            );
+            emit(Authenticated());
+          } else {
+            emit(AuthError(e.message));
+          }
         } else {
           emit(AuthError('An unknown error occurred'));
         }
