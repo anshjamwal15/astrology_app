@@ -2,6 +2,7 @@ import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/services/DAOs/user_dao.dart';
 import 'package:astrology_app/services/user_manager.dart';
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:astrology_app/models/index.dart';
@@ -121,7 +122,7 @@ class LogInWithGoogleFailure implements Exception {
 
 class LogOutFailure implements Exception {}
 
-const userCacheKey = '__user_cache_key__';
+const userCacheKey = 'dkgnfoigdfmgdflkmgkldfmglkdfmlkgmdf';
 
 class AuthenticationRepository {
   AuthenticationRepository({
@@ -129,7 +130,7 @@ class AuthenticationRepository {
     GoogleSignIn? googleSignIn,
     UserDao? userDao,
   })  : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn.standard(),
+        _googleSignIn = googleSignIn ?? GoogleSignIn(scopes: ['profile', 'email']),
         _userDao = userDao ?? UserDao();
 
   final firebase_auth.FirebaseAuth _firebaseAuth;
@@ -177,6 +178,7 @@ class AuthenticationRepository {
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw LogInWithGoogleFailure.fromCode(e.code);
     } catch (e) {
+      printWarning(e);
       throw const LogInWithGoogleFailure();
     }
   }

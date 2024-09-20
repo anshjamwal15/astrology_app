@@ -10,7 +10,8 @@ class Categories extends Equatable {
   final String text;
   final String status;
   final String order;
-  final DocumentReference language;
+  final String image;
+  // final String language;
 
   const Categories({
     required this.id,
@@ -21,41 +22,15 @@ class Categories extends Equatable {
     required this.text,
     required this.status,
     required this.order,
-    required this.language,
+    required this.image
+    // required this.language,
   });
 
   @override
-  List<Object?> get props => [id, code, name, icon, predecessor, text, status, order, language];
+  List<Object?> get props => [id, code, name, icon, predecessor, text, status, order, image];
 
-  static Categories fromMap(Map<String, dynamic> map) {
-    return Categories(
-      id: map['id'] as String,
-      code: map['code'] as String,
-      name: map['name'] as String,
-      icon: map['icon'] as String,
-      predecessor: map['predecessor'] as int,
-      text: map['text'] as String,
-      status: map['status'] as String,
-      order: map['order'] as String,
-      language: map['language']['value'] as DocumentReference,
-    );
-  }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'code': code,
-      'name': name,
-      'icon': icon,
-      'predecessor': predecessor,
-      'text': text,
-      'status': status,
-      'order': order,
-      'language': language.path,
-    };
-  }
-
-  factory Categories.fromFirestore(DocumentSnapshot doc) {
+  static Categories fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Categories(
       id: data['id'] ?? '',
@@ -66,7 +41,8 @@ class Categories extends Equatable {
       text: data['text'] ?? '',
       status: data['status'] ?? '',
       order: data['order'] ?? '',
-      language: data['language']['value'] as DocumentReference,
+      image: data['image'] ?? ''
+      // language: data['language']['value'] as DocumentReference,
     );
   }
 }

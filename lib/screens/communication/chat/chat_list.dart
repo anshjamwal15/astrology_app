@@ -31,7 +31,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
       backgroundColor: AppConstants.bgColor,
       body: BlocBuilder<ChatMessageListCubit, ChatMessageListState>(
         builder: (context, state) {
-          printError(state);
           if (state is ChatMessageListLoading) {
             return Center(
               child: CircularProgressIndicator(color: Colors.blue.shade900),

@@ -175,7 +175,7 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                             ),
                           );
                         },
-                        child: _drawerOptions(size, "Voice call", Icons.call),
+                        child: _drawerOptions(size, "Voices call", Icons.call),
                       ),
                     ),
                     SizedBox(height: size.height * 0.03),

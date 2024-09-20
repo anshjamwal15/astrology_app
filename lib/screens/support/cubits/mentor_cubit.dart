@@ -15,7 +15,6 @@ class MentorCubit extends Cubit<MentorState> {
     try {
       emit(MentorLoading());
       final QuerySnapshot snapshot = await _firestore.collection('mentor').get();
-      // final QuerySnapshot mentor_rate_snapshot = await _firestore.collection('mentor_rate').get();
       final mentors = snapshot.docs.map((doc) => Mentor.fromFirestore(doc)).toList();
       emit(MentorLoaded(mentors));
     } catch (e) {

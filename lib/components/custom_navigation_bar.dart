@@ -1,6 +1,7 @@
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/screens/communication/chat/cubits/chat_message_list_cubit.dart';
+import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,14 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
           /// Home
           DotNavigationBarItem(
             icon: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HomeScreen(),
+                  ),
+                );
+              },
               icon: const Icon(Icons.home),
             ),
             selectedColor: Colors.blue.shade900,

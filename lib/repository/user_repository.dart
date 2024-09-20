@@ -1,5 +1,7 @@
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:astrology_app/models/user.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class UserRepository {
   UserRepository({FirebaseFirestore? firestore})
@@ -9,6 +11,8 @@ class UserRepository {
 
   Future<void> saveUser(User user) async {
     final userRef = _firestore.collection('users').doc(user.id);
+    // TODO: don't update token everytime
+    final userToken = await FirebaseMessaging.instance.getToken();
 
     final querySnapshot = await _firestore
         .collection('users')
@@ -21,12 +25,16 @@ class UserRepository {
         'name': user.name,
         'email': user.email,
         'mobile': user.mobile,
-        'date_time': Timestamp.now()
+        'date_time': Timestamp.now(),
+        'user_token': userToken
       }, SetOptions(merge: true));
     } else {
-      throw Exception('A user with the same email already exists.');
+      await userRef.set({
+        'user_token': userToken
+      }, SetOptions(merge: true));
     }
   }
+
 
 
   Future<void> updateUser(String userId, Map<String, dynamic> data) async {

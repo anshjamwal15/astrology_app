@@ -303,7 +303,6 @@ class SignalingService {
   }
 
 
-
   Stream<bool> checkRoomExists(String roomId) {
     FirebaseFirestore db = FirebaseFirestore.instance;
     DocumentReference roomRef = db.collection('video_rooms').doc(roomId);
