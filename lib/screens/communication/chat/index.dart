@@ -25,6 +25,12 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.senderId.isEmpty) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        Navigator.pop(context);
+      });
+      return;
+    }
     context
         .read<ChatBloc>()
         .add(MarkMessagesAsRead(_createChatId([user?.id ?? "", widget.senderId]), user?.id ?? ""));

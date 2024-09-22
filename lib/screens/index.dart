@@ -4,17 +4,20 @@ import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/home/cubits/home_cubit.dart';
 import 'package:astrology_app/screens/home/main.dart';
+import 'package:astrology_app/services/route_generator.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class App extends StatelessWidget {
   const App({
+    required this.navigatorKey,
     required AuthenticationRepository authenticationRepository,
     super.key,
   }) : _authenticationRepository = authenticationRepository;
 
   final AuthenticationRepository _authenticationRepository;
+  final GlobalKey<NavigatorState> navigatorKey;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +38,7 @@ class App extends StatelessWidget {
             create: (_) => HomeCubit(),
           )
         ],
-        child: const AppView(),
+        child: AppView(navigatorKey: navigatorKey),
       ),
     );
   }
@@ -43,13 +46,16 @@ class App extends StatelessWidget {
 
 
 class AppView extends StatelessWidget {
-  const AppView({super.key});
-
+  const AppView({super.key, required this.navigatorKey});
+  final GlobalKey<NavigatorState> navigatorKey;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Mindaro Sewa',
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
+      initialRoute: "/",
+      onGenerateRoute: RouteGenerator.generatorRoute,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

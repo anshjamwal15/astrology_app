@@ -5,6 +5,7 @@ import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
 import 'package:astrology_app/screens/communication/voice/index.dart';
+import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
@@ -66,9 +67,7 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            user.name.isNotEmpty == true
-                                ? user.name
-                                : "User",
+                            user.name.isNotEmpty == true ? user.name : "User",
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
@@ -104,13 +103,20 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                 ),
                 child: Column(
                   children: [
-                    _drawerOptions(size, "Home", Icons.home),
-                    // SizedBox(height: size.height * 0.03),
-                    // _drawerOptions(
-                    //   size,
-                    //   "Wallet Transactions",
-                    //   Icons.account_balance_wallet,
-                    // ),
+                    GestureDetector(
+                      onTap: () => Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (builder) => const HomeScreen(),
+                          )),
+                      child: _drawerOptions(size, "Home", Icons.home),
+                    ),
+                    SizedBox(height: size.height * 0.03),
+                    _drawerOptions(
+                      size,
+                      "Wallet",
+                      Icons.account_balance_wallet,
+                    ),
                     SizedBox(height: size.height * 0.03),
                     GestureDetector(
                       onTap: () {
@@ -156,44 +162,44 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                         ],
                       ),
                     ),
-                    SizedBox(height: size.height * 0.03),
-                    InkWell(
-                      onTap: () async {
-                        final isGranted = await _checkPermission();
-                        if (isGranted) {
-                          _navigateToWaitingScreen(user.id, false);
-                        } else {
-                          _requestPermission(false);
-                        }
-                      },
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VoiceCall(roomId: user.id, isCreating: true),
-                            ),
-                          );
-                        },
-                        child: _drawerOptions(size, "Voices call", Icons.call),
-                      ),
-                    ),
-                    SizedBox(height: size.height * 0.03),
-                    GestureDetector(
-                      onTap: () async {
-                        final isGranted = await _checkPermission();
-                        if (isGranted) {
-                          _navigateToWaitingScreen(user.id, true);
-                        } else {
-                          _requestPermission(true);
-                        }
-                      },
-                      child: _drawerOptions(
-                        size,
-                        "Create Meeting",
-                        Icons.meeting_room,
-                      ),
-                    ),
+                    // SizedBox(height: size.height * 0.03),
+                    // InkWell(
+                    //   onTap: () async {
+                    //     final isGranted = await _checkPermission();
+                    //     if (isGranted) {
+                    //       _navigate(user.id, false);
+                    //     } else {
+                    //       _requestPermission(false);
+                    //     }
+                    //   },
+                    //   child: GestureDetector(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //           builder: (context) => VoiceCall(roomId: user.id, isCreating: true),
+                    //         ),
+                    //       );
+                    //     },
+                    //     child: _drawerOptions(size, "Voices call", Icons.call),
+                    //   ),
+                    // ),
+                    // SizedBox(height: size.height * 0.03),
+                    // GestureDetector(
+                    //   onTap: () async {
+                    //     final isGranted = await _checkPermission();
+                    //     if (isGranted) {
+                    //       _navigate(user.id, true);
+                    //     } else {
+                    //       _requestPermission(true);
+                    //     }
+                    //   },
+                    //   child: _drawerOptions(
+                    //     size,
+                    //     "Create Meeting",
+                    //     Icons.meeting_room,
+                    //   ),
+                    // ),
                     SizedBox(height: size.height * 0.03),
                     _drawerOptions(size, "Order History", Icons.history),
                     SizedBox(height: size.height * 0.03),
@@ -221,7 +227,7 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
     );
   }
 
-  void _navigateToWaitingScreen(String userId, bool isVideo) {
+  void _navigate(String userId, bool isVideo) {
     if (isVideo) {
       Navigator.push(
         context,

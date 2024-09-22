@@ -59,12 +59,12 @@ String createCallRoom(List<String> members) {
   return members.join('_').substring(0, 8);
 }
 
-void printWarning(Object text) {
+void printWarning(Object? text) {
   String line = "$text";
   print('\x1B[33m$line\x1B[0m');
 }
 
-void printError(Object text) {
+void printError(Object? text) {
   String line = "$text";
   print('\x1B[31m$line\x1B[0m');
 }
