@@ -3,11 +3,15 @@ import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/home/cubits/home_cubit.dart';
+import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
+import 'package:astrology_app/screens/support/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,11 +29,12 @@ class _HomeScreenState extends State<HomeScreen> {
     user = UserManager.instance.user!;
     context.read<HomeCubit>().loadCategories();
     context.read<ChatBloc>().add(GetUnreadCount(user.id));
-    _requestNotificationPermissions();
+    _requestPermissions();
   }
 
-  void _requestNotificationPermissions() async {
+  void _requestPermissions() async {
     await AwesomeNotifications().requestPermissionToSendNotifications();
+    await [Permission.camera, Permission.microphone].request();
   }
 
   @override
@@ -73,8 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder: (context, state) {
                   if (state is CategoriesLoading) {
                     return Center(
-                      child:
-                          CircularProgressIndicator(color: Colors.blue.shade900),
+                      child: CircularProgressIndicator(
+                          color: Colors.blue.shade900),
                     );
                   } else if (state is CategoriesLoaded) {
                     final categories = state.categories;
@@ -116,20 +121,28 @@ class _HomeScreenState extends State<HomeScreen> {
       width: size.width * 0.45,
       child: GestureDetector(
         onTap: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => BlocProvider(
-          //       create: (context) =>
-          //           MentorCubit(FirebaseFirestore.instance),
-          //       child: const SupportScreen(),
-          //     ),
-          //   ),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BlocProvider(
+                create: (context) => MentorCubit(FirebaseFirestore.instance),
+                child: const SupportScreen(),
+              ),
+            ),
+          );
         },
         child: CachedNetworkImage(
           fadeInDuration: const Duration(milliseconds: 400),
           imageUrl: image,
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+          progressIndicatorBuilder: (context, url, downloadProgress) {
+            return Container(
+              margin: const EdgeInsets.all(80),
+              child: CircularProgressIndicator(
+                  value: downloadProgress.progress,
+                  color: Colors.blue.shade900),
+            );
+          },
           imageBuilder: (context, imageProvider) {
             return Container(
               decoration: BoxDecoration(

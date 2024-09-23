@@ -28,7 +28,7 @@ class _SupportScreenState extends State<SupportScreen> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    final userId = UserManager.instance.user?.id;
+    final me = UserManager.instance.user;
     return Scaffold(
       extendBody: true,
       appBar: const CustomAppBar(),
@@ -66,7 +66,7 @@ class _SupportScreenState extends State<SupportScreen> {
                         );
                       } else if (snapshot.hasData) {
                         final mentor = snapshot.data!;
-                        if (mentor.userId != userId) {
+                        if (mentor.userId != me!.id) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             child: Container(
@@ -154,8 +154,8 @@ class _SupportScreenState extends State<SupportScreen> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     VoiceCall(
-                                                      roomId: mentor.userId,
-                                                      isCreating: false,
+                                                      roomId: me!.id,
+                                                      isCreating: true,
                                                       mentorName: mentor.userName,
                                                     ),
                                               ),
@@ -188,8 +188,10 @@ class _SupportScreenState extends State<SupportScreen> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     VideoCallScreen(
-                                                  roomId: mentor.userId,
-                                                  isCreating: false,
+                                                  roomId: me!.id,
+                                                  mentorId: mentor.userId,
+                                                  userName: me.name,
+                                                  isCreating: true,
                                                 ),
                                               ),
                                             );

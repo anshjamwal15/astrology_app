@@ -52,7 +52,7 @@ createMessageNotification(String title, String body, String senderId, String typ
         category: NotificationCategory.Message,
         wakeUpScreen: true,
         fullScreenIntent: true,
-        autoDismissible: true,
+        autoDismissible: false,
         duration: const Duration(seconds: 10),
         backgroundColor: Colors.white,
       ));

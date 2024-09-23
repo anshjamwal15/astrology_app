@@ -1,5 +1,4 @@
 
-import 'package:astrology_app/screens/communication/video/index.dart';
 import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -12,14 +11,10 @@ class RouteGenerator {
     if (settings.arguments != null && settings.arguments is ReceivedAction) {
       receivedAction = settings.arguments as ReceivedAction;
     }
-    printWarning(receivedAction?.payload);
-    printWarning(settings.name);
+
     switch (settings.name) {
       case '/':
         return MaterialPageRoute(builder: (context) => const HomeScreen());
-      case '/videoCall':
-        return MaterialPageRoute(
-            builder: (context) => const VideoCallScreen(roomId: "roomId", isCreating: false));
       default:
         return _errorRoute();
     }

@@ -1,9 +1,8 @@
 import 'package:astrology_app/screens/communication/chat/index.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
-import 'package:astrology_app/screens/home/main.dart';
+import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NotificationController {
@@ -43,27 +42,28 @@ class NotificationController {
   @pragma("vm:entry-point")
   static Future<void> onActionReceivedMethod(ReceivedAction action, GlobalKey<NavigatorState> navigatorKey) async {
     if (action.payload != null) {
-      // printError(navigatorKey.currentState!);
       String? type = action.payload?['type'];
-      String? senderId = action.payload?['senderId'];
-      // String? title = action.payload?['title'];
-      // String? body = action.payload?['body'];
       if (type == "call") {
         String? callType = action.payload?['callType'];
         String? roomId = action.payload?['roomId'];
+        _isCallScreen(true, navigatorKey, roomId!, callType);
       } else {
+        String? senderId = action.payload?['senderId'];
         _isCallScreen(false, navigatorKey, senderId!);
       }
     }
   }
 
-  static _isCallScreen(bool isCall, GlobalKey<NavigatorState> navigatorKey, String id) {
+  static _isCallScreen(bool isCall, GlobalKey<NavigatorState> navigatorKey, String id, [String? callType]) {
     if (isCall) {
       Navigator.of(navigatorKey.currentState!.context).pushReplacement(
-          MaterialPageRoute(
-            builder: (builder) => VideoCallScreen(roomId: id, isCreating: true),
-          )
+        MaterialPageRoute(
+          builder: (builder) => (callType == "video" || callType == null)
+              ? VideoCallScreen(roomId: id, isCreating: false, mentorId: id)
+              : VoiceCall(roomId: id, isCreating: false),
+        ),
       );
+      return;
     }
     Navigator.of(navigatorKey.currentState!.context).pushReplacement(
         MaterialPageRoute(

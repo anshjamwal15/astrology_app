@@ -3,8 +3,6 @@ import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/repository/authentication_repository.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
-import 'package:astrology_app/screens/communication/video/index.dart';
-import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
@@ -22,32 +20,12 @@ class CustomAppDrawer extends StatefulWidget {
 class _CustomAppDrawerState extends State<CustomAppDrawer> {
   final _authRepository = AuthenticationRepository();
 
-  Future<void> _requestPermission(bool isVideo) async {
-    if (isVideo) {
-      await [
-        Permission.camera,
-        Permission.microphone,
-      ].request();
-    } else {
-      await [
-        Permission.microphone,
-      ].request();
-    }
-  }
-
-  Future<bool> _checkPermission() async {
-    var camStatus = await Permission.camera.request();
-    var micStatus = await Permission.microphone.request();
-    if (camStatus.isDenied || micStatus.isDenied) {
-      return false;
-    }
-    return true;
-  }
-
   @override
   Widget build(BuildContext context) {
     User user = UserManager.instance.user!;
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery
+        .of(context)
+        .size;
     return SafeArea(
       child: Drawer(
         clipBehavior: Clip.hardEdge,
@@ -104,11 +82,12 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                 child: Column(
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (builder) => const HomeScreen(),
-                          )),
+                      onTap: () =>
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (builder) => const HomeScreen(),
+                              )),
                       child: _drawerOptions(size, "Home", Icons.home),
                     ),
                     SizedBox(height: size.height * 0.03),
@@ -225,30 +204,6 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
         ),
       ),
     );
-  }
-
-  void _navigate(String userId, bool isVideo) {
-    if (isVideo) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => VideoCallScreen(
-            isCreating: true,
-            roomId: userId,
-          ),
-        ),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => VoiceCall(
-            isCreating: true,
-            roomId: userId,
-          ),
-        ),
-      );
-    }
   }
 }
 

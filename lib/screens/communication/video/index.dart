@@ -1,18 +1,25 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/services/signaling_service.dart';
-import 'package:astrology_app/services/user_manager.dart';
-import 'package:astrology_app/utils/app_utils.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class VideoCallScreen extends StatefulWidget {
   final String roomId;
   final bool isCreating;
+  final String? mentorId;
+  final String? userName;
   const VideoCallScreen({
     super.key,
     required this.roomId,
     required this.isCreating,
+    this.mentorId,
+    this.userName
   });
 
   @override
@@ -21,6 +28,7 @@ class VideoCallScreen extends StatefulWidget {
 
 class _VideoCallScreenState extends State<VideoCallScreen> {
   SignalingService signaling = SignalingService();
+  final Dio dio = Dio();
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   bool isMuted = false;
@@ -37,6 +45,37 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         _remoteRenderer.srcObject = stream;
       });
     };
+
+    signaling.onAddConnectionStream = (state) {
+      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
+        _localRenderer.dispose();
+        _remoteRenderer.dispose();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (builder) => const HomeScreen(),
+          ),
+        );
+      }
+    };
+
+    signaling.onAddIceConnectionStream = (state) {
+      if (widget.isCreating && state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
+        final req = model.VideoCallRequest(
+          roomId: widget.roomId,
+          userId: widget.mentorId!,
+          callType: "video",
+          userName: widget.userName!,
+        );
+        _sendCallNotification(req);
+        signaling.createCallEntry(
+          widget.roomId,
+          widget.roomId,
+          widget.mentorId!
+        );
+      }
+    };
+
   }
 
   Future<void> _initializeRenderersAndMedia() async {
@@ -54,17 +93,17 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
     if (widget.isCreating) {
       await signaling.createRoom(
-        UserManager.instance.user!.id,
+        widget.roomId,
         localStream,
         _remoteRenderer.srcObject!,
-        true
+        true,
       );
     } else {
       await signaling.joinRoom(
         widget.roomId,
         localStream,
         _remoteRenderer.srcObject!,
-        true
+        true,
       );
     }
   }
@@ -86,7 +125,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           children: [
             Positioned.fill(
               child: SizedBox.expand(
-                child: _remoteRenderer.srcObject != null
+                child: _remoteRenderer.srcObject != null && _remoteRenderer.renderVideo
                     ? FittedBox(
                         fit: BoxFit.cover,
                         child: SizedBox(
@@ -120,7 +159,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                                       width: size.width * 0.4,
                                       height: size.height * 0.4,
                                       child: Image.asset(
-                                          "assets/images/waiting-room.png",),
+                                        "assets/images/waiting-room.png",
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -151,7 +191,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16.0),
                 ),
-                child: !isCameraOpen
+                child: !isCameraOpen && _localRenderer.srcObject != null
                     ? RTCVideoView(
                         filterQuality: FilterQuality.medium,
                         _localRenderer,
@@ -164,8 +204,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                           color: Colors.grey,
                         ),
                         child: const Center(
-                          child: Icon(Icons.person_2_outlined,
-                              color: Colors.white),
+                          child: Icon(
+                            Icons.person_2_outlined,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
               ),
@@ -231,11 +273,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     child: IconButton(
                       onPressed: () async {
                         await signaling.hangUp(
-                          widget.roomId,
-                          _localRenderer.srcObject!,
-                          _remoteRenderer.srcObject!,
-                          true
-                        );
+                            widget.roomId,
+                            _localRenderer.srcObject!,
+                            _remoteRenderer.srcObject!,
+                            true);
                         await _routeToHome();
                       },
                       icon: const Icon(
@@ -273,9 +314,15 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         track.enabled = !isMuted;
       }
     }
+    await signaling.updateMediaStatusInCall(
+      widget.roomId,
+      widget.isCreating ? "caller" : "callee",
+      !isCameraOpen,
+      !isMuted
+    );
   }
 
-  void _toggleCamera() {
+  void _toggleCamera() async {
     setState(() {
       isCameraOpen = !isCameraOpen;
     });
@@ -285,5 +332,22 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         track.enabled = !isCameraOpen;
       }
     }
+    await signaling.updateMediaStatusInCall(
+        widget.roomId,
+        widget.isCreating ? "caller" : "callee",
+        !isCameraOpen,
+        !isMuted
+    );
+  }
+
+  void _sendCallNotification(model.VideoCallRequest req) async {
+    String url = "${AppConstants.SERVER_IP}/notify/call-mentor";
+    final body = {
+      "userId": req.userId,
+      "userName": req.userName,
+      "callType": req.callType,
+      "roomId": req.roomId
+    };
+    await dio.post(url, data: body);
   }
 }

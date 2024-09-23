@@ -11,6 +11,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final Size size = MediaQuery.of(context).size;
     return AppBar(
       backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
       systemOverlayStyle:
           SystemUiOverlayStyle(statusBarColor: Colors.blue.shade900),
       actions: [
