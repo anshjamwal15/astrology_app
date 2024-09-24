@@ -6,6 +6,6 @@ class AppConstants {
 
   static final Color bgColor = Colors.grey.shade100;
 
-  static const String SERVER_IP = "http://192.168.11.19:3000";
+  static const String SERVER_IP = "http://192.168.46.69:3000";
 
 }

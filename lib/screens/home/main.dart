@@ -6,7 +6,6 @@ import 'package:astrology_app/screens/home/cubits/home_cubit.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/screens/support/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _requestPermissions() async {
-    await AwesomeNotifications().requestPermissionToSendNotifications();
-    await [Permission.camera, Permission.microphone].request();
+    await [Permission.camera, Permission.microphone, Permission.notification].request();
   }
 
   @override

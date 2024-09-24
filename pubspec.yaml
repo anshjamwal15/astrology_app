@@ -32,8 +32,10 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   cached_network_image: ^3.4.1
   firebase_messaging: ^15.1.2
-  awesome_notifications: ^0.9.3+1
   dio: ^5.7.0
+  uuid: ^4.5.0
+  flutter_local_notifications: ^17.2.3
+
 
 dev_dependencies:
   flutter_test:

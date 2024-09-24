@@ -8,6 +8,8 @@ import 'package:astrology_app/screens/communication/video/index.dart';
 import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/services/user_manager.dart';
+import 'package:astrology_app/utils/app_utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -183,13 +185,15 @@ class _SupportScreenState extends State<SupportScreen> {
                                         SizedBox(height: size.height * 0.01),
                                         GestureDetector(
                                           onTap: () {
+                                            final roomId = UniqueIdGenerator.generate();
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     VideoCallScreen(
-                                                  roomId: me!.id,
+                                                  roomId: roomId,
                                                   mentorId: mentor.userId,
+                                                  creatorId: me.id,
                                                   userName: me.name,
                                                   isCreating: true,
                                                 ),

@@ -2,7 +2,6 @@ import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:intl/intl.dart';
 
 typedef StreamStateCallback = void Function(MediaStream stream);
 typedef IceConnectionStateCallback = void Function(RTCIceGatheringState state);
@@ -34,12 +33,8 @@ class SignalingService {
   IceConnectionStateCallback? onAddIceConnectionStream;
   ConnectionStateCallback? onAddConnectionStream;
 
-  Future<String> createRoom(
-    String roomId,
-    MediaStream localStream,
-    MediaStream remoteStream,
-      bool isVideo
-  ) async {
+  Future<String> createRoom(String roomId, MediaStream localStream,
+      MediaStream remoteStream, bool isVideo) async {
     try {
       FirebaseFirestore db = FirebaseFirestore.instance;
       var roomName = isVideo ? "video_rooms" : "audio_rooms";
@@ -126,7 +121,8 @@ class SignalingService {
       roomRef.collection('calleeCandidates').snapshots().listen((snapshot) {
         for (var change in snapshot.docChanges) {
           if (change.type == DocumentChangeType.added) {
-            Map<String, dynamic> data = change.doc.data() as Map<String, dynamic>;
+            Map<String, dynamic> data =
+                change.doc.data() as Map<String, dynamic>;
             if (kDebugMode) {
               // print('Got new remote ICE candidate: ${jsonEncode(data)}');
             }
@@ -148,12 +144,8 @@ class SignalingService {
     return roomId;
   }
 
-  Future<void> joinRoom(
-    String roomId,
-    MediaStream localStream,
-    MediaStream remoteStream,
-      bool isVideo
-  ) async {
+  Future<void> joinRoom(String roomId, MediaStream localStream,
+      MediaStream remoteStream, bool isVideo) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     var roomName = isVideo ? "video_rooms" : "audio_rooms";
     DocumentReference roomRef = db.collection(roomName).doc(roomId);
@@ -244,23 +236,39 @@ class SignalingService {
     }
   }
 
-  Future<void> hangUp(
-    String roomId,
-    MediaStream localStream,
-    MediaStream remoteStream,
-      bool isVideo
-  ) async {
+  Future<void> hangUp(String roomId, MediaStream localStream,
+      MediaStream remoteStream, bool isVideo,
+      [Timestamp? endedAt]) async {
     List<MediaStreamTrack> tracks = localStream.getTracks();
     for (var track in tracks) {
       track.stop();
     }
 
     remoteStream.getTracks().forEach((track) => track.stop());
-      if (peerConnection != null) peerConnection!.close();
+    if (peerConnection != null) peerConnection!.close();
 
     var db = FirebaseFirestore.instance;
     var roomName = isVideo ? "video_rooms" : "audio_rooms";
     var roomRef = db.collection(roomName).doc(roomId);
+
+    // Fetch the current status of the call
+    var callRef = db.collection('calls').doc(roomId);
+    var callSnapshot = await callRef.get();
+
+    if (callSnapshot.exists) {
+      var currentStatus = callSnapshot['status'];
+
+      if (currentStatus == 'active') {
+        await callRef.update({
+          'status': 'inactive',
+          if (endedAt != null) 'endedAt': endedAt
+        }).catchError((e) {
+          printWarning('Error updating call status: $e');
+        });
+      }
+    }
+
+    // Clear candidates
     var calleeCandidates = await roomRef.collection('calleeCandidates').get();
     for (var document in calleeCandidates.docs) {
       document.reference.delete();
@@ -277,83 +285,117 @@ class SignalingService {
     remoteStream.dispose();
   }
 
-
-  Future<void> createCallEntry(String roomId, String callerId, String calleeId) async {
+  Future<String> createCallEntry(
+    String roomId,
+    String callerId,
+    String calleeId,
+  ) async {
     try {
       FirebaseFirestore db = FirebaseFirestore.instance;
-      DocumentReference callHistoryRef = db.collection('call_history').doc(roomId);
-      await callHistoryRef.set({
+
+      DocumentReference callRef = db.collection('calls').doc(roomId);
+
+      // Create call entry in the 'calls' collection
+      await callRef.set({
         'callerId': callerId,
         'calleeId': calleeId,
         'createdAt': Timestamp.now(),
         'status': 'active',
       }, SetOptions(merge: true));
 
-      printWarning('Call entry created successfully in call_history');
+      printWarning('Call entry created successfully $roomId');
+
+      return roomId;
     } catch (e) {
-      printWarning('Error creating call entry in call_history: $e');
+      printWarning('Error creating call entry: $e');
+      return "";
     }
   }
 
-
-  Future<void> updateMediaStatusInCall(String roomId, String userType, bool? isCameraOn, bool? isMicOn) async {
+  Future<void> updateMediaStatusInCall(
+      String roomId, String userType, bool? isCameraOn, bool? isMicOn,
+      [String? callerId, String? calleeId]) async {
     try {
       FirebaseFirestore db = FirebaseFirestore.instance;
-
-      // Reference to the call_history document
-      DocumentReference callHistoryRef = db.collection('call_history').doc(roomId);
+      DocumentReference callRef = db.collection('calls').doc(roomId);
 
       // Get the current call status
-      DocumentSnapshot callDoc = await callHistoryRef.get();
+      DocumentSnapshot callDoc = await callRef.get();
 
       if (callDoc.exists) {
         Map<String, dynamic> callData = callDoc.data() as Map<String, dynamic>;
-        // Check if the call status is false
         String callStatus = callData['status'];
 
         if (callStatus == "active") {
-          // Reference to the call sub-collection in call_history
-          // TODO: change mediaStatus as docId to userId
-          DocumentReference callRef = callHistoryRef.collection('calls').doc('mediaStatus');
+          DocumentReference mediaStatusRef = callRef
+              .collection('media_status')
+              .doc(userType == "caller" ? callerId : calleeId);
 
           // Define the media status update object
           Map<String, dynamic> mediaStatus = {
             if (isCameraOn != null) 'isCameraOn': isCameraOn,
             if (isMicOn != null) 'isMicOn': isMicOn,
             'updatedAt': Timestamp.now(),
-            'user_type': userType
+            'userType': userType,
           };
 
-          await callRef.set(mediaStatus, SetOptions(merge: true));
-          printWarning('Media status updated successfully in call sub-collection');
+          await mediaStatusRef.set(mediaStatus, SetOptions(merge: true));
+
+          printWarning('Media status updated successfully in calls collection');
         } else {
-          printWarning(('Call status is active, not updating media status.'));
+          printWarning(('Call is not active, not updating media status.'));
         }
       } else {
-        printWarning('Call history document does not exist.');
+        printWarning('Call document does not exist.');
       }
     } catch (e) {
-      printWarning('Error updating media status in call sub-collection: $e');
+      printWarning('Error updating media status: $e');
     }
   }
 
-
-
-  Stream<Map<String, dynamic>?> listenToStatus(String roomId) {
+  Stream<Map<String, dynamic>?> listenToStatus(
+    String roomId,
+    String userType,
+    String? callerId,
+    String? calleeId,
+  ) {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    DocumentReference callHistoryRef = db.collection('call_history').doc(roomId);
-    return callHistoryRef.collection('calls').where('status', isNotEqualTo: 'inactive').snapshots().map((snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        var latestDoc = snapshot.docs.last;
-        return latestDoc.data() as Map<String, dynamic>?;
+    DocumentReference callRef = db.collection('calls').doc(roomId);
+
+    // Listen to the call's main document to check if the status is 'active'
+    return callRef.snapshots().asyncExpand((callDoc) async* {
+      if (callDoc.exists) {
+        Map<String, dynamic> callData = callDoc.data() as Map<String, dynamic>;
+
+        // Check if the call status is 'active'
+        if (callData['status'] == 'active') {
+          // Determine the media document reference based on the userType
+          String? mediaDocId = userType == "caller" ? callerId : calleeId;
+          if (mediaDocId != null) {
+            // Now listen to media status updates only for active calls
+            yield* callRef
+                .collection('media_status')
+                .doc(mediaDocId)
+                .snapshots()
+                .map((snapshot) {
+              if (snapshot.exists) {
+                return snapshot.data() as Map<String, dynamic>?;
+              }
+              return null;
+            });
+          } else {
+            yield null;
+          }
+        } else {
+          yield null;
+        }
+      } else {
+        yield null;
       }
-      return null;
     });
   }
 
-
   void registerPeerConnectionListeners(MediaStream remoteStream) {
-
     peerConnection?.onConnectionState = (RTCPeerConnectionState state) {
       if (kDebugMode) {
         print('Connection state change: $state');

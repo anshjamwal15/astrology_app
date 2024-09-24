@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/services/signaling_service.dart';
+import 'package:astrology_app/utils/app_utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -14,12 +15,14 @@ class VideoCallScreen extends StatefulWidget {
   final bool isCreating;
   final String? mentorId;
   final String? userName;
+  final String? creatorId;
   const VideoCallScreen({
     super.key,
     required this.roomId,
     required this.isCreating,
     this.mentorId,
-    this.userName
+    this.userName,
+    this.creatorId
   });
 
   @override
@@ -34,6 +37,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   bool isMuted = false;
   bool isCameraOpen = false;
   bool isRemoteCameraOpen = true;
+  bool isRemoteMicOpen = true;
+  StreamSubscription<Map<String, dynamic>?>? mediaStatusSubscription;
 
   @override
   void initState() {
@@ -64,18 +69,33 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         final req = model.VideoCallRequest(
           roomId: widget.roomId,
           userId: widget.mentorId!,
+          creatorId: widget.creatorId!,
           callType: "video",
           userName: widget.userName!,
         );
         _sendCallNotification(req);
         signaling.createCallEntry(
           widget.roomId,
-          widget.roomId,
+          widget.creatorId!,
           widget.mentorId!
         );
       }
     };
 
+    mediaStatusSubscription = signaling
+        .listenToStatus(
+      widget.roomId,
+      widget.isCreating ? "callee" : "caller",
+      widget.creatorId,
+      widget.mentorId,
+    ).listen((mediaStatus) {
+      if (mediaStatus != null) {
+        setState(() {
+          isRemoteCameraOpen = mediaStatus['isCameraOn'] ?? true;
+          isRemoteMicOpen = mediaStatus['isMicOn'] ?? true;
+        });
+      }
+    });
   }
 
   Future<void> _initializeRenderersAndMedia() async {
@@ -110,6 +130,18 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   @override
   void dispose() {
+    var localTracks = _localRenderer.srcObject?.getTracks();
+    localTracks?.forEach((track) {
+      track.stop();
+    });
+
+    signaling.hangUp(
+        widget.roomId,
+        _localRenderer.srcObject!,
+        _remoteRenderer.srcObject!,
+        true
+    );
+
     _localRenderer.dispose();
     _remoteRenderer.dispose();
     super.dispose();
@@ -228,11 +260,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     child: IconButton(
                       onPressed: () async {
                         _toggleMute();
-                        // await signaling.updateMediaStatus(
-                        //   widget.roomId,
-                        //   widget.isCreating ? "caller" : "callee",
-                        //   isMicOn: !isMuted,
-                        // );
                       },
                       icon: Icon(
                         Icons.mic_off,
@@ -276,7 +303,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                             widget.roomId,
                             _localRenderer.srcObject!,
                             _remoteRenderer.srcObject!,
-                            true);
+                            true,
+                            Timestamp.now()
+                        );
                         await _routeToHome();
                       },
                       icon: const Icon(
@@ -318,7 +347,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       widget.roomId,
       widget.isCreating ? "caller" : "callee",
       !isCameraOpen,
-      !isMuted
+      !isMuted,
+      widget.creatorId,
+      widget.mentorId
     );
   }
 
@@ -336,7 +367,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         widget.roomId,
         widget.isCreating ? "caller" : "callee",
         !isCameraOpen,
-        !isMuted
+        !isMuted,
+        widget.creatorId,
+        widget.mentorId
     );
   }
 
@@ -344,6 +377,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     String url = "${AppConstants.SERVER_IP}/notify/call-mentor";
     final body = {
       "userId": req.userId,
+      "creatorId": req.creatorId,
       "userName": req.userName,
       "callType": req.callType,
       "roomId": req.roomId

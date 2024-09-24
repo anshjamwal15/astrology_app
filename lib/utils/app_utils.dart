@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 Future<Map<String, dynamic>?> getRefDocumentData(DocumentReference ref) async {
   try {
@@ -54,9 +55,12 @@ String formatTimestamp(Timestamp timestamp) {
   return DateFormat('hh:mm a').format(dateTime);
 }
 
-String createCallRoom(List<String> members) {
-  members.sort();
-  return members.join('_').substring(0, 8);
+class UniqueIdGenerator {
+  static const Uuid _uuid = Uuid();
+
+  static String generate() {
+    return _uuid.v4();
+  }
 }
 
 void printWarning(Object? text) {

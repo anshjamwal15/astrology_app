@@ -1,17 +1,13 @@
-
 import 'package:astrology_app/screens/home/main.dart';
-import 'package:astrology_app/utils/app_utils.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 
 class RouteGenerator {
   static Route<dynamic> generatorRoute(RouteSettings settings) {
-    ReceivedAction? receivedAction;
-    printWarning(settings.arguments);
-    if (settings.arguments != null && settings.arguments is ReceivedAction) {
-      receivedAction = settings.arguments as ReceivedAction;
-    }
-
+    // ReceivedAction? receivedAction;
+    // printWarning(settings.arguments);
+    // if (settings.arguments != null && settings.arguments is ReceivedAction) {
+    //   receivedAction = settings.arguments as ReceivedAction;
+    // }
     switch (settings.name) {
       case '/':
         return MaterialPageRoute(builder: (context) => const HomeScreen());
