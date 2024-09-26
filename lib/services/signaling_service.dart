@@ -215,9 +215,7 @@ class SignalingService {
       };
 
       await roomRef.update(roomWithAnswer);
-      // Finished creating SDP answer
 
-      // Listening for remote ICE candidates below
       roomRef.collection('callerCandidates').snapshots().listen((snapshot) {
         for (var document in snapshot.docChanges) {
           var data = document.doc.data() as Map<String, dynamic>;
@@ -238,7 +236,7 @@ class SignalingService {
 
   Future<void> hangUp(String roomId, MediaStream localStream,
       MediaStream remoteStream, bool isVideo,
-      [Timestamp? endedAt]) async {
+      [Timestamp? endedAt, String? duration]) async {
     List<MediaStreamTrack> tracks = localStream.getTracks();
     for (var track in tracks) {
       track.stop();
@@ -251,8 +249,7 @@ class SignalingService {
     var roomName = isVideo ? "video_rooms" : "audio_rooms";
     var roomRef = db.collection(roomName).doc(roomId);
 
-    // Fetch the current status of the call
-    var callRef = db.collection('calls').doc(roomId);
+    var callRef = db.collection('call_logs').doc(roomId);
     var callSnapshot = await callRef.get();
 
     if (callSnapshot.exists) {
@@ -261,7 +258,8 @@ class SignalingService {
       if (currentStatus == 'active') {
         await callRef.update({
           'status': 'inactive',
-          if (endedAt != null) 'endedAt': endedAt
+          if (endedAt != null) 'endedAt': endedAt,
+          if (duration != null) 'duration': duration
         }).catchError((e) {
           printWarning('Error updating call status: $e');
         });
@@ -289,18 +287,19 @@ class SignalingService {
     String roomId,
     String callerId,
     String calleeId,
+    String callType
   ) async {
     try {
       FirebaseFirestore db = FirebaseFirestore.instance;
 
-      DocumentReference callRef = db.collection('calls').doc(roomId);
+      DocumentReference callRef = db.collection('call_logs').doc(roomId);
 
-      // Create call entry in the 'calls' collection
       await callRef.set({
         'callerId': callerId,
         'calleeId': calleeId,
         'createdAt': Timestamp.now(),
         'status': 'active',
+        'callType': callType
       }, SetOptions(merge: true));
 
       printWarning('Call entry created successfully $roomId');
@@ -317,7 +316,7 @@ class SignalingService {
       [String? callerId, String? calleeId]) async {
     try {
       FirebaseFirestore db = FirebaseFirestore.instance;
-      DocumentReference callRef = db.collection('calls').doc(roomId);
+      DocumentReference callRef = db.collection('call_logs').doc(roomId);
 
       // Get the current call status
       DocumentSnapshot callDoc = await callRef.get();
@@ -360,19 +359,15 @@ class SignalingService {
     String? calleeId,
   ) {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    DocumentReference callRef = db.collection('calls').doc(roomId);
+    DocumentReference callRef = db.collection('call_logs').doc(roomId);
 
-    // Listen to the call's main document to check if the status is 'active'
     return callRef.snapshots().asyncExpand((callDoc) async* {
       if (callDoc.exists) {
         Map<String, dynamic> callData = callDoc.data() as Map<String, dynamic>;
 
-        // Check if the call status is 'active'
         if (callData['status'] == 'active') {
-          // Determine the media document reference based on the userType
           String? mediaDocId = userType == "caller" ? callerId : calleeId;
           if (mediaDocId != null) {
-            // Now listen to media status updates only for active calls
             yield* callRef
                 .collection('media_status')
                 .doc(mediaDocId)

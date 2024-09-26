@@ -1,18 +1,17 @@
-import 'package:astrology_app/utils/app_utils.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:astrology_app/models/user.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:astrology_app/models/index.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as cf;
+import 'package:firebase_messaging/firebase_messaging.dart' as firebase;
 
 class UserRepository {
-  UserRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  UserRepository({cf.FirebaseFirestore? firestore})
+      : _firestore = firestore ?? cf.FirebaseFirestore.instance;
 
-  final FirebaseFirestore _firestore;
+  final cf.FirebaseFirestore _firestore;
 
   Future<void> saveUser(User user) async {
     final userRef = _firestore.collection('users').doc(user.id);
     // TODO: don't update token everytime
-    final userToken = await FirebaseMessaging.instance.getToken();
+    final userToken = await firebase.FirebaseMessaging.instance.getToken();
 
     final querySnapshot = await _firestore
         .collection('users')
@@ -25,17 +24,13 @@ class UserRepository {
         'name': user.name,
         'email': user.email,
         'mobile': user.mobile,
-        'date_time': Timestamp.now(),
+        'date_time': cf.Timestamp.now(),
         'user_token': userToken
-      }, SetOptions(merge: true));
+      }, cf.SetOptions(merge: true));
     } else {
-      await userRef.set({
-        'user_token': userToken
-      }, SetOptions(merge: true));
+      await userRef.set({'user_token': userToken}, cf.SetOptions(merge: true));
     }
   }
-
-
 
   Future<void> updateUser(String userId, Map<String, dynamic> data) async {
     final userRef = _firestore.collection('users').doc(userId);
@@ -65,4 +60,36 @@ class UserRepository {
       return null;
     });
   }
+
+  Future<bool> isUserMentor(String userId) async {
+    try {
+      final userRef = _firestore.collection('users').doc(userId);
+      final querySnapshot = await _firestore
+          .collection('mentor')
+          .where('user_id', isEqualTo: userRef)
+          .get();
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<MentorRate?> getMentorRates(String mentorId) async {
+    try {
+      final rateRef = await _firestore
+          .collection('mentor_rate')
+          .where('mentor_id', isEqualTo: mentorId)
+          .get();
+
+      if (rateRef.docs.isNotEmpty) {
+        final doc = rateRef.docs.first;
+        return MentorRate.fromFirestore(doc);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
 }

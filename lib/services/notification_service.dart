@@ -1,7 +1,6 @@
 import 'package:astrology_app/screens/communication/chat/index.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
 import 'package:astrology_app/screens/communication/voice/index.dart';
-import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -9,7 +8,8 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  static Future<void> initializeNotifications(GlobalKey<NavigatorState> navigatorKey) async {
+  static Future<void> initializeNotifications(
+      GlobalKey<NavigatorState> navigatorKey) async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -27,6 +27,12 @@ class NotificationService {
       iOS: initializationSettingsIOS,
     );
 
+    final NotificationAppLaunchDetails? notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+
+    if (notificationAppLaunchDetails != null && notificationAppLaunchDetails.didNotificationLaunchApp) {
+      notificationTapBackground(notificationAppLaunchDetails.notificationResponse!, navigatorKey);
+    }
+
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
@@ -36,31 +42,36 @@ class NotificationService {
   }
 
   static Future<void> createCallNotification(
-      String title,
-      String body,
-      String callType,
-      String roomId,
-      String type,
-      String callerId,
-      String calleeId) async {
+    String title,
+    String body,
+    String callType,
+    String roomId,
+    String type,
+    String callerId,
+    String calleeId,
+  ) async {
     var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
       'call_channel', // Channel ID
       'Call Notifications', // Channel Name
       importance: Importance.max,
       priority: Priority.max,
       fullScreenIntent: true,
-      // playSound: true,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound("incoming_call"),
       actions: [
         AndroidNotificationAction(
-            'ANSWER', // Action Key
-            'Answer', // Action Title
-            titleColor: Colors.green,
-            showsUserInterface: true),
+          'ANSWER', // Action Key
+          'Answer', // Action Title
+          titleColor: Colors.green,
+          showsUserInterface: true,
+        ),
         AndroidNotificationAction(
-            'DECLINE', // Action Key
-            'Decline', // Action Title
-            titleColor: Colors.red,
-            showsUserInterface: true),
+          'DECLINE', // Action Key
+          'Decline', // Action Title
+          titleColor: Colors.red,
+          showsUserInterface: false,
+          cancelNotification: true,
+        ),
       ],
     );
 
@@ -92,8 +103,9 @@ class NotificationService {
     var iOSPlatformChannelSpecifics = const DarwinNotificationDetails();
 
     var platformChannelSpecifics = NotificationDetails(
-        android: androidPlatformChannelSpecifics,
-        iOS: iOSPlatformChannelSpecifics);
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics,
+    );
 
     await _flutterLocalNotificationsPlugin.show(
       1, // Notification ID
@@ -105,11 +117,12 @@ class NotificationService {
   }
 
   @pragma('vm:entry-point')
-  static void notificationTapBackground(NotificationResponse notificationResponse, GlobalKey<NavigatorState> navigatorKey) {
+  static void notificationTapBackground(
+      NotificationResponse notificationResponse,
+      GlobalKey<NavigatorState> navigatorKey) {
     String? payload = notificationResponse.payload;
     if (payload != null) {
       var data = Uri.splitQueryString(payload);
-      printError(data);
       if (data['type'] == 'call') {
         String roomId = data['roomId']!;
         String callerId = data['callerId']!;
@@ -123,21 +136,32 @@ class NotificationService {
     }
   }
 
-  static _isCallScreen(bool isCall, GlobalKey<NavigatorState> navigatorKey, String id, [String? callType, String? callerId, String? calleeId]) {
+  static _isCallScreen(
+      bool isCall, GlobalKey<NavigatorState> navigatorKey, String id,
+      [String? callType, String? callerId, String? calleeId]) {
     if (isCall) {
       Navigator.of(navigatorKey.currentState!.context).pushReplacement(
         MaterialPageRoute(
           builder: (builder) => (callType == "video" || callType == null)
-              ? VideoCallScreen(roomId: id, isCreating: false, mentorId: calleeId, creatorId: callerId)
-              : VoiceCall(roomId: id, isCreating: false),
+              ? VideoCallScreen(
+                  roomId: id,
+                  isCreating: false,
+                  mentorId: calleeId,
+                  creatorId: callerId,
+                )
+              : VoiceCall(
+                  roomId: id,
+                  isCreating: false,
+                  mentorId: calleeId,
+                  creatorId: callerId,
+                ),
         ),
       );
       return;
     }
-    Navigator.of(navigatorKey.currentState!.context).pushReplacement(
-        MaterialPageRoute(
-          builder: (builder) => ChatScreen(senderId: id),
-        )
-    );
+    Navigator.of(navigatorKey.currentState!.context)
+        .pushReplacement(MaterialPageRoute(
+      builder: (builder) => ChatScreen(senderId: id),
+    ));
   }
 }

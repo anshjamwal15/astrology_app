@@ -1,11 +1,10 @@
-import 'package:astrology_app/blocs/chat/chat_bloc.dart';
+import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/home/cubits/home_cubit.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/screens/support/main.dart';
-import 'package:astrology_app/services/user_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -25,14 +24,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    user = UserManager.instance.user!;
-    context.read<HomeCubit>().loadCategories();
+    user = context.read<AppBloc>().state.user;
     context.read<ChatBloc>().add(GetUnreadCount(user.id));
+    context.read<HomeCubit>().loadCategories();
+    context.read<UserBloc>().add(UserWalletRequest(user.id));
     _requestPermissions();
   }
 
   void _requestPermissions() async {
-    await [Permission.camera, Permission.microphone, Permission.notification].request();
+    await [Permission.notification, Permission.camera, Permission.microphone].request();
   }
 
   @override
@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
             context,
             MaterialPageRoute(
               builder: (context) => BlocProvider(
-                create: (context) => MentorCubit(FirebaseFirestore.instance),
+                create: (context) => MentorCubit(),
                 child: const SupportScreen(),
               ),
             ),

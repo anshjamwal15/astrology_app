@@ -14,9 +14,9 @@ class Transaction extends Equatable {
   final int balance;
   final String currency;
   final String orderId;
-  final DocumentReference tType;
-  final DocumentReference sessionId;
-  final DocumentReference user;
+  final String tType;
+  final String sessionId;
+  final String user;
 
   const Transaction({
     required this.id,
@@ -69,9 +69,9 @@ class Transaction extends Equatable {
       balance: map['balance'] as int,
       currency: map['currency'] as String,
       orderId: map['order_id'] as String,
-      tType: map['t_type']['value'] as DocumentReference,
-      sessionId: map['session_id']['value'] as DocumentReference,
-      user: map['user']['value'] as DocumentReference,
+      tType: map['t_type']['value'] as String,
+      sessionId: map['session_id']['value'] as String,
+      user: map['user']['value'] as String,
     );
   }
 
@@ -102,17 +102,17 @@ class Transaction extends Equatable {
       amount: data['amount'] ?? 0,
       tax: data['tax'] ?? 0,
       mentorRateId: data['mentor_rate_id'] ?? '',
-      dateTimeFrom: data['date_time_from']['value'] as Timestamp,
-      dateTimeTo: data['date_time_to']['value'] as Timestamp,
+      dateTimeFrom: data['date_time_from'] as Timestamp,
+      dateTimeTo: data['date_time_to'] as Timestamp,
       gatewayId: data['gateway_id'] ?? '',
       duration: data['duration'] ?? 0,
       total: data['total'] ?? 0,
       balance: data['balance'] ?? 0,
       currency: data['currency'] ?? '',
       orderId: data['order_id'] ?? '',
-      tType: data['t_type']['value'] as DocumentReference,
-      sessionId: data['session_id']['value'] as DocumentReference,
-      user: data['user']['value'] as DocumentReference,
+      tType: data['t_type'] as String,
+      sessionId: data['session_id'] as String,
+      user: data['user'] as String,
     );
   }
 }

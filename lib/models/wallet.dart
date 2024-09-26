@@ -3,17 +3,17 @@ import 'package:equatable/equatable.dart';
 
 class Wallet extends Equatable {
   final String id;
-  final String lastTransactionId;
-  final String mentorId;
+  final String? lastTransactionId;
+  final String? mentorId;
   final int balance;
-  final String dateTime;
+  final Timestamp dateTime;
   final String currency;
-  final DocumentReference userId;
+  final String userId;
 
   const Wallet({
     required this.id,
-    required this.lastTransactionId,
-    required this.mentorId,
+    this.lastTransactionId,
+    this.mentorId,
     required this.balance,
     required this.dateTime,
     required this.currency,
@@ -26,20 +26,18 @@ class Wallet extends Equatable {
   static Wallet fromMap(Map<String, dynamic> map) {
     return Wallet(
       id: map['id'] as String,
-      lastTransactionId: map['last_transaction_id'] as String,
-      mentorId: map['mentor_id'] as String,
+      lastTransactionId: map['last_transaction_id'] as String?,
+      mentorId: map['mentor_id'] as String?,
       balance: map['balance'] as int,
-      dateTime: map['date_time'] as String,
+      dateTime: map['date_time'] as Timestamp,
       currency: map['currency'] as String,
-      userId: map['user_id'] as DocumentReference,
+      userId: map['user_id'] as String,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'last_transaction_id': lastTransactionId,
-      'mentor_id': mentorId,
       'balance': balance,
       'date_time': dateTime,
       'currency': currency,
@@ -56,7 +54,7 @@ class Wallet extends Equatable {
       balance: data['balance'] ?? 0,
       dateTime: data['date_time'] ?? '',
       currency: data['currency'] ?? '',
-      userId: data['user_id']?['value'] as DocumentReference,
+      userId: data['user_id'] ?? '',
     );
   }
 }

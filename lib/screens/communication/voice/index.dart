@@ -1,12 +1,18 @@
 import 'dart:async';
-import 'package:astrology_app/services/user_manager.dart';
+import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/screens/home/main.dart';
+import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/services/signaling_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class VoiceCall extends StatefulWidget {
-  final String? mentorName;
+  final String? mentorId;
+  final String? userName;
+  final String? creatorId;
   final String roomId;
   final bool isCreating;
 
@@ -14,7 +20,9 @@ class VoiceCall extends StatefulWidget {
     super.key,
     required this.roomId,
     required this.isCreating,
-    this.mentorName,
+    this.userName,
+    this.mentorId,
+    this.creatorId
   });
 
   @override
@@ -23,10 +31,12 @@ class VoiceCall extends StatefulWidget {
 
 class _VoiceCallState extends State<VoiceCall> {
   SignalingService signaling = SignalingService();
+  final Dio dio = Dio();
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   int _seconds = 0;
   bool _isMuted = false;
+  StreamSubscription<Map<String, dynamic>?>? mediaStatusSubscription;
   // bool _isSpeakerOn = true;
 
   void _startTimer() {
@@ -45,10 +55,42 @@ class _VoiceCallState extends State<VoiceCall> {
     _initializeRenderersAndMedia();
 
     signaling.onAddRemoteStream = (stream) {
+      _startTimer();
       setState(() {
         _remoteRenderer.srcObject = stream;
       });
-      _startTimer();
+    };
+
+    signaling.onAddConnectionStream = (state) {
+      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
+        _localRenderer.dispose();
+        _remoteRenderer.dispose();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (builder) => const HomeScreen(),
+          ),
+        );
+      }
+    };
+
+    signaling.onAddIceConnectionStream = (state) {
+      if (widget.isCreating && state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
+        final req = model.CallRequest(
+          roomId: widget.roomId,
+          userId: widget.mentorId!,
+          creatorId: widget.creatorId!,
+          callType: "audio",
+          userName: widget.userName!,
+        );
+        _sendCallNotification(req);
+        signaling.createCallEntry(
+            widget.roomId,
+            widget.creatorId!,
+            widget.mentorId!,
+            "audio"
+        );
+      }
     };
   }
 
@@ -67,7 +109,7 @@ class _VoiceCallState extends State<VoiceCall> {
 
     if (widget.isCreating) {
       await signaling.createRoom(
-        UserManager.instance.user!.id,
+        widget.roomId,
         localStream,
         _remoteRenderer.srcObject!,
         false,
@@ -84,6 +126,18 @@ class _VoiceCallState extends State<VoiceCall> {
 
   @override
   void dispose() {
+    var localTracks = _localRenderer.srcObject?.getTracks();
+    localTracks?.forEach((track) {
+      track.stop();
+    });
+
+    signaling.hangUp(
+        widget.roomId,
+        _localRenderer.srcObject!,
+        _remoteRenderer.srcObject!,
+        false
+    );
+
     _localRenderer.dispose();
     _remoteRenderer.dispose();
     super.dispose();
@@ -105,7 +159,8 @@ class _VoiceCallState extends State<VoiceCall> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
                             child: Text(
-                              "On call ${widget.isCreating ? "" : widget.mentorName}",
+                              "On call",
+                              // "On call ${widget.isCreating ? "" : widget.userName}",
                               style: GoogleFonts.acme(
                                   color: Colors.white, fontSize: 20),
                             ),
@@ -190,7 +245,17 @@ class _VoiceCallState extends State<VoiceCall> {
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: IconButton(
-                                  onPressed: _hangUp,
+                                  onPressed: () async {
+                                    await signaling.hangUp(
+                                        widget.roomId,
+                                        _localRenderer.srcObject!,
+                                        _remoteRenderer.srcObject!,
+                                        false,
+                                        Timestamp.now(),
+                                        _formatTime(_seconds)
+                                    );
+                                    await _routeToHome();
+                                  },
                                   icon: const Icon(
                                     Icons.call_end,
                                     size: 24,
@@ -221,29 +286,37 @@ class _VoiceCallState extends State<VoiceCall> {
     );
   }
 
+  _routeToHome() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+    );
+  }
+
   String _formatTime(int seconds) {
     int minutes = (seconds % 3600) ~/ 60;
     int remainingSeconds = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  void _toggleMute() {
+  void _toggleMute() async {
     setState(() {
       _isMuted = !_isMuted;
       _localRenderer.srcObject?.getAudioTracks().forEach((track) {
         track.enabled = !_isMuted;
       });
     });
-  }
 
-  void _hangUp() {
-    signaling.hangUp(
-      widget.roomId,
-      _localRenderer.srcObject!,
-      _remoteRenderer.srcObject!,
-      false,
+    await signaling.updateMediaStatusInCall(
+        widget.roomId,
+        widget.isCreating ? "caller" : "callee",
+        null,
+        !_isMuted,
+        widget.creatorId,
+        widget.mentorId
     );
-    Navigator.pop(context);
   }
 
   _invisibleWidget() {
@@ -263,5 +336,17 @@ class _VoiceCallState extends State<VoiceCall> {
         ],
       ),
     );
+  }
+
+  void _sendCallNotification(model.CallRequest req) async {
+    String url = "${AppConstants.SERVER_IP}/notify/call-mentor";
+    final body = {
+      "userId": req.userId,
+      "creatorId": req.creatorId,
+      "userName": req.userName,
+      "callType": req.callType,
+      "roomId": req.roomId
+    };
+    await dio.post(url, data: body);
   }
 }

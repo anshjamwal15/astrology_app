@@ -1,3 +1,4 @@
+import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/services/DAOs/user_dao.dart';
@@ -140,8 +141,11 @@ class AuthenticationRepository {
 
   Stream<User> get user {
     return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
-      final user = firebaseUser == null ? User.empty : firebaseUser.toUser;
-      if (firebaseUser != null) {
+      var user = firebaseUser == null ? User.empty : firebaseUser.toUser;
+      if (firebaseUser != null && firebaseUser.emailVerified) {
+        final isMentor = await _userRepository.isUserMentor(user.id);
+        user = user.copyWith(isMentor: isMentor);
+        AppConstants.isUserMentor = isMentor;
         await _userDao.insertUser(user);
       } else {
         await _userDao.deleteUser();

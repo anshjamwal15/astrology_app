@@ -1,4 +1,3 @@
-import 'package:astrology_app/models/call_history.dart';
 import 'package:astrology_app/models/chat_list_messages.dart';
 import 'package:astrology_app/models/chat_messages.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -134,9 +133,5 @@ class ChatRepository {
 
     final snapshot = await query.get();
     return snapshot.docs.length;
-  }
-
-  Future<void> createCallHistory(CallHistory history) async {
-    await _firestore.collection('call_history').add(history.toMap());
   }
 }

@@ -1,9 +1,9 @@
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
+import 'package:astrology_app/screens/call_logs/main.dart';
+import 'package:astrology_app/screens/call_logs/cubits/call_logs_cubit.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/screens/communication/chat/cubits/chat_message_list_cubit.dart';
 import 'package:astrology_app/screens/home/main.dart';
-import 'package:astrology_app/services/user_manager.dart';
-import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:dot_navigation_bar/dot_navigation_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,7 +32,7 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
       child: DotNavigationBar(
         marginR: const EdgeInsets.only(bottom: 0, right: 10, left: 10, top: 0),
         paddingR: const EdgeInsets.only(bottom: 1, top: 1),
-        itemPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 1),
+        itemPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
         currentIndex: _SelectedTab.values.indexOf(_selectedTab),
         onTap: _handleIndexChanged,
         dotIndicatorColor: Colors.white,
@@ -117,17 +117,27 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
           /// Call
           DotNavigationBarItem(
             icon: IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.call),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => CallLogsCubit(),
+                      child: const CallLogsScreen(),
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.phone_callback_rounded),
             ),
             selectedColor: Colors.orange,
           ),
 
-          /// Meeting
+          // /// Meeting
           DotNavigationBarItem(
             icon: IconButton(
               onPressed: () {},
-              icon: const Icon(Icons.meeting_room),
+              icon: const Icon(Icons.person_2_sharp),
             ),
             selectedColor: Colors.teal,
           ),

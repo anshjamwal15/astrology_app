@@ -1,92 +1,96 @@
+import 'package:astrology_app/models/index.dart';
+import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 class Mentor extends Equatable {
   final String id;
-  final String youtube;
-  final String secondMostSuccessfulMentoringExp;
-  final String mainProfession;
-  final String bankBranch;
-  final String whatSpecificExp;
-  final String city;
-  final String mostSuccessfulMentoringExp;
+  final String? youtube;
+  final String? secondMostSuccessfulMentoringExp;
+  final String? mainProfession;
+  final String? bankBranch;
+  final String? whatSpecificExp;
+  final String? city;
+  final String? mostSuccessfulMentoringExp;
   final String rating;
-  final String linkedin;
-  final String elevatorPitch;
-  final String password;
-  final Timestamp dateTime;
-  final String banAccount;
-  final String bankName;
-  final String currency;
-  final String ifsc;
+  final String? linkedin;
+  final String? elevatorPitch;
+  final String? password;
+  final Timestamp? dateTime;
+  final String? banAccount;
+  final String? bankName;
+  final String? currency;
+  final String? ifsc;
   final String firstName;
   final String email;
-  final String address;
+  final String? address;
   final int totalExpYrs;
-  final String facebook;
-  final String mobile;
+  final String? facebook;
+  final String? mobile;
   final String lastName;
-  final String photo;
-  final String displayName;
-  final String highestQualification;
-  final int ratingCount;
-  final String upi;
-  final String nationality;
+  final String? photo;
+  final String? displayName;
+  final String? highestQualification;
+  final int? ratingCount;
+  final String? upi;
+  final String? nationality;
   final String userId;
-  final String userName;
-  final String x;
-  final String country;
+  final String? userName;
+  final String? x;
+  final String? country;
   final String status;
-  final String gender;
-  final String languages;
-  final String pincode;
-  final String howToKnow;
-  final String currentEmployment;
+  final String? gender;
+  final String? languages;
+  final String? pincode;
+  final String? howToKnow;
+  final String? currentEmployment;
   final String skillSet;
+  final MentorRate? mentorRate;
 
   const Mentor({
     required this.id,
-    required this.youtube,
-    required this.secondMostSuccessfulMentoringExp,
-    required this.mainProfession,
-    required this.bankBranch,
-    required this.whatSpecificExp,
-    required this.city,
-    required this.mostSuccessfulMentoringExp,
+    this.youtube,
+    this.secondMostSuccessfulMentoringExp,
+    this.mainProfession,
+    this.bankBranch,
+    this.whatSpecificExp,
+    this.city,
+    this.mostSuccessfulMentoringExp,
     required this.rating,
-    required this.linkedin,
-    required this.elevatorPitch,
-    required this.password,
-    required this.dateTime,
-    required this.banAccount,
-    required this.bankName,
-    required this.currency,
-    required this.ifsc,
+    this.linkedin,
+    this.elevatorPitch,
+    this.password,
+    this.dateTime,
+    this.banAccount,
+    this.bankName,
+    this.currency,
+    this.ifsc,
     required this.firstName,
     required this.email,
-    required this.address,
+    this.address,
     required this.totalExpYrs,
-    required this.facebook,
-    required this.mobile,
+    this.facebook,
+    this.mobile,
     required this.lastName,
-    required this.photo,
-    required this.displayName,
-    required this.highestQualification,
-    required this.ratingCount,
-    required this.upi,
-    required this.nationality,
+    this.photo,
+    this.displayName,
+    this.highestQualification,
+    this.ratingCount,
+    this.upi,
+    this.nationality,
     required this.userId,
-    required this.userName,
-    required this.x,
-    required this.country,
+    this.userName,
+    this.x,
+    this.country,
     required this.status,
-    required this.gender,
-    required this.languages,
-    required this.pincode,
-    required this.howToKnow,
-    required this.currentEmployment,
+    this.gender,
+    this.languages,
+    this.pincode,
+    this.howToKnow,
+    this.currentEmployment,
     required this.skillSet,
+    this.mentorRate
   });
 
   @override
@@ -134,95 +138,24 @@ class Mentor extends Equatable {
     skillSet,
   ];
 
-  static Mentor fromMap(Map<String, dynamic> map) {
+  static Future<Mentor> initialDataFromFirestore(DocumentSnapshot doc) async {
+    final data = doc.data() as Map<String, dynamic>;
+    final user = await getRefDocumentData(data['user_id']);
+    final status = await getRefDocumentData(data['status']);
+    final skillSet = await getRefDocumentData(data['skill_set']);
+    final mentorRate = await UserRepository().getMentorRates(data['id']);
     return Mentor(
-      id: map['id'] as String,
-      youtube: map['youtube'] as String,
-      secondMostSuccessfulMentoringExp: map['second_most_successful_mentoring_exp'] as String,
-      mainProfession: map['main_profession'] as String,
-      bankBranch: map['bank_branch'] as String,
-      whatSpecificExp: map['what_specific_exp'] as String,
-      city: map['city'] as String,
-      mostSuccessfulMentoringExp: map['most_successful_mentoring_exp'] as String,
-      rating: map['rating'] as String,
-      linkedin: map['linkedin'] as String,
-      elevatorPitch: map['elevator_pitch'] as String,
-      password: map['password'] as String,
-      dateTime: map['date_time']['value'] as Timestamp,
-      banAccount: map['ban_account'] as String,
-      bankName: map['bank_name'] as String,
-      currency: map['currency'] as String,
-      ifsc: map['ifsc'] as String,
-      firstName: map['first_name'] as String,
-      email: map['email'] as String,
-      address: map['address'] as String,
-      totalExpYrs: map['total_exp_yrs'] as int,
-      facebook: map['facebook'] as String,
-      mobile: map['mobile'] as String,
-      lastName: map['last_name'] as String,
-      photo: map['photo'] as String,
-      displayName: map['display_name'] as String,
-      highestQualification: map['highest_qualification'] as String,
-      ratingCount: map['rating_count'] as int,
-      upi: map['upi'] as String,
-      nationality: map['nationality'] as String,
-      userId: map['user_id'] as String,
-      userName: map['user_id'] as String,
-      x: map['x'] as String,
-      country: map['country']['value'] as String,
-      status: map['status']['value'] as String,
-      gender: map['gender']['value'] as String,
-      languages: map['languages']['value'] as String,
-      pincode: map['pincode']['value'] as String,
-      howToKnow: map['how_to_know']['value'] as String,
-      currentEmployment: map['current_employment']['value'] as String,
-      skillSet: map['skill_set']['value'] as String,
+      id: data['id'] ?? '',
+      firstName: data['first_name'] ?? '',
+      lastName: data['last_name'] ?? '',
+      email: data['email'] ?? '',
+      userId: await user?['id'] ?? '',
+      rating: data['rating'].toString(),
+      skillSet: await skillSet?['title'] ?? '',
+      status: await status?['title'] ?? '',
+      totalExpYrs: data['total_exp_yrs'] ?? 0,
+      mentorRate: mentorRate
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'youtube': youtube,
-      'second_most_successful_mentoring_exp': secondMostSuccessfulMentoringExp,
-      'main_profession': mainProfession,
-      'bank_branch': bankBranch,
-      'what_specific_exp': whatSpecificExp,
-      'city': city,
-      'most_successful_mentoring_exp': mostSuccessfulMentoringExp,
-      'rating': rating,
-      'linkedin': linkedin,
-      'elevator_pitch': elevatorPitch,
-      'password': password,
-      'date_time': dateTime,
-      'ban_account': banAccount,
-      'bank_name': bankName,
-      'currency': currency,
-      'ifsc': ifsc,
-      'first_name': firstName,
-      'email': email,
-      'address': address,
-      'total_exp_yrs': totalExpYrs,
-      'facebook': facebook,
-      'mobile': mobile,
-      'last_name': lastName,
-      'photo': photo,
-      'display_name': displayName,
-      'highest_qualification': highestQualification,
-      'rating_count': ratingCount,
-      'upi': upi,
-      'nationality': nationality,
-      'user_id': userId,
-      'x': x,
-      'country': country,
-      'status': status,
-      'gender': gender,
-      'languages': languages,
-      'pincode': pincode,
-      'how_to_know': howToKnow,
-      'current_employment': currentEmployment,
-      'skill_set': skillSet,
-    };
   }
 
   static Future<Mentor> fromFirestore(DocumentSnapshot doc) async {
@@ -236,6 +169,7 @@ class Mentor extends Equatable {
     final howToKnow = await getRefDocumentData(data['how_to_know']);
     final currentEmployment = await getRefDocumentData(data['current_employment']);
     final skillSet = await getRefDocumentData(data['skill_set']);
+    final mentorRate = await UserRepository().getMentorRates(data['id']);
     return Mentor(
       id: data['id'] ?? '',
       youtube: data['youtube'] ?? '',
@@ -278,6 +212,7 @@ class Mentor extends Equatable {
       howToKnow: await howToKnow?['title'] ?? '',
       currentEmployment: filterTrueValues(currentEmployment!),
       skillSet: await skillSet?['title'] ?? '',
+      mentorRate: mentorRate
     );
   }
 

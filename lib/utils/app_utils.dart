@@ -50,8 +50,11 @@ String filterTrueValues(Map<String, dynamic> inputMap) {
   return '';
 }
 
-String formatTimestamp(Timestamp timestamp) {
+String formatTimestamp(Timestamp timestamp, [bool? withDate]) {
   DateTime dateTime = timestamp.toDate();
+  if (withDate == true) {
+    return DateFormat('yyyy-MM-dd hh:mm a').format(dateTime);
+  }
   return DateFormat('hh:mm a').format(dateTime);
 }
 
