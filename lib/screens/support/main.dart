@@ -3,14 +3,14 @@ import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
 import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
-import 'package:astrology_app/models/index.dart' as mentor;
+import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/communication/chat/index.dart';
 import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
-import 'package:astrology_app/services/user_manager.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 
 enum RequestType {
   video,
@@ -26,16 +26,26 @@ class SupportScreen extends StatefulWidget {
 }
 
 class _SupportScreenState extends State<SupportScreen> {
+  late final model.User me;
+
   @override
   void initState() {
     super.initState();
     context.read<MentorCubit>().loadMentors();
+    me = context.read<AppBloc>().state.user;
+  }
+
+  Future<model.Wallet?>? _fetchUserWallet(String userId) async {
+    final wallet = await context.read<MentorCubit>().getUserWallet(userId);
+    if (wallet != null) {
+      return wallet;
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    final me = UserManager.instance.user;
     return Scaffold(
       extendBody: true,
       appBar: const CustomAppBar(),
@@ -58,7 +68,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: mentors.map((mentorFuture) {
-                  return FutureBuilder<mentor.Mentor>(
+                  return FutureBuilder<model.Mentor>(
                     future: mentorFuture,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -125,9 +135,17 @@ class _SupportScreenState extends State<SupportScreen> {
                                     Column(
                                       children: [
                                         GestureDetector(
-                                          onTap: () {
-
-                                            // _customDialogBox(RequestType.chat, perMinRate.toString(), mentorName, {'mentorId': mentor.userId});
+                                          onTap: () async {
+                                            final userWallet = await _fetchUserWallet(me.id);
+                                            final mentorRate = mentor.mentorRate!.chatMRate;
+                                            if (userWallet != null) {
+                                              final isValid = checkUserWalletBalance(userWallet!.balance, mentorRate);
+                                              if (!isValid) {
+                                                showErrorDialog();
+                                                return;
+                                              };
+                                              _customDialogBox(RequestType.chat, mentorRate, mentorName, {'mentorId': mentor.userId, 'balance': userWallet!.balance});
+                                            }
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
@@ -150,16 +168,26 @@ class _SupportScreenState extends State<SupportScreen> {
                                         ),
                                         SizedBox(height: size.height * 0.01),
                                         GestureDetector(
-                                          onTap: () {
-                                            final roomId = UniqueIdGenerator.generate();
-                                            final data = {
-                                              'roomId': roomId,
-                                              'isCreating': true,
-                                              'userName': me.name,
-                                              'creatorId': me.id,
-                                              'mentorId': mentor.userId,
-                                            };
-                                            _customDialogBox(RequestType.voice, perMinRate.toString(), mentorName, data);
+                                          onTap: () async {
+                                            final userWallet = await _fetchUserWallet(me.id);
+                                            final mentorRate = mentor.mentorRate!.audioMRate;
+                                            if (userWallet != null) {
+                                              final isValid = checkUserWalletBalance(userWallet.balance, mentorRate);
+                                              if (!isValid) {
+                                                showErrorDialog();
+                                                return;
+                                              };
+                                              final roomId = UniqueIdGenerator.generate();
+                                              final data = {
+                                                'roomId': roomId,
+                                                'isCreating': true,
+                                                'userName': me?.name,
+                                                'creatorId': me?.id,
+                                                'mentorId': mentor.userId,
+                                                'balance': userWallet!.balance
+                                              };
+                                              _customDialogBox(RequestType.voice, mentorRate, mentorName, data);
+                                            }
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
@@ -182,16 +210,26 @@ class _SupportScreenState extends State<SupportScreen> {
                                         ),
                                         SizedBox(height: size.height * 0.01),
                                         GestureDetector(
-                                          onTap: () {
-                                            final roomId = UniqueIdGenerator.generate();
-                                            final data = {
-                                              'roomId': roomId,
-                                              'isCreating': true,
-                                              'userName': me.name,
-                                              'creatorId': me.id,
-                                              'mentorId': mentor.userId,
-                                            };
-                                            _customDialogBox(RequestType.video, perMinRate.toString(), mentorName, data);
+                                          onTap: () async {
+                                            final userWallet = await _fetchUserWallet(me.id);
+                                            final mentorRate = mentor.mentorRate!.videoMRate;
+                                            if (userWallet != null) {
+                                              final isValid = checkUserWalletBalance(userWallet!.balance, mentorRate);
+                                              if (!isValid) {
+                                                showErrorDialog();
+                                                return;
+                                              };
+                                              final roomId = UniqueIdGenerator.generate();
+                                              final data = {
+                                                'roomId': roomId,
+                                                'isCreating': true,
+                                                'userName': me?.name,
+                                                'creatorId': me?.id,
+                                                'mentorId': mentor.userId,
+                                                'balance': userWallet!.balance
+                                              };
+                                              _customDialogBox(RequestType.video, mentorRate, mentorName, data);
+                                            }
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
@@ -242,7 +280,7 @@ class _SupportScreenState extends State<SupportScreen> {
     );
   }
 
-  void _customDialogBox(RequestType type, String amount, String userName, [Map<String, dynamic>? payload]) {
+  void _customDialogBox(RequestType type, int amount, String userName, [Map<String, dynamic>? payload]) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -269,12 +307,15 @@ class _SupportScreenState extends State<SupportScreen> {
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               onPressed: () {
                 if (type == RequestType.chat) {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
                           ChatScreen(
                             senderId: payload?['mentorId'],
+                            chatRate: amount,
+                            walletBalance: payload?['balance'],
+                            isMentor: false
                           ),
                     ),
                   );
@@ -289,6 +330,9 @@ class _SupportScreenState extends State<SupportScreen> {
                             userName: payload?['userName'],
                             creatorId: payload?['creatorId'],
                             mentorId: payload?['mentorId'],
+                            chatRate: amount,
+                            walletBalance: payload?['balance'],
+                            isMentor: false,
                           ),
                     ),
                   );
@@ -303,6 +347,9 @@ class _SupportScreenState extends State<SupportScreen> {
                             userName: payload?['userName'],
                             creatorId: payload?['creatorId'],
                             mentorId: payload?['mentorId'],
+                            chatRate: amount,
+                            walletBalance: payload?['balance'],
+                            isMentor: false,
                           ),
                     ),
                   );
@@ -344,8 +391,11 @@ class _SupportScreenState extends State<SupportScreen> {
     );
   }
 
-  checkUserWalletBalance() {
-
+  checkUserWalletBalance(int balance, int mentorRate) {
+    if (balance < mentorRate) {
+      return false;
+    }
+    return true;
   }
 }
 

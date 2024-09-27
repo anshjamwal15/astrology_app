@@ -5,6 +5,8 @@ import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/home/cubits/home_cubit.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/screens/support/main.dart';
+import 'package:astrology_app/services/user_manager.dart';
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     user = context.read<AppBloc>().state.user;
+    UserManager.instance.loadUser();
     context.read<ChatBloc>().add(GetUnreadCount(user.id));
-    context.read<HomeCubit>().loadCategories();
     context.read<UserBloc>().add(UserWalletRequest(user.id));
+    context.read<HomeCubit>().loadCategories();
     _requestPermissions();
   }
 

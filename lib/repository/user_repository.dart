@@ -1,4 +1,5 @@
 import 'package:astrology_app/models/index.dart';
+import 'package:astrology_app/repository/payment_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as cf;
 import 'package:firebase_messaging/firebase_messaging.dart' as firebase;
 
@@ -7,6 +8,7 @@ class UserRepository {
       : _firestore = firestore ?? cf.FirebaseFirestore.instance;
 
   final cf.FirebaseFirestore _firestore;
+  final PaymentRepository _paymentRepository = PaymentRepository();
 
   Future<void> saveUser(User user) async {
     final userRef = _firestore.collection('users').doc(user.id);
@@ -27,6 +29,7 @@ class UserRepository {
         'date_time': cf.Timestamp.now(),
         'user_token': userToken
       }, cf.SetOptions(merge: true));
+      _paymentRepository.createUserWallet(user.id);
     } else {
       await userRef.set({'user_token': userToken}, cf.SetOptions(merge: true));
     }

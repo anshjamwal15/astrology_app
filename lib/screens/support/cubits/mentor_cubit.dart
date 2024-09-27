@@ -21,4 +21,16 @@ class MentorCubit extends Cubit<MentorState> {
       emit(MentorError(e.toString()));
     }
   }
+
+  Future<Wallet?> getUserWallet(String userId) async {
+    final wallet = await _firestore
+        .collection('wallet')
+        .where('user_id', isEqualTo: userId)
+        .get();
+    if (wallet.docs.isNotEmpty) {
+      final doc = wallet.docs.first;
+      return Wallet.fromFirestore(doc);
+    }
+    return null;
+  }
 }

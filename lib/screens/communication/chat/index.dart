@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/models/chat_messages.dart';
+import 'package:astrology_app/repository/payment_repository.dart';
+import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,15 +16,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, required this.senderId});
+  const ChatScreen({super.key, required this.senderId, this.chatRate, this.walletBalance, required this.isMentor});
   final String senderId;
+  final int? chatRate;
+  final int? walletBalance;
+  final bool isMentor;
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
+  final PaymentRepository _paymentRepository = PaymentRepository();
   final user = UserManager.instance.user;
+    Timer? _timer;
+    int _minutesElapsed = 0;
 
   @override
   void initState() {
@@ -30,6 +40,9 @@ class _ChatScreenState extends State<ChatScreen> {
         Navigator.pop(context);
       });
       return;
+    }
+    if (!user!.isMentor) {
+      _startTimer();
     }
     context
         .read<ChatBloc>()
@@ -53,10 +66,33 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
   }
 
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      _minutesElapsed++;
+      if (mounted) {
+        checkUserBalance(widget.walletBalance!, widget.chatRate!);
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  void checkUserBalance(int walletBalance, int chatRate) {
+    int totalCost = _minutesElapsed * chatRate;
+    if (totalCost >= walletBalance) {
+      if (mounted) {
+        showErrorDialog(context);
+        _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+      }
+      _timer?.cancel();
+    }
+  }
+
   @override
   void dispose() {
-    super.dispose();
+    _timer?.cancel();
     _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -189,6 +225,34 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+}
+
+showErrorDialog(BuildContext context) {
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Alert'),
+        content: const Text(
+          'You do not have enough balance to proceed',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: AppConstants.bgColor,
+        actionsPadding:
+        const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        actions: <Widget>[
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+            onPressed: () {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+            },
+            child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class ChatMessageWidget extends StatelessWidget {

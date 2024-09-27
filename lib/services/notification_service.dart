@@ -148,12 +148,14 @@ class NotificationService {
                   isCreating: false,
                   mentorId: calleeId,
                   creatorId: callerId,
+                  isMentor: false,
                 )
               : VoiceCall(
                   roomId: id,
                   isCreating: false,
                   mentorId: calleeId,
                   creatorId: callerId,
+                  isMentor: false,
                 ),
         ),
       );
@@ -161,7 +163,7 @@ class NotificationService {
     }
     Navigator.of(navigatorKey.currentState!.context)
         .pushReplacement(MaterialPageRoute(
-      builder: (builder) => ChatScreen(senderId: id),
+      builder: (builder) => ChatScreen(senderId: id, isMentor: true),
     ));
   }
 }

@@ -1,5 +1,7 @@
 import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/utils/app_utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:astrology_app/models/transaction.dart' as model;
@@ -36,7 +38,10 @@ class _WalletScreenState extends State<WalletScreen> {
                   children: [
                     _balanceContainer(size, state.wallet.balance),
                     SizedBox(height: size.height * 0.02),
-                    _transactionSection(size, state.wallet.balance, state.transactions)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: _transactionSection(size, state.wallet.balance, state.transactions),
+                    )
                   ],
                 );
               } else {
@@ -105,7 +110,7 @@ Widget _balanceContainer(Size size, int balance) {
               "Available Balance",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: size.height * 0.018,
+                fontSize: size.height * 0.016,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -113,7 +118,7 @@ Widget _balanceContainer(Size size, int balance) {
               "$balance.00 INR",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: size.height * 0.04,
+                fontSize: size.height * 0.038,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -124,7 +129,7 @@ Widget _balanceContainer(Size size, int balance) {
   );
 }
 
-Widget _paymentContainer(Size size, bool add, int balance) {
+Widget _paymentContainer(Size size, bool add, int balance, Timestamp dateTime) {
   return Container(
     decoration: const BoxDecoration(
       border: Border(bottom: BorderSide(width: 1, color: Colors.black12)),
@@ -151,7 +156,7 @@ Widget _paymentContainer(Size size, bool add, int balance) {
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                             fontSize: size.height * 0.018)),
-                    Text("March 18, 2023",
+                    Text(formatTimestamp(dateTime, true),
                         style: TextStyle(
                             color: Colors.black45,
                             fontWeight: FontWeight.w400,
@@ -176,9 +181,10 @@ Widget _paymentContainer(Size size, bool add, int balance) {
 }
 
 Widget _transactionSection(Size size, int availableBalance, List<model.Transaction> transactions) {
+  transactions.sort((a, b) => b.dateTime.compareTo(a.dateTime));
   return (availableBalance > 0 || transactions.isNotEmpty)
       ? Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -193,12 +199,13 @@ Widget _transactionSection(Size size, int availableBalance, List<model.Transacti
               ),
               SizedBox(height: size.height * 0.02),
               SizedBox(
-                height: size.width * 0.4,
+                height: size.height * 0.58,
                 child: ListView.builder(
                   itemCount: transactions.length,
+                  shrinkWrap: true,
                   itemBuilder: (context, index) {
                     final data = transactions[index];
-                    return _paymentContainer(size, false, data.amount);
+                    return _paymentContainer(size, false, data.amount, data.dateTime);
                   },
                 ),
               )

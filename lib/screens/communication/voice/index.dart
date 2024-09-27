@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/repository/payment_repository.dart';
 import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/services/signaling_service.dart';
+import 'package:astrology_app/services/user_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,9 @@ class VoiceCall extends StatefulWidget {
   final String? creatorId;
   final String roomId;
   final bool isCreating;
+  final int? chatRate;
+  final int? walletBalance;
+  final bool isMentor;
 
   const VoiceCall({
     super.key,
@@ -22,7 +27,10 @@ class VoiceCall extends StatefulWidget {
     required this.isCreating,
     this.userName,
     this.mentorId,
-    this.creatorId
+    this.creatorId,
+    this.chatRate,
+    this.walletBalance,
+    required this.isMentor
   });
 
   @override
@@ -34,10 +42,13 @@ class _VoiceCallState extends State<VoiceCall> {
   final Dio dio = Dio();
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+  final user = UserManager.instance.user;
+  final PaymentRepository _paymentRepository = PaymentRepository();
   int _seconds = 0;
   bool _isMuted = false;
   StreamSubscription<Map<String, dynamic>?>? mediaStatusSubscription;
-  // bool _isSpeakerOn = true;
+  Timer? _timer;
+  int _minutesElapsed = 0;
 
   void _startTimer() {
     Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -56,13 +67,16 @@ class _VoiceCallState extends State<VoiceCall> {
 
     signaling.onAddRemoteStream = (stream) {
       _startTimer();
+      if (!user!.isMentor) {
+        _stateUserTimer();
+      }
       setState(() {
         _remoteRenderer.srcObject = stream;
       });
     };
 
     signaling.onAddConnectionStream = (state) {
-      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
+      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected || state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
         _localRenderer.dispose();
         _remoteRenderer.dispose();
         Navigator.pushReplacement(
@@ -124,6 +138,31 @@ class _VoiceCallState extends State<VoiceCall> {
     }
   }
 
+  void _stateUserTimer() {
+    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      _minutesElapsed++;
+      if (mounted) {
+        _remoteRenderer.dispose();
+        checkUserBalance(widget.walletBalance!, widget.chatRate!);
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  void checkUserBalance(int walletBalance, int chatRate) {
+    int totalCost = _minutesElapsed * chatRate;
+    if (totalCost >= walletBalance) {
+      if (mounted) {
+        _remoteRenderer.dispose();
+        showErrorDialog(context);
+      }
+      _timer?.cancel();
+    } else {
+      _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+    }
+  }
+
   @override
   void dispose() {
     var localTracks = _localRenderer.srcObject?.getTracks();
@@ -138,6 +177,7 @@ class _VoiceCallState extends State<VoiceCall> {
         false
     );
 
+    _timer?.cancel();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
     super.dispose();
@@ -348,5 +388,39 @@ class _VoiceCallState extends State<VoiceCall> {
       "roomId": req.roomId
     };
     await dio.post(url, data: body);
+  }
+
+  showErrorDialog(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Alert'),
+          content: const Text(
+            'You do not have enough balance to proceed',
+            style: TextStyle(color: Colors.black),
+          ),
+          backgroundColor: AppConstants.bgColor,
+          actionsPadding:
+          const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          actions: <Widget>[
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+              onPressed: () async {
+                signaling.hangUp(
+                    widget.roomId,
+                    _localRenderer.srcObject!,
+                    _remoteRenderer.srcObject!,
+                    true
+                );
+                await _routeToHome();
+              },
+              child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

@@ -42,7 +42,7 @@ class App extends StatelessWidget {
           ),
           BlocProvider(
             create: (_) => UserBloc(),
-          )
+          ),
         ],
         child: AppView(navigatorKey: navigatorKey),
       ),

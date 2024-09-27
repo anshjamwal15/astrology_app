@@ -49,7 +49,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              ChatScreen(senderId: user.senderId),
+                              ChatScreen(senderId: user.senderId, isMentor: currentUser.isMentor),
                         ),
                       );
                     },

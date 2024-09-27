@@ -1,14 +1,13 @@
+import 'package:astrology_app/blocs/app/app_bloc.dart';
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/repository/authentication_repository.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/screens/home/main.dart';
-import 'package:astrology_app/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class CustomAppDrawer extends StatefulWidget {
   const CustomAppDrawer({super.key});
@@ -19,13 +18,17 @@ class CustomAppDrawer extends StatefulWidget {
 
 class _CustomAppDrawerState extends State<CustomAppDrawer> {
   final _authRepository = AuthenticationRepository();
+  late final User user;
+
+  @override
+  void initState() {
+    super.initState();
+    user = context.read<AppBloc>().state.user;
+  }
 
   @override
   Widget build(BuildContext context) {
-    User user = UserManager.instance.user!;
-    final Size size = MediaQuery
-        .of(context)
-        .size;
+    final Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Drawer(
         clipBehavior: Clip.hardEdge,
