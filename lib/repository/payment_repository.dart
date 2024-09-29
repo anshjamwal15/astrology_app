@@ -58,7 +58,16 @@ class PaymentRepository {
     required int transactionAmount,
     required bool isAdding,
   }) async {
-    final walletQuery = await _firestore
+    var walletQuery = await _firestore
+        .collection('wallet')
+        .where('user_id', isEqualTo: userId)
+        .get();
+
+    if (walletQuery.docs.isEmpty) {
+      await createUserWallet(userId);
+    }
+
+    walletQuery = await _firestore
         .collection('wallet')
         .where('user_id', isEqualTo: userId)
         .get();
@@ -97,7 +106,7 @@ class PaymentRepository {
       await transactionRef.set(transactionData);
       return "Wallet updated successfully";
     } else {
-      throw Exception('Wallet not found for userId: $userId');
+      return 'Wallet not found for userId: $userId';
     }
   }
 

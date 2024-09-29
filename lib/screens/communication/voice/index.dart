@@ -142,7 +142,6 @@ class _VoiceCallState extends State<VoiceCall> {
     _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
       _minutesElapsed++;
       if (mounted) {
-        _remoteRenderer.dispose();
         checkUserBalance(widget.walletBalance!, widget.chatRate!);
       } else {
         timer.cancel();
@@ -150,16 +149,20 @@ class _VoiceCallState extends State<VoiceCall> {
     });
   }
 
-  void checkUserBalance(int walletBalance, int chatRate) {
+  Future<void> checkUserBalance(int walletBalance, int chatRate) async {
     int totalCost = _minutesElapsed * chatRate;
+    if (_remoteRenderer.srcObject == null) return;
     if (totalCost >= walletBalance) {
       if (mounted) {
         _remoteRenderer.dispose();
         showErrorDialog(context);
+        await _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+        await _paymentRepository.updateWalletBalance(userId: widget.mentorId!, transactionAmount: totalCost, isAdding: true);
       }
       _timer?.cancel();
     } else {
-      _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+      await _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+      await _paymentRepository.updateWalletBalance(userId: widget.mentorId!, transactionAmount: totalCost, isAdding: true);
     }
   }
 
@@ -294,6 +297,7 @@ class _VoiceCallState extends State<VoiceCall> {
                                         Timestamp.now(),
                                         _formatTime(_seconds)
                                     );
+                                    await checkUserBalance(widget.walletBalance!, widget.chatRate!);
                                     await _routeToHome();
                                   },
                                   icon: const Icon(

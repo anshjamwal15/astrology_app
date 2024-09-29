@@ -4,7 +4,9 @@ import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/repository/authentication_repository.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
+import 'package:astrology_app/screens/communication/chat/cubits/chat_message_list_cubit.dart';
 import 'package:astrology_app/screens/home/main.dart';
+import 'package:astrology_app/screens/wallet/main.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -85,19 +87,25 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                 child: Column(
                   children: [
                     GestureDetector(
-                      onTap: () =>
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (builder) => const HomeScreen(),
-                              )),
+                      onTap: () => Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (builder) => const HomeScreen(),
+                          )),
                       child: _drawerOptions(size, "Home", Icons.home),
                     ),
                     SizedBox(height: size.height * 0.03),
-                    _drawerOptions(
-                      size,
-                      "Wallet",
-                      Icons.account_balance_wallet,
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const WalletScreen()),
+                      ),
+                      child: _drawerOptions(
+                        size,
+                        "Wallet",
+                        Icons.account_balance_wallet,
+                      ),
                     ),
                     SizedBox(height: size.height * 0.03),
                     GestureDetector(
@@ -105,7 +113,9 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ChatListScreen(),
+                            builder: (context) => BlocProvider(
+                                create: (context) => ChatMessageListCubit(),
+                                child: const ChatListScreen()),
                           ),
                         );
                       },
@@ -183,8 +193,10 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                     //   ),
                     // ),
                     SizedBox(height: size.height * 0.03),
-                    _drawerOptions(size, "Order History", Icons.history),
-                    SizedBox(height: size.height * 0.03),
+                    // if (!user.isMentor) ...[
+                    //   _drawerOptions(size, "Order History", Icons.history),
+                    //   SizedBox(height: size.height * 0.03),
+                    // ],
                     GestureDetector(
                       onTap: () async {
                         await _authRepository.logOut();

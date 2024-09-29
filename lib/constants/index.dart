@@ -11,6 +11,6 @@ class AppConstants {
 
   static User? appStateUser;
 
-  static const String SERVER_IP = "http://192.168.11.19:3000";
+  static const String SERVER_IP = "http://dekhokaun.com:3000";
 
 }

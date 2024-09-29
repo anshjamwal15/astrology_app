@@ -1,10 +1,10 @@
 import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
-import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/communication/chat/index.dart';
+import 'package:astrology_app/screens/communication/video/index.dart';
 import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/utils/app_utils.dart';
@@ -85,7 +85,7 @@ class _SupportScreenState extends State<SupportScreen> {
                         final mentor = snapshot.data!;
                         final perMinRate = mentor.mentorRate?.videoMRate;
                         final mentorName = '${mentor.firstName} ${mentor.lastName}';
-                        if (mentor.userId != me!.id) {
+                        if (mentor.userId != me.id) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             child: Container(
@@ -139,12 +139,12 @@ class _SupportScreenState extends State<SupportScreen> {
                                             final userWallet = await _fetchUserWallet(me.id);
                                             final mentorRate = mentor.mentorRate!.chatMRate;
                                             if (userWallet != null) {
-                                              final isValid = checkUserWalletBalance(userWallet!.balance, mentorRate);
+                                              final isValid = checkUserWalletBalance(userWallet.balance, mentorRate);
                                               if (!isValid) {
                                                 showErrorDialog();
                                                 return;
                                               };
-                                              _customDialogBox(RequestType.chat, mentorRate, mentorName, {'mentorId': mentor.userId, 'balance': userWallet!.balance});
+                                              _customDialogBox(RequestType.chat, mentorRate, mentorName, {'mentorId': mentor.userId, 'balance': userWallet.balance});
                                             }
                                           },
                                           child: Container(
@@ -181,10 +181,10 @@ class _SupportScreenState extends State<SupportScreen> {
                                               final data = {
                                                 'roomId': roomId,
                                                 'isCreating': true,
-                                                'userName': me?.name,
-                                                'creatorId': me?.id,
+                                                'userName': me.name,
+                                                'creatorId': me.id,
                                                 'mentorId': mentor.userId,
-                                                'balance': userWallet!.balance
+                                                'balance': userWallet.balance
                                               };
                                               _customDialogBox(RequestType.voice, mentorRate, mentorName, data);
                                             }
@@ -214,7 +214,7 @@ class _SupportScreenState extends State<SupportScreen> {
                                             final userWallet = await _fetchUserWallet(me.id);
                                             final mentorRate = mentor.mentorRate!.videoMRate;
                                             if (userWallet != null) {
-                                              final isValid = checkUserWalletBalance(userWallet!.balance, mentorRate);
+                                              final isValid = checkUserWalletBalance(userWallet.balance, mentorRate);
                                               if (!isValid) {
                                                 showErrorDialog();
                                                 return;
@@ -223,10 +223,10 @@ class _SupportScreenState extends State<SupportScreen> {
                                               final data = {
                                                 'roomId': roomId,
                                                 'isCreating': true,
-                                                'userName': me?.name,
-                                                'creatorId': me?.id,
+                                                'userName': me.name,
+                                                'creatorId': me.id,
                                                 'mentorId': mentor.userId,
-                                                'balance': userWallet!.balance
+                                                'balance': userWallet.balance
                                               };
                                               _customDialogBox(RequestType.video, mentorRate, mentorName, data);
                                             }
@@ -276,7 +276,6 @@ class _SupportScreenState extends State<SupportScreen> {
           },
         ),
       ),
-      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 
@@ -341,7 +340,7 @@ class _SupportScreenState extends State<SupportScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          VoiceCall(
+                          VideoCallScreen(
                             roomId: payload?['roomId'],
                             isCreating: payload?['isCreating'],
                             userName: payload?['userName'],

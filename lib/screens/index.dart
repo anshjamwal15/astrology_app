@@ -1,6 +1,7 @@
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/blocs/user/user_bloc.dart';
+import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/screens/auth/login.dart';
@@ -70,7 +71,7 @@ class AppView extends StatelessWidget {
         state: context.select((AppBloc bloc) => bloc.state.status),
         onGeneratePages: (status, pages) {
           if (status == AppStatus.authenticated) {
-            return [const MaterialPage(child: HomeScreen())];
+            return [const MaterialPage(child: MainScreen())];
           }
           return [const MaterialPage(child: LoginScreen())];
         },

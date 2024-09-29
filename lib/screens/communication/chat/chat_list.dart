@@ -1,4 +1,6 @@
 import 'package:astrology_app/components/custom_app_bar.dart';
+import 'package:astrology_app/components/custom_app_drawer.dart';
+import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/screens/communication/chat/cubits/chat_message_list_cubit.dart';
 import 'package:astrology_app/screens/communication/chat/index.dart';
@@ -28,6 +30,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: const CustomAppBar(),
+      drawer: const CustomAppDrawer(),
       backgroundColor: AppConstants.bgColor,
       body: BlocBuilder<ChatMessageListCubit, ChatMessageListState>(
         builder: (context, state) {

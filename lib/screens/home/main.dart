@@ -38,6 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
     await [Permission.notification, Permission.camera, Permission.microphone].request();
   }
 
+  Future<void> _pullRefresh() async {
+    context.read<ChatBloc>().add(GetUnreadCount(user.id));
+    context.read<UserBloc>().add(UserWalletRequest(user.id));
+    context.read<HomeCubit>().loadCategories();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -46,72 +52,76 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: const CustomAppBar(),
       drawer: const CustomAppDrawer(),
       backgroundColor: AppConstants.bgColor,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: size.height * 0.04,
-            horizontal: size.width * 0.04,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Hello, ${user.name.isEmpty == true ? "User" : user.name}",
-                style: TextStyle(
-                  color: Colors.black45,
-                  fontSize: size.height * 0.035,
-                  fontWeight: FontWeight.w400,
+      body: RefreshIndicator(
+        onRefresh: _pullRefresh,
+        color: Colors.blue.shade900,
+        backgroundColor: Colors.white,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: size.height * 0.04,
+              horizontal: size.width * 0.04,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Hello, ${user.name.isEmpty == true ? "User" : user.name}",
+                  style: TextStyle(
+                    color: Colors.black45,
+                    fontSize: size.height * 0.035,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-              ),
-              Text(
-                "Let's Discuss",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: size.height * 0.04,
-                  fontWeight: FontWeight.w500,
+                Text(
+                  "Let's Discuss",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: size.height * 0.04,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              SizedBox(
-                height: size.height * 0.05,
-              ),
-              BlocBuilder<HomeCubit, HomeState>(
-                builder: (context, state) {
-                  if (state is CategoriesLoading) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                          color: Colors.blue.shade900),
-                    );
-                  } else if (state is CategoriesLoaded) {
-                    final categories = state.categories;
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      physics: const BouncingScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: size.width * 0.02,
-                        mainAxisSpacing: size.height * 0.02,
-                      ),
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        final category = categories[index];
-                        return buildItem(context, size,
-                            image: category.image, title: category.name);
-                      },
-                    );
-                  } else if (state is CategoriesError) {
-                    return const Center(
-                        child: Text('Something went wrong, Please try again'));
-                  } else {
-                    return const Center(child: Text('No data available'));
-                  }
-                },
-              ),
-            ],
+                SizedBox(
+                  height: size.height * 0.05,
+                ),
+                BlocBuilder<HomeCubit, HomeState>(
+                  builder: (context, state) {
+                    if (state is CategoriesLoading) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                            color: Colors.blue.shade900),
+                      );
+                    } else if (state is CategoriesLoaded) {
+                      final categories = state.categories;
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const BouncingScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: size.width * 0.02,
+                          mainAxisSpacing: size.height * 0.02,
+                        ),
+                        itemCount: categories.length,
+                        itemBuilder: (context, index) {
+                          final category = categories[index];
+                          return buildItem(context, size,
+                              image: category.image, title: category.name);
+                        },
+                      );
+                    } else if (state is CategoriesError) {
+                      return const Center(
+                          child: Text('Something went wrong, Please try again'));
+                    } else {
+                      return const Center(child: Text('No data available'));
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 

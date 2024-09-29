@@ -167,17 +167,20 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     });
   }
 
-  void checkUserBalance(int walletBalance, int chatRate) {
+  Future<void> checkUserBalance(int walletBalance, int chatRate) async {
     int totalCost = _minutesElapsed * chatRate;
+    if (_remoteRenderer.srcObject == null) return;
     if (totalCost >= walletBalance) {
       if (mounted) {
         _remoteRenderer.dispose();
         showErrorDialog(context);
-        _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+        await _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+        await _paymentRepository.updateWalletBalance(userId: widget.mentorId!, transactionAmount: totalCost, isAdding: true);
       }
       _timer?.cancel();
-    }  else {
-      _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+    } else {
+      await _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+      await _paymentRepository.updateWalletBalance(userId: widget.mentorId!, transactionAmount: totalCost, isAdding: true);
     }
   }
 
@@ -371,6 +374,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                             Timestamp.now(),
                             _formatTime(_seconds)
                         );
+                        await checkUserBalance(widget.walletBalance!, widget.chatRate!);
                         await _routeToHome();
                       },
                       icon: const Icon(

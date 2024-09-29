@@ -1,4 +1,6 @@
 import 'package:astrology_app/components/custom_app_bar.dart';
+import 'package:astrology_app/components/custom_app_drawer.dart';
+import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/screens/call_logs/cubits/call_logs_cubit.dart';
 import 'package:astrology_app/utils/app_utils.dart';
@@ -25,6 +27,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     return Scaffold(
       backgroundColor: AppConstants.bgColor,
       appBar: const CustomAppBar(),
+      drawer: const CustomAppDrawer(),
       body: BlocBuilder<CallLogsCubit, CallLogsState>(
         builder: (context, state) {
           if (state is CallLogsLoading) {
@@ -65,7 +68,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                             callLog.caller,
                             formatTimestamp(callLog.createdAt, true),
                             callLog.duration,
-                            "25",
+                            // "25",
                             isVideo,
                             isMissed,
                           ),
@@ -95,7 +98,7 @@ Widget _callContainer(
   String userName,
   String date,
   String duration,
-  String amount,
+  // String amount,
   bool isVideo,
   bool isMissed,
 ) {
@@ -165,7 +168,7 @@ Widget _callContainer(
               ],
             ),
           ),
-          _amountTransaction(size, true, amount),
+          // _amountTransaction(size, true, amount),
         ],
       ),
     ),

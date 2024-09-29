@@ -118,7 +118,7 @@ Widget _balanceContainer(Size size, int balance) {
               "$balance.00 INR",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: size.height * 0.038,
+                fontSize: size.height * 0.035,
                 fontWeight: FontWeight.bold,
               ),
             ),
