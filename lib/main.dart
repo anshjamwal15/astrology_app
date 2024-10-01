@@ -37,6 +37,7 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onMessage.listen(_firebaseMessagingBackgroundHandler);
   await NotificationService.initializeNotifications(navigatorKey);
   await UserManager.instance.loadUser();
   runApp(App(navigatorKey: navigatorKey, authenticationRepository: AuthenticationRepository()));

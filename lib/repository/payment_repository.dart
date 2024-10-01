@@ -72,6 +72,10 @@ class PaymentRepository {
         .where('user_id', isEqualTo: userId)
         .get();
 
+    if (transactionAmount == 0) {
+      return '';
+    }
+
     if (walletQuery.docs.isNotEmpty) {
       final walletDoc = walletQuery.docs.first;
       final walletRef = walletDoc.reference;
@@ -100,6 +104,7 @@ class PaymentRepository {
         'amount': transactionAmount,
         'currency': "INR",
         'date_time': firebase.Timestamp.now(),
+        'isAdding': isAdding
       };
 
       // Add the new transaction to the 'transactions' collection

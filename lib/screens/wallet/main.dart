@@ -205,7 +205,7 @@ Widget _transactionSection(Size size, int availableBalance, List<model.Transacti
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
                     final data = transactions[index];
-                    return _paymentContainer(size, false, data.amount, data.dateTime);
+                    return _paymentContainer(size, data.isAdding!, data.amount, data.dateTime);
                   },
                 ),
               )

@@ -13,7 +13,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<UserWalletRequest>((event, emit) async {
       final wallet = await _paymentRepository.getUserWallet(event.userId);
       final transactions = await _paymentRepository.getUserTransactions(event.userId);
-      if (wallet != null && transactions.isNotEmpty) {
+      if (wallet != null) {
         emit(UserWalletResponse(wallet, transactions));
       }
     });

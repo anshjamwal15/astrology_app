@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/repository/payment_repository.dart';
 import 'package:astrology_app/screens/home/main.dart';
@@ -82,7 +83,7 @@ class _VoiceCallState extends State<VoiceCall> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (builder) => const HomeScreen(),
+            builder: (builder) => const MainScreen(),
           ),
         );
       }
@@ -334,7 +335,7 @@ class _VoiceCallState extends State<VoiceCall> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => const HomeScreen(),
+        builder: (context) => const MainScreen(),
       ),
     );
   }

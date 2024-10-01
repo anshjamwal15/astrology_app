@@ -12,6 +12,7 @@ import 'package:astrology_app/services/user_manager.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class App extends StatelessWidget {
   const App({
@@ -57,24 +58,26 @@ class AppView extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mindaro Sewa',
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
-      initialRoute: "/",
-      onGenerateRoute: RouteGenerator.generatorRoute,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: FlowBuilder<AppStatus>(
-        state: context.select((AppBloc bloc) => bloc.state.status),
-        onGeneratePages: (status, pages) {
-          if (status == AppStatus.authenticated) {
-            return [const MaterialPage(child: MainScreen())];
-          }
-          return [const MaterialPage(child: LoginScreen())];
-        },
+    return OverlaySupport(
+      child: MaterialApp(
+        title: 'Mindaro Sewa',
+        navigatorKey: navigatorKey,
+        debugShowCheckedModeBanner: false,
+        initialRoute: "/",
+        onGenerateRoute: RouteGenerator.generatorRoute,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: FlowBuilder<AppStatus>(
+          state: context.select((AppBloc bloc) => bloc.state.status),
+          onGeneratePages: (status, pages) {
+            if (status == AppStatus.authenticated) {
+              return [const MaterialPage(child: MainScreen())];
+            }
+            return [const MaterialPage(child: LoginScreen())];
+          },
+        ),
       ),
     );
   }

@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'custom_navigation_bar.dart';
+
 class CustomAppDrawer extends StatefulWidget {
   const CustomAppDrawer({super.key});
 
@@ -88,10 +90,11 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (builder) => const HomeScreen(),
-                          )),
+                        context,
+                        MaterialPageRoute(
+                          builder: (builder) => const MainScreen(),
+                        ),
+                      ),
                       child: _drawerOptions(size, "Home", Icons.home),
                     ),
                     SizedBox(height: size.height * 0.03),

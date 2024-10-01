@@ -15,6 +15,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../components/custom_navigation_bar.dart';
+
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key, required this.senderId, this.chatRate, this.walletBalance, required this.isMentor});
   final String senderId;
@@ -245,7 +247,7 @@ showErrorDialog(BuildContext context) {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
             onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
             },
             child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
           ),

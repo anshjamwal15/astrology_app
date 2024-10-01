@@ -1,3 +1,4 @@
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
@@ -18,6 +19,7 @@ class Transaction extends Equatable {
   final String? tType;
   final String? sessionId;
   final String user;
+  final bool? isAdding;
 
   const Transaction({
     required this.id,
@@ -35,6 +37,7 @@ class Transaction extends Equatable {
     this.orderId,
     this.tType,
     this.sessionId,
+    this.isAdding,
     required this.user,
   });
 
@@ -60,7 +63,6 @@ class Transaction extends Equatable {
   /// Convert Firestore document to Transaction
   factory Transaction.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-
     return Transaction(
       id: data['id'] ?? '',
       amount: data['amount'] ?? 0,
@@ -82,6 +84,7 @@ class Transaction extends Equatable {
       tType: data['t_type'] as String?,
       sessionId: data['session_id'] as String?,
       user: data['user'] ?? '',
+      isAdding: data['isAdding'] ?? false,
     );
   }
 
