@@ -11,12 +11,7 @@ import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
-enum RequestType {
-  video,
-  voice,
-  chat
-}
+enum RequestType { video, voice, chat }
 
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
@@ -58,11 +53,7 @@ class _SupportScreenState extends State<SupportScreen> {
         ),
         child: BlocBuilder<MentorCubit, MentorState>(
           builder: (context, state) {
-            if (state is MentorLoading) {
-              return Center(
-                child: CircularProgressIndicator(color: Colors.blue.shade900),
-              );
-            } else if (state is MentorLoaded) {
+            if (state is MentorLoaded) {
               final mentors = state.mentors;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,12 +70,13 @@ class _SupportScreenState extends State<SupportScreen> {
                         );
                       } else if (snapshot.hasError) {
                         return const Center(
-                          child: Text('Error loading mentor'),
+                          child: Text(''),
                         );
                       } else if (snapshot.hasData) {
                         final mentor = snapshot.data!;
                         final perMinRate = mentor.mentorRate?.videoMRate;
-                        final mentorName = '${mentor.firstName} ${mentor.lastName}';
+                        final mentorName =
+                            '${mentor.firstName} ${mentor.lastName}';
                         if (mentor.userId != me.id) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -136,15 +128,25 @@ class _SupportScreenState extends State<SupportScreen> {
                                       children: [
                                         GestureDetector(
                                           onTap: () async {
-                                            final userWallet = await _fetchUserWallet(me.id);
-                                            final mentorRate = mentor.mentorRate!.chatMRate;
+                                            final userWallet =
+                                                await _fetchUserWallet(me.id);
+                                            final mentorRate =
+                                                mentor.mentorRate!.chatMRate;
                                             if (userWallet != null) {
-                                              final isValid = checkUserWalletBalance(userWallet.balance, mentorRate);
+                                              final isValid =
+                                                  checkUserWalletBalance(
+                                                      userWallet.balance,
+                                                      mentorRate);
                                               if (!isValid) {
                                                 showErrorDialog();
                                                 return;
-                                              };
-                                              _customDialogBox(RequestType.chat, mentorRate, mentorName, {'mentorId': mentor.userId, 'balance': userWallet.balance});
+                                              }
+                                              ;
+                                              _customDialogBox(RequestType.chat,
+                                                  mentorRate, mentorName, {
+                                                'mentorId': mentor.userId,
+                                                'balance': userWallet.balance
+                                              });
                                             }
                                           },
                                           child: Container(
@@ -169,15 +171,22 @@ class _SupportScreenState extends State<SupportScreen> {
                                         SizedBox(height: size.height * 0.01),
                                         GestureDetector(
                                           onTap: () async {
-                                            final userWallet = await _fetchUserWallet(me.id);
-                                            final mentorRate = mentor.mentorRate!.audioMRate;
+                                            final userWallet =
+                                                await _fetchUserWallet(me.id);
+                                            final mentorRate =
+                                                mentor.mentorRate!.audioMRate;
                                             if (userWallet != null) {
-                                              final isValid = checkUserWalletBalance(userWallet.balance, mentorRate);
+                                              final isValid =
+                                                  checkUserWalletBalance(
+                                                      userWallet.balance,
+                                                      mentorRate);
                                               if (!isValid) {
                                                 showErrorDialog();
                                                 return;
-                                              };
-                                              final roomId = UniqueIdGenerator.generate();
+                                              }
+                                              ;
+                                              final roomId =
+                                                  UniqueIdGenerator.generate();
                                               final data = {
                                                 'roomId': roomId,
                                                 'isCreating': true,
@@ -186,7 +195,11 @@ class _SupportScreenState extends State<SupportScreen> {
                                                 'mentorId': mentor.userId,
                                                 'balance': userWallet.balance
                                               };
-                                              _customDialogBox(RequestType.voice, mentorRate, mentorName, data);
+                                              _customDialogBox(
+                                                  RequestType.voice,
+                                                  mentorRate,
+                                                  mentorName,
+                                                  data);
                                             }
                                           },
                                           child: Container(
@@ -211,15 +224,22 @@ class _SupportScreenState extends State<SupportScreen> {
                                         SizedBox(height: size.height * 0.01),
                                         GestureDetector(
                                           onTap: () async {
-                                            final userWallet = await _fetchUserWallet(me.id);
-                                            final mentorRate = mentor.mentorRate!.videoMRate;
+                                            final userWallet =
+                                                await _fetchUserWallet(me.id);
+                                            final mentorRate =
+                                                mentor.mentorRate!.videoMRate;
                                             if (userWallet != null) {
-                                              final isValid = checkUserWalletBalance(userWallet.balance, mentorRate);
+                                              final isValid =
+                                                  checkUserWalletBalance(
+                                                      userWallet.balance,
+                                                      mentorRate);
                                               if (!isValid) {
                                                 showErrorDialog();
                                                 return;
-                                              };
-                                              final roomId = UniqueIdGenerator.generate();
+                                              }
+                                              ;
+                                              final roomId =
+                                                  UniqueIdGenerator.generate();
                                               final data = {
                                                 'roomId': roomId,
                                                 'isCreating': true,
@@ -228,7 +248,11 @@ class _SupportScreenState extends State<SupportScreen> {
                                                 'mentorId': mentor.userId,
                                                 'balance': userWallet.balance
                                               };
-                                              _customDialogBox(RequestType.video, mentorRate, mentorName, data);
+                                              _customDialogBox(
+                                                  RequestType.video,
+                                                  mentorRate,
+                                                  mentorName,
+                                                  data);
                                             }
                                           },
                                           child: Container(
@@ -279,7 +303,8 @@ class _SupportScreenState extends State<SupportScreen> {
     );
   }
 
-  void _customDialogBox(RequestType type, int amount, String userName, [Map<String, dynamic>? payload]) {
+  void _customDialogBox(RequestType type, int amount, String userName,
+      [Map<String, dynamic>? payload]) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -291,7 +316,7 @@ class _SupportScreenState extends State<SupportScreen> {
           ),
           backgroundColor: AppConstants.bgColor,
           actionsPadding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -309,53 +334,49 @@ class _SupportScreenState extends State<SupportScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          ChatScreen(
-                            senderId: payload?['mentorId'],
-                            chatRate: amount,
-                            walletBalance: payload?['balance'],
-                            isMentor: false
-                          ),
+                      builder: (context) => ChatScreen(
+                          senderId: payload?['mentorId'],
+                          chatRate: amount,
+                          walletBalance: payload?['balance'],
+                          isMentor: false),
                     ),
                   );
                 } else if (type == RequestType.voice) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          VoiceCall(
-                            roomId: payload?['roomId'],
-                            isCreating: payload?['isCreating'],
-                            userName: payload?['userName'],
-                            creatorId: payload?['creatorId'],
-                            mentorId: payload?['mentorId'],
-                            chatRate: amount,
-                            walletBalance: payload?['balance'],
-                            isMentor: false,
-                          ),
+                      builder: (context) => VoiceCall(
+                        roomId: payload?['roomId'],
+                        isCreating: payload?['isCreating'],
+                        userName: payload?['userName'],
+                        creatorId: payload?['creatorId'],
+                        mentorId: payload?['mentorId'],
+                        chatRate: amount,
+                        walletBalance: payload?['balance'],
+                        isMentor: false,
+                      ),
                     ),
                   );
                 } else {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          VideoCallScreen(
-                            roomId: payload?['roomId'],
-                            isCreating: payload?['isCreating'],
-                            userName: payload?['userName'],
-                            creatorId: payload?['creatorId'],
-                            mentorId: payload?['mentorId'],
-                            chatRate: amount,
-                            walletBalance: payload?['balance'],
-                            isMentor: false,
-                          ),
+                      builder: (context) => VideoCallScreen(
+                        roomId: payload?['roomId'],
+                        isCreating: payload?['isCreating'],
+                        userName: payload?['userName'],
+                        creatorId: payload?['creatorId'],
+                        mentorId: payload?['mentorId'],
+                        chatRate: amount,
+                        walletBalance: payload?['balance'],
+                        isMentor: false,
+                      ),
                     ),
                   );
                 }
               },
               child:
-              const Text('Proceed', style: TextStyle(color: Colors.black)),
+                  const Text('Proceed', style: TextStyle(color: Colors.black)),
             ),
           ],
         );
@@ -375,13 +396,13 @@ class _SupportScreenState extends State<SupportScreen> {
           ),
           backgroundColor: AppConstants.bgColor,
           actionsPadding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           actions: <Widget>[
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-             onPressed: () {
+              onPressed: () {
                 Navigator.pop(context);
-             },
+              },
               child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
             ),
           ],
@@ -397,4 +418,3 @@ class _SupportScreenState extends State<SupportScreen> {
     return true;
   }
 }
-

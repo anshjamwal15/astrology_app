@@ -21,15 +21,11 @@ class MentorRepository {
         .collection('mentor_rate')
         .where('mentor_id', isEqualTo: mentorRef)
         .get();
-    printWarning(querySnapshot.docs);
+
     if (querySnapshot.docs.isNotEmpty) {
       final doc = querySnapshot.docs.first;
       return MentorRate.fromFirestore(doc);
     }
     return null;
   }
-
-
-
-
 }

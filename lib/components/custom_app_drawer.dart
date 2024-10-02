@@ -2,11 +2,12 @@ import 'package:astrology_app/blocs/app/app_bloc.dart';
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/repository/authentication_repository.dart';
+import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/screens/communication/chat/cubits/chat_message_list_cubit.dart';
-import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/screens/wallet/main.dart';
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,13 +22,16 @@ class CustomAppDrawer extends StatefulWidget {
 }
 
 class _CustomAppDrawerState extends State<CustomAppDrawer> {
+  late bool _isSwitchMentor;
   final _authRepository = AuthenticationRepository();
+  final _userRepository = UserRepository();
   late final User user;
 
   @override
   void initState() {
     super.initState();
     user = context.read<AppBloc>().state.user;
+    _isSwitchMentor = user.isMentor;
   }
 
   @override
@@ -88,6 +92,8 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                 ),
                 child: Column(
                   children: [
+                    _becomeMentor(size, user.id),
+                    SizedBox(height: size.height * 0.02),
                     GestureDetector(
                       onTap: () => Navigator.pushReplacement(
                         context,
@@ -179,22 +185,6 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                     //     child: _drawerOptions(size, "Voices call", Icons.call),
                     //   ),
                     // ),
-                    // SizedBox(height: size.height * 0.03),
-                    // GestureDetector(
-                    //   onTap: () async {
-                    //     final isGranted = await _checkPermission();
-                    //     if (isGranted) {
-                    //       _navigate(user.id, true);
-                    //     } else {
-                    //       _requestPermission(true);
-                    //     }
-                    //   },
-                    //   child: _drawerOptions(
-                    //     size,
-                    //     "Create Meeting",
-                    //     Icons.meeting_room,
-                    //   ),
-                    // ),
                     SizedBox(height: size.height * 0.03),
                     // if (!user.isMentor) ...[
                     //   _drawerOptions(size, "Order History", Icons.history),
@@ -223,6 +213,35 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
       ),
     );
   }
+
+  Widget _becomeMentor(Size size, String userId) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Switch(
+          value: _isSwitchMentor,
+          onChanged: (bool value) async {
+            final isMentor = await _userRepository.changeUserToMentor(userId);
+            setState(() {
+              _isSwitchMentor = isMentor;
+            });
+          },
+          activeColor: Colors.blue.shade900,
+          inactiveThumbColor: Colors.blue.shade900,
+          inactiveTrackColor: Colors.white,
+        ),
+        SizedBox(width: size.width * 0.03),
+        const Text(
+          "Become a mentor",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 Widget _drawerOptions(Size size, String name, IconData icon) {
@@ -242,3 +261,5 @@ Widget _drawerOptions(Size size, String name, IconData icon) {
     ],
   );
 }
+
+

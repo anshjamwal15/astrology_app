@@ -22,17 +22,16 @@ class VoiceCall extends StatefulWidget {
   final int? walletBalance;
   final bool isMentor;
 
-  const VoiceCall({
-    super.key,
-    required this.roomId,
-    required this.isCreating,
-    this.userName,
-    this.mentorId,
-    this.creatorId,
-    this.chatRate,
-    this.walletBalance,
-    required this.isMentor
-  });
+  const VoiceCall(
+      {super.key,
+      required this.roomId,
+      required this.isCreating,
+      this.userName,
+      this.mentorId,
+      this.creatorId,
+      this.chatRate,
+      this.walletBalance,
+      required this.isMentor});
 
   @override
   State<VoiceCall> createState() => _VoiceCallState();
@@ -77,7 +76,8 @@ class _VoiceCallState extends State<VoiceCall> {
     };
 
     signaling.onAddConnectionStream = (state) {
-      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected || state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
+      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
+          state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
         _localRenderer.dispose();
         _remoteRenderer.dispose();
         Navigator.pushReplacement(
@@ -90,7 +90,8 @@ class _VoiceCallState extends State<VoiceCall> {
     };
 
     signaling.onAddIceConnectionStream = (state) {
-      if (widget.isCreating && state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
+      if (widget.isCreating &&
+          state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
         final req = model.CallRequest(
           roomId: widget.roomId,
           userId: widget.mentorId!,
@@ -100,11 +101,7 @@ class _VoiceCallState extends State<VoiceCall> {
         );
         _sendCallNotification(req);
         signaling.createCallEntry(
-            widget.roomId,
-            widget.creatorId!,
-            widget.mentorId!,
-            "audio"
-        );
+            widget.roomId, widget.creatorId!, widget.mentorId!, "audio");
       }
     };
   }
@@ -157,13 +154,21 @@ class _VoiceCallState extends State<VoiceCall> {
       if (mounted) {
         _remoteRenderer.dispose();
         showErrorDialog(context);
-        await _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
-        await _paymentRepository.updateWalletBalance(userId: widget.mentorId!, transactionAmount: totalCost, isAdding: true);
+        await _paymentRepository.updateWalletBalance(
+            userId: user!.id, transactionAmount: totalCost, isAdding: false);
+        await _paymentRepository.updateWalletBalance(
+            userId: widget.mentorId!,
+            transactionAmount: totalCost,
+            isAdding: true);
       }
       _timer?.cancel();
     } else {
-      await _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
-      await _paymentRepository.updateWalletBalance(userId: widget.mentorId!, transactionAmount: totalCost, isAdding: true);
+      await _paymentRepository.updateWalletBalance(
+          userId: user!.id, transactionAmount: totalCost, isAdding: false);
+      await _paymentRepository.updateWalletBalance(
+          userId: widget.mentorId!,
+          transactionAmount: totalCost,
+          isAdding: true);
     }
   }
 
@@ -174,12 +179,8 @@ class _VoiceCallState extends State<VoiceCall> {
       track.stop();
     });
 
-    signaling.hangUp(
-        widget.roomId,
-        _localRenderer.srcObject!,
-        _remoteRenderer.srcObject!,
-        false
-    );
+    signaling.hangUp(widget.roomId, _localRenderer.srcObject!,
+        _remoteRenderer.srcObject!, false);
 
     _timer?.cancel();
     _localRenderer.dispose();
@@ -197,20 +198,20 @@ class _VoiceCallState extends State<VoiceCall> {
             ? Padding(
                 padding: EdgeInsets.symmetric(vertical: size.height * 0.3),
                 child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _invisibleWidget(),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: Text(
-                              "On call",
-                              // "On call ${widget.isCreating ? "" : widget.userName}",
-                              style: GoogleFonts.acme(
-                                  color: Colors.white, fontSize: 20),
-                            ),
-                          ),
-                          _remoteRenderer.srcObject!.getAudioTracks().isNotEmpty ?
-                          Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _invisibleWidget(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Text(
+                        "On call",
+                        // "On call ${widget.isCreating ? "" : widget.userName}",
+                        style:
+                            GoogleFonts.acme(color: Colors.white, fontSize: 20),
+                      ),
+                    ),
+                    _remoteRenderer.srcObject!.getAudioTracks().isNotEmpty
+                        ? Column(
                             children: [
                               Padding(
                                 padding:
@@ -247,15 +248,17 @@ class _VoiceCallState extends State<VoiceCall> {
                                     Text(
                                       _formatTime(_seconds),
                                       style: GoogleFonts.acme(
-                                          color: Colors.white, fontSize: 20),
+                                        color: Colors.white,
+                                        fontSize: size.height * 0.02,
+                                      ),
                                     )
                                   ],
                                 ),
                               ),
                               SizedBox(width: size.width * 0.4),
                             ],
-                          ) :
-                          Center(
+                          )
+                        : Center(
                             child: SizedBox(
                               width: size.width * 0.4,
                               height: size.height * 0.4,
@@ -264,55 +267,54 @@ class _VoiceCallState extends State<VoiceCall> {
                               ),
                             ),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: _isMuted ? Colors.white : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(color: Colors.white, width: 1),
-                                ),
-                                child: IconButton(
-                                  onPressed: _toggleMute,
-                                  icon: Icon(
-                                    _isMuted ? Icons.mic_off : Icons.mic,
-                                    size: 24,
-                                    color: _isMuted ? Colors.red : Colors.white,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: size.width * 0.04),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: IconButton(
-                                  onPressed: () async {
-                                    await signaling.hangUp(
-                                        widget.roomId,
-                                        _localRenderer.srcObject!,
-                                        _remoteRenderer.srcObject!,
-                                        false,
-                                        Timestamp.now(),
-                                        _formatTime(_seconds)
-                                    );
-                                    await checkUserBalance(widget.walletBalance!, widget.chatRate!);
-                                    await _routeToHome();
-                                  },
-                                  icon: const Icon(
-                                    Icons.call_end,
-                                    size: 24,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      )
-              )
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: _isMuted ? Colors.white : Colors.transparent,
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: Colors.white, width: 1),
+                          ),
+                          child: IconButton(
+                            onPressed: _toggleMute,
+                            icon: Icon(
+                              _isMuted ? Icons.mic_off : Icons.mic,
+                              size: 24,
+                              color: _isMuted ? Colors.red : Colors.white,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: size.width * 0.04),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: IconButton(
+                            onPressed: () async {
+                              await signaling.hangUp(
+                                  widget.roomId,
+                                  _localRenderer.srcObject!,
+                                  _remoteRenderer.srcObject!,
+                                  false,
+                                  Timestamp.now(),
+                                  _formatTime(_seconds));
+                              await checkUserBalance(
+                                  widget.walletBalance!, widget.chatRate!);
+                              await _routeToHome();
+                            },
+                            icon: const Icon(
+                              Icons.call_end,
+                              size: 24,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ))
             : Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -360,8 +362,7 @@ class _VoiceCallState extends State<VoiceCall> {
         null,
         !_isMuted,
         widget.creatorId,
-        widget.mentorId
-    );
+        widget.mentorId);
   }
 
   _invisibleWidget() {
@@ -408,17 +409,13 @@ class _VoiceCallState extends State<VoiceCall> {
           ),
           backgroundColor: AppConstants.bgColor,
           actionsPadding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           actions: <Widget>[
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               onPressed: () async {
-                signaling.hangUp(
-                    widget.roomId,
-                    _localRenderer.srcObject!,
-                    _remoteRenderer.srcObject!,
-                    true
-                );
+                signaling.hangUp(widget.roomId, _localRenderer.srcObject!,
+                    _remoteRenderer.srcObject!, true);
                 await _routeToHome();
               },
               child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
