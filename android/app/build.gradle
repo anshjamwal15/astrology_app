@@ -56,7 +56,8 @@ android {
             signingConfig = signingConfigs.debug
             // TODO: change it true after development to reduce app size
             // shrinkResources false
-            // minifyEnabled false
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
         debug {

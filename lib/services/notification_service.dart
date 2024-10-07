@@ -33,6 +33,9 @@ class NotificationService {
       notificationTapBackground(notificationAppLaunchDetails.notificationResponse!, navigatorKey);
     }
 
+    _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {

@@ -9,7 +9,7 @@ class AppConstants {
 
   static bool isUserMentor = false;
 
-  static User? appStateUser;
+  static bool isLoaderRunning = false;
 
   static const String SERVER_IP = "http://dekhokaun.com:3000";
 

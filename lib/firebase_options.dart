@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDCtkS8Df2FDgVQ8Av5BZHsbDrZr7TfUfI',
-    appId: '1:563065754732:android:5152e20105459ebd4c7449',
+    appId: '1:563065754732:android:7bf89fc20f8e48d44c7449',
     messagingSenderId: '563065754732',
     projectId: 'mindaro-astrology-app',
     storageBucket: 'mindaro-astrology-app.appspot.com',

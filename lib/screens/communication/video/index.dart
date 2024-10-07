@@ -4,7 +4,6 @@ import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/repository/payment_repository.dart';
-import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/services/signaling_service.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -375,7 +374,13 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                             Timestamp.now(),
                             _formatTime(_seconds)
                         );
-                        await checkUserBalance(widget.walletBalance!, widget.chatRate!);
+                        if (widget.walletBalance != null &&
+                            widget.chatRate != null) {
+                          await checkUserBalance(
+                            widget.walletBalance!,
+                            widget.chatRate!,
+                          );
+                        }
                         await _routeToHome();
                       },
                       icon: const Icon(

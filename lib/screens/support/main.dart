@@ -43,7 +43,7 @@ class _SupportScreenState extends State<SupportScreen> {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       extendBody: true,
-      appBar: const CustomAppBar(),
+      appBar: const CustomAppBar(isBackNav: true),
       drawer: const CustomAppDrawer(),
       backgroundColor: AppConstants.bgColor,
       body: SingleChildScrollView(
@@ -53,7 +53,11 @@ class _SupportScreenState extends State<SupportScreen> {
         ),
         child: BlocBuilder<MentorCubit, MentorState>(
           builder: (context, state) {
-            if (state is MentorLoaded) {
+            if (state is MentorLoading) {
+              return Center(
+                child: CircularProgressIndicator(color: Colors.blue.shade900),
+              );
+            } else if (state is MentorLoaded) {
               final mentors = state.mentors;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,13 +66,7 @@ class _SupportScreenState extends State<SupportScreen> {
                   return FutureBuilder<model.Mentor>(
                     future: mentorFuture,
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.blue.shade900,
-                          ),
-                        );
-                      } else if (snapshot.hasError) {
+                      if (snapshot.hasError) {
                         return const Center(
                           child: Text(''),
                         );
@@ -282,10 +280,10 @@ class _SupportScreenState extends State<SupportScreen> {
                             ),
                           );
                         } else {
-                          return const Center(child: Text('No data available'));
+                          return const Center(child: Text(''));
                         }
                       } else {
-                        return const Center(child: Text('No data available'));
+                        return const Center(child: Text(''));
                       }
                     },
                   );

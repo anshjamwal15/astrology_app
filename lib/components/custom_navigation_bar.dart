@@ -1,3 +1,4 @@
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:astrology_app/screens/call_logs/cubits/call_logs_cubit.dart';
@@ -23,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   void onTabTapped(int index) {
-    if (index == 3) { // If Profile tab is selected
+    if (index == 3) {
       showUpcomingSnackBar("Profile update coming soon");
     } else {
       setState(() {

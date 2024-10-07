@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomAppBar({super.key});
+  const CustomAppBar({super.key, this.isBackNav});
+  final bool? isBackNav;
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       surfaceTintColor: Colors.white,
       systemOverlayStyle:
           SystemUiOverlayStyle(statusBarColor: Colors.blue.shade900),
+      leading: isBackNav != null && isBackNav! ? IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back)) : null,
       actions: [
         GestureDetector(
           onTap: () => {

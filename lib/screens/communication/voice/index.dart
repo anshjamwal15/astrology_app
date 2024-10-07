@@ -300,8 +300,13 @@ class _VoiceCallState extends State<VoiceCall> {
                                   false,
                                   Timestamp.now(),
                                   _formatTime(_seconds));
-                              await checkUserBalance(
-                                  widget.walletBalance!, widget.chatRate!);
+                              if (widget.walletBalance != null &&
+                                  widget.chatRate != null) {
+                                await checkUserBalance(
+                                  widget.walletBalance!,
+                                  widget.chatRate!,
+                                );
+                              }
                               await _routeToHome();
                             },
                             icon: const Icon(

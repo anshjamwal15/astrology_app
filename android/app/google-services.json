@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "563065754732-2uodt1tmroivu0jdo4n37ar6mfj8ihk6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.astrology_app",
+            "certificate_hash": "7d8a801c9f4ceae3fbec2b90a93c6a016a3d0d19"
+          }
+        },
+        {
           "client_id": "563065754732-o0ssn724b6kvjkdvp7ovf9lmndskiipc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -1,4 +1,5 @@
 import 'package:astrology_app/components/custom_navigation_bar.dart';
+import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/home/main.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,10 @@ class RouteGenerator {
     // }
     switch (settings.name) {
       case '/':
+        return MaterialPageRoute(builder: (context) => const MainScreen());
+      case '/login':
+        return MaterialPageRoute(builder: (context) => const LoginScreen());
+      case '/home':
         return MaterialPageRoute(builder: (context) => const MainScreen());
       default:
         return _errorRoute();

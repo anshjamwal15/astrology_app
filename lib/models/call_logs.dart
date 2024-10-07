@@ -7,7 +7,7 @@ class CallLogs {
   final Timestamp createdAt;
   final String duration;
   final String callType;
-  final Timestamp endedAt;
+  final Timestamp? endedAt;
   final String status;
 
   CallLogs({
@@ -26,10 +26,10 @@ class CallLogs {
     return CallLogs(
       caller: caller?.name ?? '',
       callee: data['calleeId'] ?? '',
-      createdAt: data['createdAt'] ?? '',
-      duration: data['duration'] ?? '',
+      createdAt: data['createdAt'] ?? Timestamp,
+      duration: data['duration'] ?? '00:00',
       callType: data['callType'] ?? '',
-      endedAt: data['endedAt'] ?? '',
+      endedAt: data['endedAt'],
       status: data['status'] ?? '',
     );
   }

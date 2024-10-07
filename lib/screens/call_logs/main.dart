@@ -1,6 +1,5 @@
 import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
-import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/screens/call_logs/cubits/call_logs_cubit.dart';
 import 'package:astrology_app/utils/app_utils.dart';

@@ -2,9 +2,10 @@ import 'package:astrology_app/blocs/auth/auth_event.dart';
 import 'package:astrology_app/blocs/auth/auth_state.dart';
 import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/index.dart';
+import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/screens/auth/email_verification.dart';
+import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/utils/app_utils.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +20,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -27,12 +27,12 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        printWarning(state);
         if (state is Authenticated) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Login Successful')),
@@ -151,12 +151,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: size.height * 0.02),
                         CustomButton(
                           onPressed: () {
-                            context.read<AuthBloc>().add(
-                                  SignUpRequested(
-                                    _emailController.text,
-                                    _passwordController.text,
-                                  ),
-                                );
+                            if (!isDialogOpen()) {
+                              showLoader(context);
+                              context.read<AuthBloc>().add(
+                                SignUpRequested(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                ),
+                              );
+                            }
                           },
                           buttonName: "LOGIN",
                         ),
@@ -222,9 +225,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 vertical: 10,
                               ),
                             ),
-                            onPressed: () => context
-                                .read<AuthBloc>()
-                                .add(GoogleSignInRequested()),
+                            onPressed: () async {
+                              if (!isDialogOpen()) {
+                                showLoader(context);
+                                context
+                                    .read<AuthBloc>()
+                                    .add(GoogleSignInRequested());
+                              }
+                            },
                             child: Row(
                               children: [
                                 Image.asset(

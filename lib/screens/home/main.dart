@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/main.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/home/cubits/home_cubit.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
 import 'package:astrology_app/screens/support/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -30,10 +35,17 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<UserBloc>().add(UserWalletRequest(user.id));
     context.read<HomeCubit>().loadCategories();
     _requestPermissions();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (isDialogOpen()) {
+        showLoader(context);
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+    });
   }
 
   void _requestPermissions() async {
-    await [Permission.notification, Permission.camera, Permission.microphone].request();
+    await [Permission.notification, Permission.camera, Permission.microphone]
+        .request();
   }
 
   Future<void> _pullRefresh() async {
@@ -109,7 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     } else if (state is CategoriesError) {
                       return const Center(
-                          child: Text('Something went wrong, Please try again'));
+                          child:
+                              Text('Something went wrong, Please try again'));
                     } else {
                       return const Center(child: Text('No data available'));
                     }
