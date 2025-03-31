@@ -131,7 +131,8 @@ class AuthenticationRepository {
     GoogleSignIn? googleSignIn,
     UserDao? userDao,
   })  : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn(scopes: ['profile', 'email']),
+        _googleSignIn =
+            googleSignIn ?? GoogleSignIn(scopes: ['profile', 'email']),
         _userDao = userDao ?? UserDao();
 
   final firebase_auth.FirebaseAuth _firebaseAuth;
@@ -215,6 +216,30 @@ class AuthenticationRepository {
     } catch (_) {
       throw LogOutFailure();
     }
+  }
+
+  Future<void> sendOtpToPhone(String phoneNumber) async {
+    print("OTP sent to $phoneNumber");
+    // upcoming logic
+  }
+
+  Future<bool> verifyPhoneOtp(String phoneNumber, String enteredOtp) async {
+    if (enteredOtp == "0000") {
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> sendOtpToEmail(String email) async {
+    print("OTP sent to $email");
+    // upcoming logic
+  }
+
+  Future<bool> verifyEmailOtp(String email, String enteredOtp) async {
+    if (enteredOtp == "0000") {
+      return true;
+    }
+    return false;
   }
 }
 

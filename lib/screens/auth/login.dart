@@ -1,10 +1,11 @@
+import 'dart:developer';
+
 import 'package:astrology_app/blocs/auth/auth_event.dart';
 import 'package:astrology_app/blocs/auth/auth_state.dart';
 import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/index.dart';
 import 'package:astrology_app/screens/auth/email_verification.dart';
-import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,15 +19,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   @override
   void dispose() {
-    _emailController.dispose();
+    _emailOrPhoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: size.height / 2,
                   width: size.width,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 40,
+                    ),
                     child: Column(
                       children: [
                         Padding(
@@ -79,97 +81,135 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             child: _CustomTextField(
                               key: const Key(
-                                'loginForm_passwordInput_textField',
+                                'loginForm_emailInput_textField',
                               ),
-                              controller: _emailController,
+                              controller: _emailOrPhoneController,
                               keyboardType: TextInputType.text,
-                              hintText: "Email",
+                              hintText: "Email or Phone",
                               obscureText: false,
                             ),
                           ),
                         ),
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 500),
+                              transitionBuilder: (widget, animation) {
+                                return SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(0, -0.5),
+                                    end: Offset.zero,
+                                  ).animate(
+                                    CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.easeOut,
+                                    ),
+                                  ),
+                                  child: widget,
+                                );
+                              },
+                              child: state is ShowOtpField
+                                  ? passwordOrOtpField(
+                                      size,
+                                      _passwordController,
+                                      false,
+                                    )
+                                  : state is ShowPasswordField
+                                      ? passwordOrOtpField(
+                                          size,
+                                          _passwordController,
+                                          true,
+                                        )
+                                      : const SizedBox(),
+                            );
+                          },
+                        ),
                         SizedBox(height: size.height * 0.02),
                         Padding(
-                          padding: const EdgeInsets.only(right: 40, left: 40),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(30)),
-                              border: Border.all(color: Colors.black),
-                            ),
-                            child: _CustomTextField(
-                              key: const Key(
-                                'loginForm_passwordInput_textField',
+                          padding: const EdgeInsets.only(right: 50, left: 50),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment
+                                .end, // change to spaceBetween for forgot pass
+                            children: [
+                              Text(
+                                "Sign in using OTP",
+                                style: GoogleFonts.acme(
+                                  color: Colors.white,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: size.height * 0.018,
+                                ),
                               ),
-                              keyboardType: TextInputType.text,
-                              controller: _passwordController,
-                              hintText: "Password",
-                              obscureText: true,
-                            ),
+                              // Text(
+                              //   "Forgot Password ?",
+                              //   style: GoogleFonts.acme(
+                              //     color: Colors.black,
+                              //     decoration: TextDecoration.underline,
+                              //     fontWeight: FontWeight.w500,
+                              //   ),
+                              // ),
+                            ],
                           ),
                         ),
                         SizedBox(height: size.height * 0.02),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: size.width * 0.05,),
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: "By signing up, you agree to our ",
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: "Terms of Use",
-                                  style: GoogleFonts.acme(
-                                    color: Colors.black,
-                                    decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const TextSpan(
-                                  text: " and",
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Text(
-                          "Privacy Policy",
-                          style: GoogleFonts.acme(
-                            color: Colors.black,
-                            decoration: TextDecoration.underline,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: size.height * 0.02),
-                        CustomButton(
-                          onPressed: () {
-                            if (!isDialogOpen()) {
-                              showLoader(context);
-                              context.read<AuthBloc>().add(
-                                SignUpRequested(
-                                  _emailController.text,
-                                  _passwordController.text,
-                                ),
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            if (state is OtpSent &&
+                                state is CheckEmailVerification) {
+                              return CustomButton(
+                                onPressed: () {
+                                  if (!isDialogOpen()) {
+                                    showLoader(context);
+                                    // context
+                                    //     .read<AuthBloc>()
+                                    //     .add(SignUpRequested(
+                                    //       _emailOrPhoneController.text,
+                                    //       _passwordController.text,
+                                    //     )); TODO: This function won't work
+                                  }
+                                },
+                                buttonName: "LOGIN",
+                              );
+                            } else {
+                              return CustomButton(
+                                onPressed: () {
+                                  if (!isDialogOpen()) {
+                                    // showLoader(context);
+                                    try {
+                                      if (isEmailOrPhone(
+                                          _emailOrPhoneController.text)) {
+                                        // email
+                                        context
+                                            .read<AuthBloc>()
+                                            .add(PasswordFieldRequested());
+                                      } else {
+                                        // phone
+                                        context
+                                            .read<AuthBloc>()
+                                            .add(OtpFieldRequested());
+                                      }
+                                    } catch (e) {
+                                      showAuthErrorDialog(
+                                        context,
+                                        "Please enter a valid email or phone number",
+                                      );
+                                    }
+                                  }
+                                },
+                                buttonName: "NEXT",
                               );
                             }
                           },
-                          buttonName: "LOGIN",
                         ),
                         SizedBox(height: size.height * 0.01),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             vertical: 10,
-                            horizontal: 60,
+                            horizontal: 50,
                           ),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
                                 width: size.width * 0.3,
@@ -205,6 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
+                        SizedBox(height: size.height * 0.01),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 50),
                           child: ElevatedButton(
@@ -295,18 +336,44 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  showAuthErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Alert'),
+          content: Text(
+            message,
+            style: const TextStyle(color: Colors.black),
+          ),
+          backgroundColor: AppConstants.bgColor,
+          actionsPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          actions: <Widget>[
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 class _CustomTextField extends StatelessWidget {
-  @override
-  final Key key;
   final TextInputType keyboardType;
   final String hintText;
   final bool obscureText;
   final TextEditingController controller;
 
   const _CustomTextField({
-    required this.key,
+    super.key,
     required this.keyboardType,
     required this.hintText,
     required this.controller,
@@ -325,6 +392,7 @@ class _CustomTextField extends StatelessWidget {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
         border: InputBorder.none,
         focusedBorder: InputBorder.none,
         enabledBorder: InputBorder.none,
@@ -333,4 +401,39 @@ class _CustomTextField extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget passwordOrOtpField(
+    Size size, TextEditingController controller, bool isPass) {
+  return Column(
+    key: const Key('loginForm_passwordInput_textField'),
+    children: [
+      SizedBox(height: size.height * 0.02),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: Colors.black),
+          ),
+          child: isPass
+              ? _CustomTextField(
+                  key: const Key('loginForm_passwordInput_textField'),
+                  keyboardType: TextInputType.text,
+                  controller: controller,
+                  hintText: "Password",
+                  obscureText: true,
+                )
+              : _CustomTextField(
+                  key: const Key('loginForm_otpInput_textField'),
+                  keyboardType: TextInputType.number,
+                  controller: controller,
+                  hintText: "One Time Password",
+                  obscureText: false,
+                ),
+        ),
+      ),
+    ],
+  );
 }

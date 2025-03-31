@@ -32,3 +32,31 @@ class AuthError extends AuthState {
   @override
   List<Object?> get props => [];
 }
+
+class OtpSent extends AuthState {
+  @override
+  List<Object?> get props => [];
+}
+
+class OtpVerified extends AuthState {
+  @override
+  List<Object?> get props => [];
+}
+
+class OtpError extends AuthState {
+  final String error;
+  OtpError(this.error);
+
+  @override
+  List<Object?> get props => [error];
+}
+
+class ShowPasswordField extends AuthState {
+  @override
+  List<Object?> get props => [];
+}
+
+class ShowOtpField extends AuthState {
+  @override
+  List<Object?> get props => [];
+}

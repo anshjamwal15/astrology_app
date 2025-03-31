@@ -8,7 +8,9 @@ import 'package:uuid/uuid.dart';
 Future<Map<String, dynamic>?> getRefDocumentData(DocumentReference ref) async {
   try {
     DocumentSnapshot docSnapshot = await ref.get();
-    return docSnapshot.exists ? docSnapshot.data() as Map<String, dynamic>? : null;
+    return docSnapshot.exists
+        ? docSnapshot.data() as Map<String, dynamic>?
+        : null;
   } catch (e) {
     if (kDebugMode) {
       print('Error fetching document: $e');
@@ -41,7 +43,6 @@ Future<DocumentSnapshot?> findDocumentWithField({
     return null;
   }
 }
-
 
 String filterTrueValues(Map<String, dynamic> inputMap) {
   for (var entry in inputMap.entries) {
@@ -78,7 +79,6 @@ void printError(Object? text) {
   print('\x1B[31m$line\x1B[0m');
 }
 
-
 Future<void> showLoader(BuildContext context) async {
   if (!isDialogOpen()) {
     AppConstants.isLoaderRunning = true;
@@ -112,4 +112,45 @@ Future<void> showLoader(BuildContext context) async {
 
 bool isDialogOpen() {
   return AppConstants.isLoaderRunning;
+}
+
+bool isEmailOrPhone(String input) {
+  final emailRegex =
+      RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+  final phoneRegex = RegExp(r'^\d{7,15}$');
+  if (emailRegex.hasMatch(input)) {
+    return true;
+  } else if (phoneRegex.hasMatch(input)) {
+    return false;
+  } else {
+    throw const FormatException(
+        "Invalid input: Enter a valid email or phone number");
+  }
+}
+
+showErrorDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Alert'),
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.black),
+        ),
+        backgroundColor: AppConstants.bgColor,
+        actionsPadding:
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        actions: <Widget>[
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      );
+    },
+  );
 }

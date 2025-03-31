@@ -53,5 +53,65 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await authRepository.logOut();
       emit(UnAuthenticated());
     });
+
+    on<PhoneOtpRequested>((event, emit) async {
+      emit(Loading());
+      try {
+        await authRepository.sendOtpToPhone(event.phoneNumber);
+        emit(OtpSent());
+      } catch (e) {
+        emit(OtpError(e.toString()));
+      }
+    });
+
+    on<VerifyPhoneOtpRequested>((event, emit) async {
+      emit(Loading());
+      try {
+        await authRepository.verifyPhoneOtp(event.phoneNumber, event.otp);
+        emit(OtpVerified());
+        emit(Authenticated());
+      } catch (e) {
+        emit(OtpError(e.toString()));
+      }
+    });
+
+    on<EmailOtpRequested>((event, emit) async {
+      emit(Loading());
+      try {
+        await authRepository.sendOtpToEmail(event.email);
+        emit(OtpSent());
+      } catch (e) {
+        emit(OtpError(e.toString()));
+      }
+    });
+
+    on<VerifyEmailOtpRequested>((event, emit) async {
+      emit(Loading());
+      try {
+        await authRepository.verifyEmailOtp(event.email, event.otp);
+        emit(OtpVerified());
+        emit(Authenticated());
+      } catch (e) {
+        emit(OtpError(e.toString()));
+      }
+    });
+
+    on<PasswordFieldRequested>((event, emit) {
+      emit(Loading());
+      try {
+        emit(ShowPasswordField());
+      } catch (e) {
+        emit(AuthError(e.toString()));
+      }
+    });
+
+    on<OtpFieldRequested>((event, emit) {
+      emit(Loading());
+      try {
+        emit(ShowOtpField());
+      } catch (e) {
+        emit(AuthError(e.toString()));
+      }
+    });
   }
 }

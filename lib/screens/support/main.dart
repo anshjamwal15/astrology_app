@@ -7,7 +7,7 @@ import 'package:astrology_app/screens/communication/chat/index.dart';
 import 'package:astrology_app/screens/communication/video/index.dart';
 import 'package:astrology_app/screens/communication/voice/index.dart';
 import 'package:astrology_app/screens/support/cubits/mentor_cubit.dart';
-import 'package:astrology_app/utils/app_utils.dart';
+import 'package:astrology_app/utils/app_utils.dart' as appUtils;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -136,10 +136,11 @@ class _SupportScreenState extends State<SupportScreen> {
                                                       userWallet.balance,
                                                       mentorRate);
                                               if (!isValid) {
-                                                showErrorDialog();
+                                                _customErrorDialogBox(
+                                                  'You do not have enough balance to proceed',
+                                                );
                                                 return;
                                               }
-                                              ;
                                               _customDialogBox(RequestType.chat,
                                                   mentorRate, mentorName, {
                                                 'mentorId': mentor.userId,
@@ -179,12 +180,13 @@ class _SupportScreenState extends State<SupportScreen> {
                                                       userWallet.balance,
                                                       mentorRate);
                                               if (!isValid) {
-                                                showErrorDialog();
+                                                _customErrorDialogBox(
+                                                  'You do not have enough balance to proceed',
+                                                );
                                                 return;
                                               }
-                                              ;
-                                              final roomId =
-                                                  UniqueIdGenerator.generate();
+                                              final roomId = appUtils
+                                                  .UniqueIdGenerator.generate();
                                               final data = {
                                                 'roomId': roomId,
                                                 'isCreating': true,
@@ -232,12 +234,13 @@ class _SupportScreenState extends State<SupportScreen> {
                                                       userWallet.balance,
                                                       mentorRate);
                                               if (!isValid) {
-                                                showErrorDialog();
+                                                _customErrorDialogBox(
+                                                  'You do not have enough balance to proceed',
+                                                );
                                                 return;
                                               }
-                                              ;
-                                              final roomId =
-                                                  UniqueIdGenerator.generate();
+                                              final roomId = appUtils
+                                                  .UniqueIdGenerator.generate();
                                               final data = {
                                                 'roomId': roomId,
                                                 'isCreating': true,
@@ -299,6 +302,10 @@ class _SupportScreenState extends State<SupportScreen> {
         ),
       ),
     );
+  }
+
+  void _customErrorDialogBox(String message) {
+    appUtils.showErrorDialog(context, message);
   }
 
   void _customDialogBox(RequestType type, int amount, String userName,
@@ -375,33 +382,6 @@ class _SupportScreenState extends State<SupportScreen> {
               },
               child:
                   const Text('Proceed', style: TextStyle(color: Colors.black)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  showErrorDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Alert'),
-          content: const Text(
-            'You do not have enough balance to proceed',
-            style: TextStyle(color: Colors.black),
-          ),
-          backgroundColor: AppConstants.bgColor,
-          actionsPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          actions: <Widget>[
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
             ),
           ],
         );

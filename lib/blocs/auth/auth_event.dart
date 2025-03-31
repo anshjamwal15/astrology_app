@@ -22,3 +22,29 @@ class SignUpRequested extends AuthEvent {
 class GoogleSignInRequested extends AuthEvent {}
 
 class SignOutRequested extends AuthEvent {}
+
+class PhoneOtpRequested extends AuthEvent {
+  final String phoneNumber;
+  PhoneOtpRequested(this.phoneNumber);
+}
+
+class VerifyPhoneOtpRequested extends AuthEvent {
+  final String phoneNumber;
+  final String otp;
+  VerifyPhoneOtpRequested(this.phoneNumber, this.otp);
+}
+
+class EmailOtpRequested extends AuthEvent {
+  final String email;
+  EmailOtpRequested(this.email);
+}
+
+class VerifyEmailOtpRequested extends AuthEvent {
+  final String email;
+  final String otp;
+  VerifyEmailOtpRequested(this.email, this.otp);
+}
+
+class PasswordFieldRequested extends AuthEvent {}
+
+class OtpFieldRequested extends AuthEvent {}
