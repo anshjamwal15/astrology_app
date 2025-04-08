@@ -1,5 +1,5 @@
 import 'package:astrology_app/blocs/index.dart';
-import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,8 @@ class _WalletScreenState extends State<WalletScreen> {
                     SizedBox(height: size.height * 0.02),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: _transactionSection(size, state.wallet.balance, state.transactions),
+                      child: _transactionSection(
+                          size, state.wallet.balance, state.transactions),
                     )
                   ],
                 );
@@ -180,7 +181,8 @@ Widget _paymentContainer(Size size, bool add, int balance, Timestamp dateTime) {
   );
 }
 
-Widget _transactionSection(Size size, int availableBalance, List<model.Transaction> transactions) {
+Widget _transactionSection(
+    Size size, int availableBalance, List<model.Transaction> transactions) {
   transactions.sort((a, b) => b.dateTime.compareTo(a.dateTime));
   return (availableBalance > 0 || transactions.isNotEmpty)
       ? Padding(
@@ -205,7 +207,8 @@ Widget _transactionSection(Size size, int availableBalance, List<model.Transacti
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
                     final data = transactions[index];
-                    return _paymentContainer(size, data.isAdding!, data.amount, data.dateTime);
+                    return _paymentContainer(
+                        size, data.isAdding!, data.amount, data.dateTime);
                   },
                 ),
               )

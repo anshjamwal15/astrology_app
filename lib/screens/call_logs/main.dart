@@ -1,6 +1,6 @@
 import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
-import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/screens/call_logs/cubits/call_logs_cubit.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
@@ -121,9 +121,7 @@ Widget _callContainer(
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Icon(
-                    isVideo
-                        ? Icons.videocam_outlined
-                        : Icons.phone_outlined,
+                    isVideo ? Icons.videocam_outlined : Icons.phone_outlined,
                     color: Colors.black,
                   ),
                 ),

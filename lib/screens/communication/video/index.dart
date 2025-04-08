@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:astrology_app/components/custom_navigation_bar.dart';
-import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/repository/payment_repository.dart';
 import 'package:astrology_app/services/signaling_service.dart';
@@ -20,17 +20,16 @@ class VideoCallScreen extends StatefulWidget {
   final int? chatRate;
   final int? walletBalance;
   final bool isMentor;
-  const VideoCallScreen({
-    super.key,
-    required this.roomId,
-    required this.isCreating,
-    this.mentorId,
-    this.userName,
-    this.creatorId,
-    this.chatRate,
-    this.walletBalance,
-    required this.isMentor
-  });
+  const VideoCallScreen(
+      {super.key,
+      required this.roomId,
+      required this.isCreating,
+      this.mentorId,
+      this.userName,
+      this.creatorId,
+      this.chatRate,
+      this.walletBalance,
+      required this.isMentor});
 
   @override
   State<VideoCallScreen> createState() => _VideoCallScreenState();
@@ -62,7 +61,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     });
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -79,7 +77,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     };
 
     signaling.onAddConnectionStream = (state) {
-      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected || state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
+      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
+          state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
         _localRenderer.dispose();
         _remoteRenderer.dispose();
         Navigator.pushReplacement(
@@ -92,7 +91,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     };
 
     signaling.onAddIceConnectionStream = (state) {
-      if (widget.isCreating && state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
+      if (widget.isCreating &&
+          state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
         final req = model.CallRequest(
           roomId: widget.roomId,
           userId: widget.mentorId!,
@@ -102,11 +102,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         );
         _sendCallNotification(req);
         signaling.createCallEntry(
-          widget.roomId,
-          widget.creatorId!,
-          widget.mentorId!,
-          "video"
-        );
+            widget.roomId, widget.creatorId!, widget.mentorId!, "video");
       }
     };
 
@@ -116,7 +112,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       widget.isCreating ? "callee" : "caller",
       widget.creatorId,
       widget.mentorId,
-    ).listen((mediaStatus) {
+    )
+        .listen((mediaStatus) {
       if (mediaStatus != null) {
         setState(() {
           isRemoteCameraOpen = mediaStatus['isCameraOn'] ?? true;
@@ -174,13 +171,21 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       if (mounted) {
         _remoteRenderer.dispose();
         showErrorDialog(context);
-        await _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
-        await _paymentRepository.updateWalletBalance(userId: widget.mentorId!, transactionAmount: totalCost, isAdding: true);
+        await _paymentRepository.updateWalletBalance(
+            userId: user!.id, transactionAmount: totalCost, isAdding: false);
+        await _paymentRepository.updateWalletBalance(
+            userId: widget.mentorId!,
+            transactionAmount: totalCost,
+            isAdding: true);
       }
       _timer?.cancel();
     } else {
-      await _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
-      await _paymentRepository.updateWalletBalance(userId: widget.mentorId!, transactionAmount: totalCost, isAdding: true);
+      await _paymentRepository.updateWalletBalance(
+          userId: user!.id, transactionAmount: totalCost, isAdding: false);
+      await _paymentRepository.updateWalletBalance(
+          userId: widget.mentorId!,
+          transactionAmount: totalCost,
+          isAdding: true);
     }
   }
 
@@ -191,12 +196,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       track.stop();
     });
 
-    signaling.hangUp(
-        widget.roomId,
-        _localRenderer.srcObject!,
-        _remoteRenderer.srcObject!,
-        true
-    );
+    signaling.hangUp(widget.roomId, _localRenderer.srcObject!,
+        _remoteRenderer.srcObject!, true);
 
     _localRenderer.dispose();
     _remoteRenderer.dispose();
@@ -213,47 +214,53 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           children: [
             Positioned.fill(
               child: SizedBox.expand(
-                child: _remoteRenderer.srcObject != null && _remoteRenderer.renderVideo
+                child: _remoteRenderer.srcObject != null &&
+                        _remoteRenderer.renderVideo
                     ? FittedBox(
                         fit: BoxFit.cover,
                         child: SizedBox(
                           width: size.width,
                           height: size.height,
                           child: _remoteRenderer.srcObject != null &&
-                              (_remoteRenderer.srcObject!.getVideoTracks().isNotEmpty ||
-                                  _remoteRenderer.srcObject!.getAudioTracks().isNotEmpty)
+                                  (_remoteRenderer.srcObject!
+                                          .getVideoTracks()
+                                          .isNotEmpty ||
+                                      _remoteRenderer.srcObject!
+                                          .getAudioTracks()
+                                          .isNotEmpty)
                               ? (isRemoteCameraOpen
-                              ? RTCVideoView(
-                            filterQuality: FilterQuality.medium,
-                            _remoteRenderer,
-                            objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                          )
+                                  ? RTCVideoView(
+                                      filterQuality: FilterQuality.medium,
+                                      _remoteRenderer,
+                                      objectFit: RTCVideoViewObjectFit
+                                          .RTCVideoViewObjectFitCover,
+                                    )
+                                  : Container(
+                                      color: Colors.grey.shade800,
+                                      child: Center(
+                                        child: SizedBox(
+                                          width: size.width * 0.4,
+                                          height: size.height * 0.4,
+                                          child: const Icon(
+                                            Icons.videocam_off,
+                                            color: Colors.white,
+                                            size: 100,
+                                          ),
+                                        ),
+                                      ),
+                                    ))
                               : Container(
-                            color: Colors.grey.shade800,
-                            child: Center(
-                              child: SizedBox(
-                                width: size.width * 0.4,
-                                height: size.height * 0.4,
-                                child: const Icon(
-                                  Icons.videocam_off,
-                                  color: Colors.white,
-                                  size: 100,
+                                  color: Colors.grey.shade800,
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: size.width * 0.4,
+                                      height: size.height * 0.4,
+                                      child: Image.asset(
+                                        "assets/images/waiting-room.png",
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ))
-                              : Container(
-                            color: Colors.grey.shade800,
-                            child: Center(
-                              child: SizedBox(
-                                width: size.width * 0.4,
-                                height: size.height * 0.4,
-                                child: Image.asset(
-                                  "assets/images/waiting-room.png",
-                                ),
-                              ),
-                            ),
-                          ),
                         ),
                       )
                     : Center(
@@ -283,26 +290,26 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 ),
                 child: !isCameraOpen && _localRenderer.srcObject != null
                     ? Stack(
-                    children: [
-                      RTCVideoView(
-                        filterQuality: FilterQuality.medium,
-                        _localRenderer,
-                        mirror: true,
-                        objectFit:
-                        RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                      ),
-                      if (isMuted)
-                        Container(
-                          width: size.width,
-                          padding: const EdgeInsets.all(8.0),
-                          child: const Icon(
-                            Icons.mic_off,
-                            color: Colors.white,
-                            size: 24,
+                        children: [
+                          RTCVideoView(
+                            filterQuality: FilterQuality.medium,
+                            _localRenderer,
+                            mirror: true,
+                            objectFit: RTCVideoViewObjectFit
+                                .RTCVideoViewObjectFitCover,
                           ),
-                        )
-                    ],
-                )
+                          if (isMuted)
+                            Container(
+                              width: size.width,
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Icon(
+                                Icons.mic_off,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            )
+                        ],
+                      )
                     : Container(
                         decoration: const BoxDecoration(
                           color: Colors.grey,
@@ -372,8 +379,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                             _remoteRenderer.srcObject!,
                             true,
                             Timestamp.now(),
-                            _formatTime(_seconds)
-                        );
+                            _formatTime(_seconds));
                         if (widget.walletBalance != null &&
                             widget.chatRate != null) {
                           await checkUserBalance(
@@ -412,17 +418,13 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           ),
           backgroundColor: AppConstants.bgColor,
           actionsPadding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           actions: <Widget>[
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               onPressed: () async {
-                signaling.hangUp(
-                    widget.roomId,
-                    _localRenderer.srcObject!,
-                    _remoteRenderer.srcObject!,
-                    true
-                );
+                signaling.hangUp(widget.roomId, _localRenderer.srcObject!,
+                    _remoteRenderer.srcObject!, true);
                 await _routeToHome();
               },
               child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
@@ -453,13 +455,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       }
     }
     await signaling.updateMediaStatusInCall(
-      widget.roomId,
-      widget.isCreating ? "caller" : "callee",
-      !isCameraOpen,
-      !isMuted,
-      widget.creatorId,
-      widget.mentorId
-    );
+        widget.roomId,
+        widget.isCreating ? "caller" : "callee",
+        !isCameraOpen,
+        !isMuted,
+        widget.creatorId,
+        widget.mentorId);
   }
 
   void _toggleCamera() async {
@@ -478,8 +479,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         !isCameraOpen,
         !isMuted,
         widget.creatorId,
-        widget.mentorId
-    );
+        widget.mentorId);
   }
 
   void _sendCallNotification(model.CallRequest req) async {

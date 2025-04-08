@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/index.dart';
-import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/main.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/screens/home/cubits/home_cubit.dart';

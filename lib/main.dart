@@ -23,7 +23,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     String roomId = message.data['roomId'];
     String callerId = message.data['creatorId'];
     String calleeId = message.data['calleeId'];
-    NotificationService.createCallNotification(title, body, callType, roomId, type, callerId, calleeId);
+    NotificationService.createCallNotification(
+        title, body, callType, roomId, type, callerId, calleeId);
   } else {
     String senderId = message.data['senderId'];
     NotificationService.createMessageNotification(title, body, senderId, type);
@@ -40,5 +41,7 @@ void main() async {
   FirebaseMessaging.onMessage.listen(_firebaseMessagingBackgroundHandler);
   await NotificationService.initializeNotifications(navigatorKey);
   await UserManager.instance.loadUser();
-  runApp(App(navigatorKey: navigatorKey, authenticationRepository: AuthenticationRepository()));
+  runApp(App(
+      navigatorKey: navigatorKey,
+      authenticationRepository: AuthenticationRepository()));
 }

@@ -4,10 +4,11 @@ import 'package:astrology_app/blocs/auth/auth_event.dart';
 import 'package:astrology_app/blocs/auth/auth_state.dart';
 import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/index.dart';
-import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/screens/auth/email_verification.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -63,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Container(
                   color: Colors.blue.shade900,
                   height: size.height / 2,
-                  width: size.width,
+                  // width: size.width,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       vertical: 40,
@@ -92,6 +93,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
+                            Widget widget = const SizedBox();
+
+                            if (state is ShowPasswordField) {
+                              widget = passwordOrOtpField(
+                                size,
+                                _passwordController,
+                                true,
+                              );
+                            } else if (state is ShowOtpField) {
+                              widget = passwordOrOtpField(
+                                size,
+                                _passwordController,
+                                false,
+                              );
+                            } else if (state is HidePassOrOtpField) {
+                              const SizedBox();
+                            }
+
                             return AnimatedSwitcher(
                               duration: const Duration(milliseconds: 500),
                               transitionBuilder: (widget, animation) {
@@ -108,19 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: widget,
                                 );
                               },
-                              child: state is ShowOtpField
-                                  ? passwordOrOtpField(
-                                      size,
-                                      _passwordController,
-                                      false,
-                                    )
-                                  : state is ShowPasswordField
-                                      ? passwordOrOtpField(
-                                          size,
-                                          _passwordController,
-                                          true,
-                                        )
-                                      : const SizedBox(),
+                              child: widget,
                             );
                           },
                         ),
@@ -129,16 +136,28 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: const EdgeInsets.only(right: 50, left: 50),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment
-                                .end, // change to spaceBetween for forgot pass
+                                .end, // TODO: change to spaceBetween for forgot pass
                             children: [
-                              Text(
-                                "Sign in using OTP",
-                                style: GoogleFonts.acme(
-                                  color: Colors.white,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: size.height * 0.018,
+                              GestureDetector(
+                                onTap: () async {
+                                  if (_emailOrPhoneController.text.isNotEmpty) {
+                                    context
+                                        .read<AuthBloc>()
+                                        .add(OtpFieldRequested());
+                                  } else {
+                                    showAuthErrorDialog(context,
+                                        "Please enter a valid email or phone number");
+                                  }
+                                },
+                                child: Text(
+                                  "Sign in using OTP",
+                                  style: GoogleFonts.acme(
+                                    color: Colors.white,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: size.height * 0.018,
+                                  ),
                                 ),
                               ),
                               // Text(
@@ -174,27 +193,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             } else {
                               return CustomButton(
                                 onPressed: () {
-                                  if (!isDialogOpen()) {
-                                    // showLoader(context);
-                                    try {
-                                      if (isEmailOrPhone(
-                                          _emailOrPhoneController.text)) {
-                                        // email
-                                        context
-                                            .read<AuthBloc>()
-                                            .add(PasswordFieldRequested());
-                                      } else {
-                                        // phone
-                                        context
-                                            .read<AuthBloc>()
-                                            .add(OtpFieldRequested());
-                                      }
-                                    } catch (e) {
-                                      showAuthErrorDialog(
-                                        context,
-                                        "Please enter a valid email or phone number",
-                                      );
+                                  try {
+                                    if (!isDialogOpen() &&
+                                        isEmailOrPhone(
+                                            _emailOrPhoneController.text)) {
+                                      context
+                                          .read<AuthBloc>()
+                                          .add(PasswordFieldRequested());
+                                    } else {
+                                      context
+                                          .read<AuthBloc>()
+                                          .add(OtpFieldRequested());
                                     }
+                                  } catch (e) {
+                                    showAuthErrorDialog(
+                                      context,
+                                      "Please enter a valid email or phone number",
+                                    );
                                   }
                                 },
                                 buttonName: "NEXT",
@@ -202,11 +217,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                           },
                         ),
-                        SizedBox(height: size.height * 0.01),
+                        // SizedBox(height: size.height * 0.01),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             vertical: 10,
-                            horizontal: 50,
+                            // horizontal: 50,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -245,7 +260,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
-                        SizedBox(height: size.height * 0.01),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 50),
                           child: ElevatedButton(
@@ -356,6 +370,7 @@ class _LoginScreenState extends State<LoginScreen> {
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
+                context.read<AuthBloc>().add(HideFieldRequested());
               },
               child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
             ),
@@ -372,32 +387,68 @@ class _CustomTextField extends StatelessWidget {
   final bool obscureText;
   final TextEditingController controller;
 
-  const _CustomTextField({
-    super.key,
-    required this.keyboardType,
-    required this.hintText,
-    required this.controller,
-    this.obscureText = false,
-  });
+  const _CustomTextField(
+      {super.key,
+      required this.keyboardType,
+      required this.hintText,
+      required this.controller,
+      this.obscureText = false});
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      key: key,
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      cursorColor: Colors.blue.shade900,
-      decoration: InputDecoration(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.grey),
-        border: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        errorBorder: InputBorder.none,
-        disabledBorder: InputBorder.none,
+    return Theme(
+      data: ThemeData(
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: AppConstants.primaryColor,
+          selectionColor: AppConstants.primaryColorTwo,
+          selectionHandleColor: AppConstants.primaryColorThree,
+        ),
+      ),
+      child: TextFormField(
+        key: key,
+        controller: controller,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        onChanged: (value) {
+          final isPhone = RegExp(r'^\+?\d+$').hasMatch(value);
+
+          if (isPhone) {
+            String numericValue = value.replaceAll(RegExp(r'[^\d]'), '');
+
+            if (numericValue.startsWith('91') && numericValue.length > 10) {
+              numericValue = numericValue.substring(2);
+            }
+
+            if (controller.text != numericValue) {
+              controller.text = numericValue;
+              controller.selection = TextSelection.fromPosition(
+                TextPosition(offset: numericValue.length),
+              );
+            }
+          }
+        },
+        onEditingComplete: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        onTapOutside: (_) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        enableInteractiveSelection: true,
+        autofillHints: const [
+          AutofillHints.email,
+          AutofillHints.telephoneNumberDevice,
+        ],
+        decoration: InputDecoration(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.grey),
+          border: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+        ),
       ),
     );
   }
@@ -406,33 +457,26 @@ class _CustomTextField extends StatelessWidget {
 Widget passwordOrOtpField(
     Size size, TextEditingController controller, bool isPass) {
   return Column(
-    key: const Key('loginForm_passwordInput_textField'),
     children: [
       SizedBox(height: size.height * 0.02),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.black),
-          ),
-          child: isPass
-              ? _CustomTextField(
+        child: isPass
+            ? Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.black),
+                ),
+                child: _CustomTextField(
                   key: const Key('loginForm_passwordInput_textField'),
                   keyboardType: TextInputType.text,
                   controller: controller,
                   hintText: "Password",
                   obscureText: true,
-                )
-              : _CustomTextField(
-                  key: const Key('loginForm_otpInput_textField'),
-                  keyboardType: TextInputType.number,
-                  controller: controller,
-                  hintText: "One Time Password",
-                  obscureText: false,
                 ),
-        ),
+              )
+            : const CustomOtpInput(),
       ),
     ],
   );

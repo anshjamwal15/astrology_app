@@ -113,5 +113,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthError(e.toString()));
       }
     });
+
+    on<HideFieldRequested>((event, emit) {
+      emit(Loading());
+      try {
+        emit(HidePassOrOtpField());
+      } catch (e) {
+        emit(AuthError(e.toString()));
+      }
+    });
   }
 }

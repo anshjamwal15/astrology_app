@@ -1,4 +1,3 @@
-import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:astrology_app/screens/call_logs/cubits/call_logs_cubit.dart';
@@ -19,8 +18,11 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> screens = [
     const HomeScreen(),
-    BlocProvider(create: (context) => ChatMessageListCubit(), child: const ChatListScreen()),
-    BlocProvider(create: (context) => CallLogsCubit(), child: const CallLogsScreen()),
+    BlocProvider(
+        create: (context) => ChatMessageListCubit(),
+        child: const ChatListScreen()),
+    BlocProvider(
+        create: (context) => CallLogsCubit(), child: const CallLogsScreen()),
   ];
 
   void onTabTapped(int index) {
@@ -43,6 +45,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
+
   void showUpcomingSnackBar(String value) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -90,36 +93,44 @@ class CustomNavigationBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildNavItem(0, iconColor, iconWidth, "Home", Icons.home_outlined, size),
-          _buildNavItem(1, iconColor, iconWidth, "Messages", Icons.email_outlined, size),
-          _buildNavItem(2, iconColor, iconWidth, "Calls", Icons.call_outlined, size),
-          _buildNavItem(3, iconColor, iconWidth, "Profile", Icons.person_outlined, size),
+          _buildNavItem(
+              0, iconColor, iconWidth, "Home", Icons.home_outlined, size),
+          _buildNavItem(
+              1, iconColor, iconWidth, "Messages", Icons.email_outlined, size),
+          _buildNavItem(
+              2, iconColor, iconWidth, "Calls", Icons.call_outlined, size),
+          _buildNavItem(
+              3, iconColor, iconWidth, "Profile", Icons.person_outlined, size),
         ],
       ),
     );
   }
-  Widget _buildNavItem(int index, Color iconColor, double iconWidth, String label, IconData icon, Size size) {
+
+  Widget _buildNavItem(int index, Color iconColor, double iconWidth,
+      String label, IconData icon, Size size) {
     return GestureDetector(
       onTap: () => onTabTapped(index),
       child: Container(
         decoration: BoxDecoration(
           border: selectedIndex == index
               ? Border(
-            top: BorderSide(color: Colors.blue.shade900, width: 2),
-          )
+                  top: BorderSide(color: Colors.blue.shade900, width: 2),
+                )
               : null,
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             children: [
-              Icon(icon, size: iconWidth, color: selectedIndex == index ? iconColor : Colors.black),
+              Icon(icon,
+                  size: iconWidth,
+                  color: selectedIndex == index ? iconColor : Colors.black),
               Text(
                 label,
                 style: TextStyle(
-                    letterSpacing: 1,
-                    color: selectedIndex == index ? iconColor : Colors.black,
-                    fontSize: size.height * 0.016,
+                  letterSpacing: 1,
+                  color: selectedIndex == index ? iconColor : Colors.black,
+                  fontSize: size.height * 0.016,
                 ),
               ),
             ],

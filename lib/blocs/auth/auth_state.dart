@@ -60,3 +60,8 @@ class ShowOtpField extends AuthState {
   @override
   List<Object?> get props => [];
 }
+
+class HidePassOrOtpField extends AuthState {
+  @override
+  List<Object?> get props => [];
+}

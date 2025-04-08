@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
-import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/models/chat_messages.dart';
 import 'package:astrology_app/repository/payment_repository.dart';
 import 'package:astrology_app/screens/home/main.dart';
@@ -18,7 +18,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../components/custom_navigation_bar.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, required this.senderId, this.chatRate, this.walletBalance, required this.isMentor});
+  const ChatScreen(
+      {super.key,
+      required this.senderId,
+      this.chatRate,
+      this.walletBalance,
+      required this.isMentor});
   final String senderId;
   final int? chatRate;
   final int? walletBalance;
@@ -31,8 +36,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final PaymentRepository _paymentRepository = PaymentRepository();
   final user = UserManager.instance.user;
-    Timer? _timer;
-    int _minutesElapsed = 0;
+  Timer? _timer;
+  int _minutesElapsed = 0;
 
   @override
   void initState() {
@@ -46,12 +51,10 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!user!.isMentor) {
       _startTimer();
     }
-    context
-        .read<ChatBloc>()
-        .add(MarkMessagesAsRead(_createChatId([user?.id ?? "", widget.senderId]), user?.id ?? ""));
-    context
-        .read<ChatBloc>()
-        .add(LoadChatMessages(_createChatId([user?.id ?? "", widget.senderId])));
+    context.read<ChatBloc>().add(MarkMessagesAsRead(
+        _createChatId([user?.id ?? "", widget.senderId]), user?.id ?? ""));
+    context.read<ChatBloc>().add(
+        LoadChatMessages(_createChatId([user?.id ?? "", widget.senderId])));
   }
 
   void _sendMessage(String text) {
@@ -84,7 +87,8 @@ class _ChatScreenState extends State<ChatScreen> {
     if (totalCost >= walletBalance) {
       if (mounted) {
         showErrorDialog(context);
-        _paymentRepository.updateWalletBalance(userId: user!.id, transactionAmount: totalCost, isAdding: false);
+        _paymentRepository.updateWalletBalance(
+            userId: user!.id, transactionAmount: totalCost, isAdding: false);
       }
       _timer?.cancel();
     }
@@ -112,7 +116,9 @@ class _ChatScreenState extends State<ChatScreen> {
               child: BlocBuilder<ChatBloc, ChatState>(
                 builder: (context, state) {
                   if (state is ChatLoading) {
-                    return Center(child: CircularProgressIndicator(color: Colors.blue.shade900));
+                    return Center(
+                        child: CircularProgressIndicator(
+                            color: Colors.blue.shade900));
                   } else if (state is ChatLoaded) {
                     final messages = state.messages.reversed.toList();
                     return ListView.builder(
@@ -242,12 +248,13 @@ showErrorDialog(BuildContext context) {
         ),
         backgroundColor: AppConstants.bgColor,
         actionsPadding:
-        const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         actions: <Widget>[
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
             onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const MainScreen()));
             },
             child: const Text('CLOSE', style: TextStyle(color: Colors.black)),
           ),

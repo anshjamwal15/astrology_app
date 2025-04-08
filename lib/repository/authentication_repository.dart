@@ -1,4 +1,4 @@
-import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/services/DAOs/user_dao.dart';

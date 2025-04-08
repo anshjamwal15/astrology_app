@@ -48,3 +48,5 @@ class VerifyEmailOtpRequested extends AuthEvent {
 class PasswordFieldRequested extends AuthEvent {}
 
 class OtpFieldRequested extends AuthEvent {}
+
+class HideFieldRequested extends AuthEvent {}

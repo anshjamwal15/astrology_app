@@ -1,4 +1,4 @@
-import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +76,9 @@ void printWarning(Object? text) {
 
 void printError(Object? text) {
   String line = "$text";
-  print('\x1B[31m$line\x1B[0m');
+  if (kDebugMode) {
+    print('\x1B[31m$line\x1B[0m');
+  }
 }
 
 Future<void> showLoader(BuildContext context) async {
@@ -153,4 +155,8 @@ showErrorDialog(BuildContext context, String message) {
       );
     },
   );
+}
+
+addDelay(Duration duration) async {
+  await Future.delayed(duration);
 }

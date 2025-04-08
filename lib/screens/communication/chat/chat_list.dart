@@ -1,7 +1,7 @@
 import 'package:astrology_app/components/custom_app_bar.dart';
 import 'package:astrology_app/components/custom_app_drawer.dart';
 import 'package:astrology_app/components/custom_navigation_bar.dart';
-import 'package:astrology_app/constants/index.dart';
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/screens/communication/chat/cubits/chat_message_list_cubit.dart';
 import 'package:astrology_app/screens/communication/chat/index.dart';
 import 'package:astrology_app/services/user_manager.dart';
@@ -51,8 +51,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ChatScreen(senderId: user.senderId, isMentor: currentUser.isMentor),
+                          builder: (context) => ChatScreen(
+                              senderId: user.senderId,
+                              isMentor: currentUser.isMentor),
                         ),
                       );
                     },
