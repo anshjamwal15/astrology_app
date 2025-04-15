@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:astrology_app/blocs/auth/auth_event.dart';
 import 'package:astrology_app/blocs/auth/auth_state.dart';
 import 'package:astrology_app/repository/authentication_repository.dart';
@@ -18,18 +20,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } catch (e) {
         if (e is SignUpWithEmailAndPasswordFailure) {
           if (e.message == "An account already exists for that email.") {
-            await authRepository.logInWithEmailAndPassword(
-              email: event.email,
-              password: event.password,
-            );
-            emit(Authenticated());
+            try {
+              await authRepository
+                  .logInWithEmailAndPassword(
+                    email: event.email,
+                    password: event.password,
+                  )
+                  .timeout(const Duration(seconds: 5));
+              emit(Authenticated());
+            } catch (e) {
+              emit(AuthError("Please provide correct email and password"));
+              emit(UnAuthenticated());
+            }
           } else {
             emit(AuthError(e.message));
+            emit(UnAuthenticated());
           }
         } else {
           emit(AuthError('An unknown error occurred'));
+          emit(UnAuthenticated());
         }
-        emit(UnAuthenticated());
       }
     });
 

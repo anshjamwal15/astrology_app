@@ -1,5 +1,6 @@
 import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/models/user.dart';
+import 'package:astrology_app/network/services/user_api_service.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/services/DAOs/user_dao.dart';
 import 'package:astrology_app/services/user_manager.dart';
@@ -139,6 +140,7 @@ class AuthenticationRepository {
   final GoogleSignIn _googleSignIn;
   final UserDao _userDao;
   final _userRepository = UserRepository();
+  final UserApiService _userApiService = UserApiService();
 
   Stream<User> get user {
     return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
@@ -157,14 +159,18 @@ class AuthenticationRepository {
 
   Future<void> signUp({required String email, required String password}) async {
     try {
-      await _firebaseAuth.createUserWithEmailAndPassword(
+      await _userApiService.signUp(email, password);
+      final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      await UserManager.instance.loadUser();
+      await _userRepository.saveUser(userCred.user!.toUser);
     } on firebase_auth.FirebaseAuthException catch (e) {
+      AppLogger.error(e.toString());
       throw SignUpWithEmailAndPasswordFailure.fromCode(e.code);
-    } catch (_) {
-      throw const SignUpWithEmailAndPasswordFailure();
+    } catch (e) {
+      AppLogger.error(e.toString());
     }
   }
 
@@ -193,6 +199,7 @@ class AuthenticationRepository {
     required String password,
   }) async {
     try {
+      await _userApiService.logIn(email, password);
       final userCred = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -200,9 +207,10 @@ class AuthenticationRepository {
       await UserManager.instance.loadUser();
       await _userRepository.saveUser(userCred.user!.toUser);
     } on firebase_auth.FirebaseAuthException catch (e) {
+      AppLogger.error(e.toString());
       throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
-    } catch (_) {
-      throw const LogInWithEmailAndPasswordFailure();
+    } catch (e) {
+      AppLogger.error(e.toString());
     }
   }
 

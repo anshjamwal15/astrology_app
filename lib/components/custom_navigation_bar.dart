@@ -1,3 +1,4 @@
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:astrology_app/screens/call_logs/cubits/call_logs_cubit.dart';
@@ -27,7 +28,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void onTabTapped(int index) {
     if (index == 3) {
-      showUpcomingSnackBar("Profile update coming soon");
+      showFloatingSnackBar(context, "Profile update coming soon");
     } else {
       setState(() {
         selectedIndex = index;
@@ -42,22 +43,6 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: CustomNavigationBar(
         selectedIndex: selectedIndex,
         onTabTapped: onTabTapped,
-      ),
-    );
-  }
-
-  void showUpcomingSnackBar(String value) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(value),
-        behavior: SnackBarBehavior.floating,
-        action: SnackBarAction(
-          label: 'OKAY',
-          textColor: Colors.blue,
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
       ),
     );
   }

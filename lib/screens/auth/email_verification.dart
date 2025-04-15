@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,8 @@ class _EmailVerificationState extends State<EmailVerification> {
   void initState() {
     super.initState();
     FirebaseAuth.instance.currentUser?.sendEmailVerification();
-    timer = Timer.periodic(const Duration(seconds: 3), (_) => checkEmailVerified());
+    timer =
+        Timer.periodic(const Duration(seconds: 3), (_) => checkEmailVerified());
   }
 
   checkEmailVerified() async {
@@ -52,8 +54,9 @@ class _EmailVerificationState extends State<EmailVerification> {
   }
 
   _showSnackBar() {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text("Email Successfully Verified, Please Login")));
+    showFloatingSnackBar(context, "Email Successfully Verified, Please Login");
+    // ScaffoldMessenger.of(context)
+    //     .showSnackBar(const SnackBar(content: Text()));
   }
 
   _navigateBack() {

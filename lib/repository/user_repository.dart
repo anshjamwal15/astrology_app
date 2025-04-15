@@ -54,16 +54,6 @@ class UserRepository {
     await userRef.delete();
   }
 
-  Stream<User?> getUserStream(String userId) {
-    final userRef = _firestore.collection('users').doc(userId);
-    return userRef.snapshots().map((doc) {
-      if (doc.exists) {
-        return User.fromFirestore(doc);
-      }
-      return null;
-    });
-  }
-
   Future<bool> isUserMentor(String userId) async {
     try {
       final userRef = _firestore.collection('users').doc(userId);
@@ -78,6 +68,7 @@ class UserRepository {
     }
   }
 
+  // Mentor APIs
   Future<MentorRate?> getMentorRates(String mentorId) async {
     try {
       final rateRef = await _firestore
@@ -107,8 +98,10 @@ class UserRepository {
     // If not found, add them to the mentor collection
     if (querySnapshot.docs.isEmpty) {
       final mentorRef = _firestore.collection('mentor').doc();
-      final skillSet = _firestore.collection('skill_set').doc('CRUcuOl3IU7DYovD3krK');
-      final status = _firestore.collection('status').doc('iYFuhutPfVPhaVk0Sx56');
+      final skillSet =
+          _firestore.collection('skill_set').doc('CRUcuOl3IU7DYovD3krK');
+      final status =
+          _firestore.collection('status').doc('iYFuhutPfVPhaVk0Sx56');
       final mentorRateRef = _firestore.collection('mentor_rate').doc();
 
       // Retrieve user data to copy over as mentor data
@@ -167,6 +160,4 @@ class UserRepository {
       return {'firstName': name, 'lastName': ''};
     }
   }
-
-
 }

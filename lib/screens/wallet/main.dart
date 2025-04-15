@@ -61,7 +61,7 @@ class _WalletScreenState extends State<WalletScreen> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(12),
         child: GestureDetector(
-          onTap: () => showUpcomingSnackBar("Coming Soon"),
+          onTap: () => showFloatingSnackBar(context, "Coming Soon"),
           child: Container(
             height: size.height * 0.06,
             width: size.width * 0.02,
@@ -84,11 +84,6 @@ class _WalletScreenState extends State<WalletScreen> {
         ),
       ),
     );
-  }
-
-  void showUpcomingSnackBar(String value) {
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(value), behavior: SnackBarBehavior.floating));
   }
 }
 

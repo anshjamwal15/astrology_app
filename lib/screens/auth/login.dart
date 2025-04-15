@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:astrology_app/blocs/auth/auth_event.dart';
 import 'package:astrology_app/blocs/auth/auth_state.dart';
 import 'package:astrology_app/blocs/index.dart';
@@ -8,7 +6,6 @@ import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/screens/auth/email_verification.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -35,13 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login Successful')),
-          );
+          showFloatingSnackBar(context, 'Login Successful');
         } else if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error)),
-          );
+          showFloatingSnackBar(context, state.error);
         } else if (state is CheckEmailVerification) {
           Navigator.push(
             context,
@@ -93,22 +86,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
-                            Widget widget = const SizedBox();
+                            Widget child = const SizedBox();
 
                             if (state is ShowPasswordField) {
-                              widget = passwordOrOtpField(
+                              child = passwordOrOtpField(
                                 size,
                                 _passwordController,
                                 true,
                               );
                             } else if (state is ShowOtpField) {
-                              widget = passwordOrOtpField(
+                              child = passwordOrOtpField(
                                 size,
                                 _passwordController,
                                 false,
                               );
-                            } else if (state is HidePassOrOtpField) {
-                              const SizedBox();
                             }
 
                             return AnimatedSwitcher(
@@ -127,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: widget,
                                 );
                               },
-                              child: widget,
+                              child: child,
                             );
                           },
                         ),
@@ -174,18 +165,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: size.height * 0.02),
                         BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
-                            if (state is OtpSent &&
+                            if (state is ShowPasswordField ||
+                                state is ShowOtpField ||
                                 state is CheckEmailVerification) {
                               return CustomButton(
                                 onPressed: () {
                                   if (!isDialogOpen()) {
                                     showLoader(context);
-                                    // context
-                                    //     .read<AuthBloc>()
-                                    //     .add(SignUpRequested(
-                                    //       _emailOrPhoneController.text,
-                                    //       _passwordController.text,
-                                    //     )); TODO: This function won't work
+                                    context
+                                        .read<AuthBloc>()
+                                        .add(SignUpRequested(
+                                          _emailOrPhoneController.text,
+                                          _passwordController.text,
+                                        ));
                                   }
                                 },
                                 buttonName: "LOGIN",
@@ -381,18 +373,32 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class _CustomTextField extends StatelessWidget {
+class _CustomTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final String hintText;
   final bool obscureText;
   final TextEditingController controller;
 
-  const _CustomTextField(
-      {super.key,
-      required this.keyboardType,
-      required this.hintText,
-      required this.controller,
-      this.obscureText = false});
+  const _CustomTextField({
+    super.key,
+    required this.keyboardType,
+    required this.hintText,
+    required this.controller,
+    this.obscureText = false,
+  });
+
+  @override
+  State<_CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<_CustomTextField> {
+  late bool _obscure;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscure = widget.obscureText;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -405,10 +411,10 @@ class _CustomTextField extends StatelessWidget {
         ),
       ),
       child: TextFormField(
-        key: key,
-        controller: controller,
-        keyboardType: keyboardType,
-        obscureText: obscureText,
+        key: widget.key,
+        controller: widget.controller,
+        keyboardType: widget.keyboardType,
+        obscureText: _obscure,
         onChanged: (value) {
           final isPhone = RegExp(r'^\+?\d+$').hasMatch(value);
 
@@ -419,9 +425,9 @@ class _CustomTextField extends StatelessWidget {
               numericValue = numericValue.substring(2);
             }
 
-            if (controller.text != numericValue) {
-              controller.text = numericValue;
-              controller.selection = TextSelection.fromPosition(
+            if (widget.controller.text != numericValue) {
+              widget.controller.text = numericValue;
+              widget.controller.selection = TextSelection.fromPosition(
                 TextPosition(offset: numericValue.length),
               );
             }
@@ -439,15 +445,29 @@ class _CustomTextField extends StatelessWidget {
           AutofillHints.telephoneNumberDevice,
         ],
         decoration: InputDecoration(
+          isDense: true,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          hintText: hintText,
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          hintText: widget.hintText,
           hintStyle: const TextStyle(color: Colors.grey),
           border: InputBorder.none,
           focusedBorder: InputBorder.none,
           enabledBorder: InputBorder.none,
           errorBorder: InputBorder.none,
           disabledBorder: InputBorder.none,
+          suffixIcon: widget.obscureText
+              ? IconButton(
+                  icon: Icon(
+                    _obscure ? Icons.visibility_off : Icons.visibility,
+                    color: AppConstants.primaryColor,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscure = !_obscure;
+                    });
+                  },
+                )
+              : null,
         ),
       ),
     );

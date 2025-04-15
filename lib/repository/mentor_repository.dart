@@ -1,9 +1,7 @@
 import 'package:astrology_app/models/index.dart';
-import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MentorRepository {
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<Mentor?> getMentorById(String mentorId) async {

@@ -1,3 +1,5 @@
+export 'app_logger.dart';
+
 import 'package:astrology_app/constants/app_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -85,10 +87,18 @@ Future<void> showLoader(BuildContext context) async {
   if (!isDialogOpen()) {
     AppConstants.isLoaderRunning = true;
     final size = MediaQuery.of(context).size;
-    await showDialog(
+
+    showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (Navigator.of(dialogContext).canPop()) {
+            Navigator.of(dialogContext).pop();
+          }
+          AppConstants.isLoaderRunning = false;
+        });
+
         return AlertDialog(
           backgroundColor: Colors.white,
           contentPadding: EdgeInsets.zero,
@@ -109,7 +119,6 @@ Future<void> showLoader(BuildContext context) async {
       },
     );
   }
-  AppConstants.isLoaderRunning = false;
 }
 
 bool isDialogOpen() {
@@ -159,4 +168,20 @@ showErrorDialog(BuildContext context, String message) {
 
 addDelay(Duration duration) async {
   await Future.delayed(duration);
+}
+
+void showFloatingSnackBar(BuildContext context, String value) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(value),
+      behavior: SnackBarBehavior.floating,
+      action: SnackBarAction(
+        label: 'OKAY',
+        textColor: Colors.blue,
+        onPressed: () {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        },
+      ),
+    ),
+  );
 }

@@ -16,7 +16,8 @@ class User extends Equatable {
       this.status = '',
       this.token = '',
       this.userType = '',
-      this.isMentor = false});
+      this.isMentor = false,
+      this.profileCompleted = false});
 
   final String id;
   final String name;
@@ -32,6 +33,7 @@ class User extends Equatable {
   final String token;
   final String userType;
   final bool isMentor;
+  final bool profileCompleted;
 
   bool get isNotEmpty => this != User.empty;
 
@@ -50,17 +52,30 @@ class User extends Equatable {
         status,
         token,
         userType,
-        isMentor
+        isMentor,
+        profileCompleted
       ];
 
   static User fromMap(Map<String, dynamic> map) {
     return User(
-        id: map['id'] as String? ?? '',
-        name: map['name'] as String? ?? '',
-        email: map['email'] as String? ?? '',
-        mobile: map['mobile'] as String? ?? '',
-        dateTime: map['date_time'] as Timestamp?,
-        isMentor: map['is_mentor'] == 0 ? false : true);
+      id: map['id'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      mobile: map['mobile'] as String? ?? '',
+      dateTime: map['date_time'] as Timestamp?,
+      isMentor: map['is_mentor'] == 0 ? false : true,
+    );
+  }
+
+  static User fromJSON(Map<String, dynamic> map) {
+    return User(
+      id: map['id'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      mobile: map['mobile'] as String? ?? '',
+      dateTime: map['createdAt'] as Timestamp?,
+      profileCompleted: map['profileCompleted'] as bool? ?? false,
+    );
   }
 
   Map<String, dynamic> toMap() {

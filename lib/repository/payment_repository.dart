@@ -2,7 +2,8 @@ import 'package:astrology_app/models/index.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as firebase;
 
 class PaymentRepository {
-  final firebase.FirebaseFirestore _firestore = firebase.FirebaseFirestore.instance;
+  final firebase.FirebaseFirestore _firestore =
+      firebase.FirebaseFirestore.instance;
 
   Future<Wallet?> getUserWallet(String userId) async {
     final wallet = await _firestore
@@ -22,7 +23,9 @@ class PaymentRepository {
         .where('user', isEqualTo: userId)
         .get();
     if (transactionSnapshot.docs.isNotEmpty) {
-      return transactionSnapshot.docs.map((doc) => Transaction.fromFirestore(doc)).toList();
+      return transactionSnapshot.docs
+          .map((doc) => Transaction.fromFirestore(doc))
+          .toList();
     }
     return [];
   }
@@ -97,7 +100,9 @@ class PaymentRepository {
       });
 
       // Create a new transaction
-      final transactionRef = _firestore.collection('transaction').doc(); // New transaction document reference
+      final transactionRef = _firestore
+          .collection('transaction')
+          .doc(); // New transaction document reference
       final transactionData = {
         'id': transactionRef.id,
         'user': userId,
@@ -114,7 +119,4 @@ class PaymentRepository {
       return 'Wallet not found for userId: $userId';
     }
   }
-
-
-
 }

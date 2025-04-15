@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/repository/payment_repository.dart';
-import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/models/index.dart' as model;
 import 'package:astrology_app/services/signaling_service.dart';
 import 'package:astrology_app/services/user_manager.dart';
@@ -292,23 +292,7 @@ class _VoiceCallState extends State<VoiceCall> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: IconButton(
-                            onPressed: () async {
-                              await signaling.hangUp(
-                                  widget.roomId,
-                                  _localRenderer.srcObject!,
-                                  _remoteRenderer.srcObject!,
-                                  false,
-                                  Timestamp.now(),
-                                  _formatTime(_seconds));
-                              if (widget.walletBalance != null &&
-                                  widget.chatRate != null) {
-                                await checkUserBalance(
-                                  widget.walletBalance!,
-                                  widget.chatRate!,
-                                );
-                              }
-                              await _routeToHome();
-                            },
+                            onPressed: _endCall,
                             icon: const Icon(
                               Icons.call_end,
                               size: 24,
@@ -336,6 +320,23 @@ class _VoiceCallState extends State<VoiceCall> {
               ),
       ),
     );
+  }
+
+  void _endCall() async {
+    await signaling.hangUp(
+        widget.roomId,
+        _localRenderer.srcObject!,
+        _remoteRenderer.srcObject!,
+        false,
+        Timestamp.now(),
+        _formatTime(_seconds));
+    if (widget.walletBalance != null && widget.chatRate != null) {
+      await checkUserBalance(
+        widget.walletBalance!,
+        widget.chatRate!,
+      );
+    }
+    await _routeToHome();
   }
 
   _routeToHome() {
@@ -390,15 +391,20 @@ class _VoiceCallState extends State<VoiceCall> {
   }
 
   void _sendCallNotification(model.CallRequest req) async {
-    String url = "${AppConstants.SERVER_IP}/notify/call-mentor";
-    final body = {
-      "userId": req.userId,
-      "creatorId": req.creatorId,
-      "userName": req.userName,
-      "callType": req.callType,
-      "roomId": req.roomId
-    };
-    await dio.post(url, data: body);
+    try {
+      String url = "${AppConstants.SERVER_IP}/notify/call-mentor";
+      final body = {
+        "userId": req.userId,
+        "creatorId": req.creatorId,
+        "userName": req.userName,
+        "callType": req.callType,
+        "roomId": req.roomId
+      };
+      await dio.post(url, data: body);
+    } catch (e) {
+      log("Something went wrong to send notification : $e");
+      _endCall();
+    }
   }
 
   showErrorDialog(BuildContext context) {

@@ -25,4 +25,7 @@ class AppConstants {
 
   // ignore: constant_identifier_names
   static const String SERVER_IP = "http://dekhokaun.com:3000";
+
+  static const String NGROK_DOMAIN =
+      "https://pretty-sunbeam-excited.ngrok-free.app/api";
 }
