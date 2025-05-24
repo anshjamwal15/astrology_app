@@ -8,7 +8,7 @@ class UserApiService {
 
   Future<User> signUp(String email, String password) async {
     try {
-      final response = await _dio.post(endpoint, data: {
+      final response = await _dio.post("$endpoint/register", data: {
         'email': email,
         'password': password,
       });
@@ -18,21 +18,34 @@ class UserApiService {
     }
   }
 
-  Future<User> logIn(String email, String password) async {
+  Future<User?> getUserByEmail(String email) async {
     try {
-      final response = await _dio.post('$endpoint/login', data: {
-        'email': email,
-        'password': password,
-      });
-      return User.fromJSON(response.data);
+      final response = await _dio.get('$endpoint/$email');
+      if (response.statusCode == 200 && response.data != null) {
+        return User.fromJSON(response.data);
+      } else {
+        return User.empty;
+      }
     } catch (e) {
-      rethrow;
+      return User.empty;
     }
   }
+
+  // Future<User> logIn(String email, String password) async {
+  //   try {
+  //     final response = await _dio.post('$endpoint/login', data: {
+  //       'email': email,
+  //       'password': password,
+  //     });
+  //     return User.fromJSON(response.data);
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
 
   Future<User> updateUser(Map<String, dynamic> data) async {
     try {
-      final response = await _dio.put(endpoint, data: data);
+      final response = await _dio.put("$endpoint/update", data: data);
       return User.fromJSON(response.data);
     } catch (e) {
       rethrow;

@@ -1,5 +1,4 @@
 import 'package:astrology_app/models/index.dart';
-import 'package:astrology_app/utils/app_utils.dart';
 import 'package:equatable/equatable.dart';
 
 import 'package:bloc/bloc.dart';
@@ -15,8 +14,11 @@ class MentorCubit extends Cubit<MentorState> {
   Future<void> loadMentors() async {
     try {
       emit(MentorLoading());
-      final QuerySnapshot snapshot = await _firestore.collection('mentor').get();
-      final mentors = snapshot.docs.map((doc) => Mentor.initialDataFromFirestore(doc)).toList();
+      final QuerySnapshot snapshot =
+          await _firestore.collection('mentor').get();
+      final mentors = snapshot.docs
+          .map((doc) => Mentor.initialDataFromFirestore(doc))
+          .toList();
       emit(MentorLoaded(mentors));
     } catch (e) {
       emit(MentorError(e.toString()));

@@ -2,7 +2,9 @@ import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/screens/auth/login.dart';
+import 'package:astrology_app/screens/complete_profile/main.dart';
 import 'package:astrology_app/screens/home/cubits/home_cubit.dart';
+import 'package:astrology_app/screens/splash/main.dart';
 import 'package:astrology_app/services/route_generator.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
@@ -67,10 +69,16 @@ class AppView extends StatelessWidget {
         home: FlowBuilder<AppStatus>(
           state: context.select((AppBloc bloc) => bloc.state.status),
           onGeneratePages: (status, pages) {
-            if (status == AppStatus.authenticated) {
-              return [const MaterialPage(child: MainScreen())];
+            switch (status) {
+              case AppStatus.loading:
+                return [const MaterialPage(child: SplashScreen())];
+              case AppStatus.unauthenticated:
+                return [const MaterialPage(child: LoginScreen())];
+              case AppStatus.incompleteProfile:
+                return [const MaterialPage(child: CompleteProfileScreen())];
+              case AppStatus.authenticated:
+                return [const MaterialPage(child: MainScreen())];
             }
-            return [const MaterialPage(child: LoginScreen())];
           },
         ),
       ),

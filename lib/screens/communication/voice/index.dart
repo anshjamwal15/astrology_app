@@ -392,7 +392,7 @@ class _VoiceCallState extends State<VoiceCall> {
 
   void _sendCallNotification(model.CallRequest req) async {
     try {
-      String url = "${AppConstants.SERVER_IP}/notify/call-mentor";
+      String url = "${AppConstants.FCM_URL}/notify/call-mentor";
       final body = {
         "userId": req.userId,
         "creatorId": req.creatorId,

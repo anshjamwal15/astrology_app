@@ -159,13 +159,15 @@ class AuthenticationRepository {
 
   Future<void> signUp({required String email, required String password}) async {
     try {
-      await _userApiService.signUp(email, password);
-      final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      await UserManager.instance.loadUser();
-      await _userRepository.saveUser(userCred.user!.toUser);
+      final user = await _userApiService.getUserByEmail(email);
+      if (user!.isNotEmpty) {
+        final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        await UserManager.instance.loadUser();
+        await _userRepository.saveUser(userCred.user!.toUser);
+      }
     } on firebase_auth.FirebaseAuthException catch (e) {
       AppLogger.error(e.toString());
       throw SignUpWithEmailAndPasswordFailure.fromCode(e.code);
@@ -184,8 +186,11 @@ class AuthenticationRepository {
         idToken: googleAuth.idToken,
       );
       final userCred = await _firebaseAuth.signInWithCredential(credential);
-      await UserManager.instance.loadUser();
-      await _userRepository.saveUser(userCred.user!.toUser);
+      final user = await _userApiService.getUserByEmail(userCred.user!.email!);
+      if (user != null) {
+        await UserManager.instance.loadUser();
+        await _userRepository.saveUser(userCred.user!.toUser);
+      }
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw LogInWithGoogleFailure.fromCode(e.code);
     } catch (e) {
@@ -199,13 +204,15 @@ class AuthenticationRepository {
     required String password,
   }) async {
     try {
-      await _userApiService.logIn(email, password);
-      final userCred = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      await UserManager.instance.loadUser();
-      await _userRepository.saveUser(userCred.user!.toUser);
+      final user = await _userApiService.getUserByEmail(email);
+      if (user!.isNotEmpty) {
+        final userCred = await _firebaseAuth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        await UserManager.instance.loadUser();
+        await _userRepository.saveUser(userCred.user!.toUser);
+      }
     } on firebase_auth.FirebaseAuthException catch (e) {
       AppLogger.error(e.toString());
       throw LogInWithEmailAndPasswordFailure.fromCode(e.code);

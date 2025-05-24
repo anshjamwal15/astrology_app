@@ -1,7 +1,10 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:flutter/material.dart';
 
 export 'test_data_astrologer.dart';
 
+// TODO: Change urls using custom remote config solution
 class AppConstants {
   static final Color bgColor = Colors.grey.shade100;
 
@@ -23,9 +26,7 @@ class AppConstants {
 
   static bool isLoaderRunning = false;
 
-  // ignore: constant_identifier_names
-  static const String SERVER_IP = "http://dekhokaun.com:3000";
+  static const String FCM_URL = "http://dekhokaun.com:3000";
 
-  static const String NGROK_DOMAIN =
-      "https://pretty-sunbeam-excited.ngrok-free.app/api";
+  static const String SERVER_URL = "http://3.108.112.130:3000/api";
 }

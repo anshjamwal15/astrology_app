@@ -29,302 +29,253 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is Authenticated) {
-          showFloatingSnackBar(context, 'Login Successful');
-        } else if (state is AuthError) {
-          showFloatingSnackBar(context, state.error);
-        } else if (state is CheckEmailVerification) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const EmailVerification(),
-            ),
-          );
-        }
-      },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.white,
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                Expanded(
-                  child: Image.asset("assets/images/logo.png", scale: 6),
-                ),
-                Container(
-                  color: Colors.blue.shade900,
-                  height: size.height / 2,
-                  // width: size.width,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 40,
-                    ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 40, left: 40),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(30)),
-                              border: Border.all(color: Colors.black),
-                            ),
-                            child: _CustomTextField(
-                              key: const Key(
-                                'loginForm_emailInput_textField',
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
+      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is Authenticated) {
+            showFloatingSnackBar(context, 'Login Successful');
+          } else if (state is AuthError) {
+            showFloatingSnackBar(context, state.error);
+          } else if (state is CheckEmailVerification) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EmailVerification(),
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Stack(
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                    child: Image.asset("assets/images/logo.png", scale: 6),
+                  ),
+                  Container(
+                    color: Colors.blue.shade900,
+                    height: size.height / 2,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(color: Colors.black),
                               ),
-                              controller: _emailOrPhoneController,
-                              keyboardType: TextInputType.text,
-                              hintText: "Email or Phone",
-                              obscureText: false,
+                              child: _CustomTextField(
+                                key:
+                                    const Key('loginForm_emailInput_textField'),
+                                controller: _emailOrPhoneController,
+                                keyboardType: TextInputType.text,
+                                hintText: "Email or Phone",
+                                obscureText: false,
+                              ),
                             ),
                           ),
-                        ),
-                        BlocBuilder<AuthBloc, AuthState>(
-                          builder: (context, state) {
-                            Widget child = const SizedBox();
-
-                            if (state is ShowPasswordField) {
-                              child = passwordOrOtpField(
-                                size,
-                                _passwordController,
-                                true,
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 500),
+                            transitionBuilder: (widget, animation) {
+                              return SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(0, -0.5),
+                                  end: Offset.zero,
+                                ).animate(CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOut,
+                                )),
+                                child: widget,
                               );
-                            } else if (state is ShowOtpField) {
-                              child = passwordOrOtpField(
-                                size,
-                                _passwordController,
-                                false,
-                              );
-                            }
-
-                            return AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              transitionBuilder: (widget, animation) {
-                                return SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(0, -0.5),
-                                    end: Offset.zero,
-                                  ).animate(
-                                    CurvedAnimation(
-                                      parent: animation,
-                                      curve: Curves.easeOut,
-                                    ),
-                                  ),
-                                  child: widget,
-                                );
-                              },
-                              child: child,
-                            );
-                          },
-                        ),
-                        SizedBox(height: size.height * 0.02),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 50, left: 50),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment
-                                .end, // TODO: change to spaceBetween for forgot pass
-                            children: [
-                              GestureDetector(
-                                onTap: () async {
-                                  if (_emailOrPhoneController.text.isNotEmpty) {
-                                    context
-                                        .read<AuthBloc>()
-                                        .add(OtpFieldRequested());
-                                  } else {
-                                    showAuthErrorDialog(context,
-                                        "Please enter a valid email or phone number");
-                                  }
-                                },
-                                child: Text(
-                                  "Sign in using OTP",
-                                  style: GoogleFonts.acme(
-                                    color: Colors.white,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: size.height * 0.018,
-                                  ),
-                                ),
-                              ),
-                              // Text(
-                              //   "Forgot Password ?",
-                              //   style: GoogleFonts.acme(
-                              //     color: Colors.black,
-                              //     decoration: TextDecoration.underline,
-                              //     fontWeight: FontWeight.w500,
-                              //   ),
-                              // ),
-                            ],
+                            },
+                            child: (state is ShowPasswordField ||
+                                    state is ShowOtpField)
+                                ? passwordOrOtpField(
+                                    size,
+                                    _passwordController,
+                                    state is ShowPasswordField,
+                                  )
+                                : const SizedBox(),
                           ),
-                        ),
-                        SizedBox(height: size.height * 0.02),
-                        BlocBuilder<AuthBloc, AuthState>(
-                          builder: (context, state) {
-                            if (state is ShowPasswordField ||
-                                state is ShowOtpField ||
-                                state is CheckEmailVerification) {
-                              return CustomButton(
-                                onPressed: () {
-                                  if (!isDialogOpen()) {
-                                    showLoader(context);
-                                    context
-                                        .read<AuthBloc>()
-                                        .add(SignUpRequested(
-                                          _emailOrPhoneController.text,
-                                          _passwordController.text,
-                                        ));
-                                  }
-                                },
-                                buttonName: "LOGIN",
-                              );
-                            } else {
-                              return CustomButton(
-                                onPressed: () {
-                                  try {
-                                    if (!isDialogOpen() &&
-                                        isEmailOrPhone(
-                                            _emailOrPhoneController.text)) {
-                                      context
-                                          .read<AuthBloc>()
-                                          .add(PasswordFieldRequested());
-                                    } else {
+                          SizedBox(height: size.height * 0.02),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 50),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    if (_emailOrPhoneController
+                                        .text.isNotEmpty) {
                                       context
                                           .read<AuthBloc>()
                                           .add(OtpFieldRequested());
+                                    } else {
+                                      showAuthErrorDialog(context,
+                                          "Please enter a valid email or phone number");
                                     }
-                                  } catch (e) {
-                                    showAuthErrorDialog(
-                                      context,
-                                      "Please enter a valid email or phone number",
-                                    );
-                                  }
-                                },
-                                buttonName: "NEXT",
-                              );
-                            }
-                          },
-                        ),
-                        // SizedBox(height: size.height * 0.01),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            // horizontal: 50,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: size.width * 0.3,
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                    top: BorderSide(
-                                      color: Colors.white70,
-                                      width: 1,
+                                  },
+                                  child: Text(
+                                    "Sign in using OTP",
+                                    style: GoogleFonts.acme(
+                                      color: Colors.white,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: size.height * 0.018,
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: size.width * 0.015),
-                              const Text(
-                                "Or",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              SizedBox(width: size.width * 0.015),
-                              Container(
-                                width: size.width * 0.3,
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                    top: BorderSide(
-                                      color: Colors.white70,
-                                      width: 1,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 50),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.black,
-                              backgroundColor: Colors.white,
-                              elevation: 10,
-                              shadowColor: Colors.white.withOpacity(0.5),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: const BorderSide(
-                                  color: Colors.white,
-                                  width: 0.2,
-                                ),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 90,
-                                vertical: 10,
-                              ),
-                            ),
-                            onPressed: () async {
-                              if (!isDialogOpen()) {
-                                showLoader(context);
-                                context
-                                    .read<AuthBloc>()
-                                    .add(GoogleSignInRequested());
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  "assets/images/google.png",
-                                  scale: 20,
-                                ),
-                                SizedBox(width: size.width * 0.02),
-                                Text(
-                                  'SIGN UP',
-                                  style: GoogleFonts.acme(
-                                    fontSize: 20,
-                                    color: Colors.black.withOpacity(0.8),
-                                    shadows: [
-                                      Shadow(
-                                        offset: const Offset(0, 1),
-                                        blurRadius: 6,
-                                        color: Colors.black.withOpacity(0.4),
-                                      ),
-                                    ],
-                                  ),
-                                )
                               ],
                             ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: size.height * 0.02),
+                          CustomButton(
+                            onPressed: () {
+                              if (!isDialogOpen()) {
+                                if (state is ShowPasswordField ||
+                                    state is ShowOtpField ||
+                                    state is CheckEmailVerification) {
+                                  showLoader(context);
+                                  context.read<AuthBloc>().add(SignUpRequested(
+                                        _emailOrPhoneController.text,
+                                        _passwordController.text,
+                                      ));
+                                } else {
+                                  if (isEmailOrPhone(
+                                      _emailOrPhoneController.text)) {
+                                    context
+                                        .read<AuthBloc>()
+                                        .add(PasswordFieldRequested());
+                                  } else {
+                                    context
+                                        .read<AuthBloc>()
+                                        .add(OtpFieldRequested());
+                                  }
+                                }
+                              }
+                            },
+                            buttonName: (state is ShowPasswordField ||
+                                    state is ShowOtpField ||
+                                    state is CheckEmailVerification)
+                                ? "LOGIN"
+                                : "NEXT",
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: size.width * 0.3,
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      top: BorderSide(
+                                        color: Colors.white70,
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: size.width * 0.015),
+                                const Text(
+                                  "Or",
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                SizedBox(width: size.width * 0.015),
+                                Container(
+                                  width: size.width * 0.3,
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      top: BorderSide(
+                                        color: Colors.white70,
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 50),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.black,
+                                backgroundColor: Colors.white,
+                                elevation: 10,
+                                shadowColor: Colors.white.withOpacity(0.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: const BorderSide(
+                                    color: Colors.white,
+                                    width: 0.2,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 90,
+                                  vertical: 10,
+                                ),
+                              ),
+                              onPressed: () {
+                                if (!isDialogOpen()) {
+                                  showLoader(context);
+                                  context
+                                      .read<AuthBloc>()
+                                      .add(GoogleSignInRequested());
+                                }
+                              },
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/google.png",
+                                    scale: 20,
+                                  ),
+                                  SizedBox(width: size.width * 0.02),
+                                  Text(
+                                    'SIGN UP',
+                                    style: GoogleFonts.acme(
+                                      fontSize: 20,
+                                      color: Colors.black.withOpacity(0.8),
+                                      shadows: [
+                                        Shadow(
+                                          offset: const Offset(0, 1),
+                                          blurRadius: 6,
+                                          color: Colors.black.withOpacity(0.4),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                )
-              ],
-            ),
-            Positioned(
-              top: size.height * 0.38,
-              left: size.width * 0.1,
-              right: size.width * 0.1,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  border: Border.all(color: Colors.black),
-                  color: Colors.white,
-                ),
-                height: 40,
-                width: 100,
-                child: Padding(
-                  padding: const EdgeInsets.all(5),
+                ],
+              ),
+              Positioned(
+                top: size.height * 0.38,
+                left: size.width * 0.1,
+                right: size.width * 0.1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.black),
+                    color: Colors.white,
+                  ),
+                  height: 40,
                   child: Center(
                     child: Text(
                       "First chat with Astrologer is FREE!",
@@ -336,9 +287,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }

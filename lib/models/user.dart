@@ -35,7 +35,10 @@ class User extends Equatable {
   final bool isMentor;
   final bool profileCompleted;
 
-  bool get isNotEmpty => this != User.empty;
+  bool get isEmpty => email.isEmpty && id.isEmpty;
+  bool get isNotEmpty => !isEmpty;
+  bool get isProfileComplete =>
+      name.isNotEmpty && mobile.isNotEmpty && email.isNotEmpty;
 
   @override
   List<Object?> get props => [
