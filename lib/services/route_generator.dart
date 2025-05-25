@@ -1,6 +1,5 @@
 import 'package:astrology_app/components/custom_navigation_bar.dart';
 import 'package:astrology_app/screens/auth/login.dart';
-import 'package:astrology_app/screens/home/main.dart';
 import 'package:flutter/material.dart';
 
 class RouteGenerator {

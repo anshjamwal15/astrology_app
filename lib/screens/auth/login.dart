@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(color: Colors.black),
                               ),
-                              child: _CustomTextField(
+                              child: CustomTextField(
                                 key:
                                     const Key('loginForm_emailInput_textField'),
                                 controller: _emailOrPhoneController,
@@ -324,107 +324,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class _CustomTextField extends StatefulWidget {
-  final TextInputType keyboardType;
-  final String hintText;
-  final bool obscureText;
-  final TextEditingController controller;
-
-  const _CustomTextField({
-    super.key,
-    required this.keyboardType,
-    required this.hintText,
-    required this.controller,
-    this.obscureText = false,
-  });
-
-  @override
-  State<_CustomTextField> createState() => _CustomTextFieldState();
-}
-
-class _CustomTextFieldState extends State<_CustomTextField> {
-  late bool _obscure;
-
-  @override
-  void initState() {
-    super.initState();
-    _obscure = widget.obscureText;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Theme(
-      data: ThemeData(
-        textSelectionTheme: TextSelectionThemeData(
-          cursorColor: AppConstants.primaryColor,
-          selectionColor: AppConstants.primaryColorTwo,
-          selectionHandleColor: AppConstants.primaryColorThree,
-        ),
-      ),
-      child: TextFormField(
-        key: widget.key,
-        controller: widget.controller,
-        keyboardType: widget.keyboardType,
-        obscureText: _obscure,
-        onChanged: (value) {
-          final isPhone = RegExp(r'^\+?\d+$').hasMatch(value);
-
-          if (isPhone) {
-            String numericValue = value.replaceAll(RegExp(r'[^\d]'), '');
-
-            if (numericValue.startsWith('91') && numericValue.length > 10) {
-              numericValue = numericValue.substring(2);
-            }
-
-            if (widget.controller.text != numericValue) {
-              widget.controller.text = numericValue;
-              widget.controller.selection = TextSelection.fromPosition(
-                TextPosition(offset: numericValue.length),
-              );
-            }
-          }
-        },
-        onEditingComplete: () {
-          FocusManager.instance.primaryFocus?.unfocus();
-        },
-        onTapOutside: (_) {
-          FocusManager.instance.primaryFocus?.unfocus();
-        },
-        enableInteractiveSelection: true,
-        autofillHints: const [
-          AutofillHints.email,
-          AutofillHints.telephoneNumberDevice,
-        ],
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          hintText: widget.hintText,
-          hintStyle: const TextStyle(color: Colors.grey),
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          suffixIcon: widget.obscureText
-              ? IconButton(
-                  icon: Icon(
-                    _obscure ? Icons.visibility_off : Icons.visibility,
-                    color: AppConstants.primaryColor,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscure = !_obscure;
-                    });
-                  },
-                )
-              : null,
-        ),
-      ),
-    );
-  }
-}
-
 Widget passwordOrOtpField(
     Size size, TextEditingController controller, bool isPass) {
   return Column(
@@ -439,7 +338,7 @@ Widget passwordOrOtpField(
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(color: Colors.black),
                 ),
-                child: _CustomTextField(
+                child: CustomTextField(
                   key: const Key('loginForm_passwordInput_textField'),
                   keyboardType: TextInputType.text,
                   controller: controller,

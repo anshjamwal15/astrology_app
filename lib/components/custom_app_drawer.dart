@@ -1,13 +1,11 @@
 import 'package:astrology_app/blocs/app/app_bloc.dart';
 import 'package:astrology_app/blocs/chat/chat_bloc.dart';
 import 'package:astrology_app/models/user.dart';
-import 'package:astrology_app/repository/authentication_repository.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/screens/auth/login.dart';
 import 'package:astrology_app/screens/communication/chat/chat_list.dart';
 import 'package:astrology_app/screens/communication/chat/cubits/chat_message_list_cubit.dart';
 import 'package:astrology_app/screens/wallet/main.dart';
-import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -108,7 +106,8 @@ class _CustomAppDrawerState extends State<CustomAppDrawer> {
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const WalletScreen()),
+                          builder: (context) => const WalletScreen(),
+                        ),
                       ),
                       child: _drawerOptions(
                         size,
@@ -261,5 +260,3 @@ Widget _drawerOptions(Size size, String name, IconData icon) {
     ],
   );
 }
-
-

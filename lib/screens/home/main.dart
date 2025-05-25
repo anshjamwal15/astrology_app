@@ -28,11 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    user = context.read<AppBloc>().state.user;
-    UserManager.instance.loadUser();
-    context.read<ChatBloc>().add(GetUnreadCount(user.id));
-    context.read<UserBloc>().add(UserWalletRequest(user.id));
-    context.read<HomeCubit>().loadCategories();
     _requestPermissions();
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (isDialogOpen()) {
@@ -40,6 +35,16 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.of(context, rootNavigator: true).pop();
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    user = context.read<AppBloc>().state.user;
+    UserManager.instance.loadUser();
+    context.read<ChatBloc>().add(GetUnreadCount(user.id));
+    context.read<UserBloc>().add(UserWalletRequest(user.id));
+    context.read<HomeCubit>().loadCategories();
   }
 
   void _requestPermissions() async {
