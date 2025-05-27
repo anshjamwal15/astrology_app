@@ -7,16 +7,18 @@ class CustomButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     required this.buttonName,
+    required this.btnColor,
   });
   final VoidCallback onPressed;
   final String buttonName;
+  final Color btnColor;
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: AppConstants.primaryColor,
+        backgroundColor: btnColor,
         elevation: 10,
         shadowColor: Colors.white.withOpacity(0.5),
         shape: RoundedRectangleBorder(

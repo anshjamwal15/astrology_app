@@ -70,13 +70,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(color: Colors.black),
                               ),
-                              child: CustomTextField(
-                                key:
-                                    const Key('loginForm_emailInput_textField'),
-                                controller: _emailOrPhoneController,
-                                keyboardType: TextInputType.text,
-                                hintText: "Email or Phone",
-                                obscureText: false,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(30),
+                                child: CustomTextField(
+                                  key: const Key(
+                                    'loginForm_emailInput_textField',
+                                  ),
+                                  controller: _emailOrPhoneController,
+                                  keyboardType: TextInputType.text,
+                                  hintText: "Email or Phone",
+                                  obscureText: false,
+                                ),
                               ),
                             ),
                           ),
@@ -137,6 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           SizedBox(height: size.height * 0.02),
                           CustomButton(
+                            btnColor: Colors.black,
                             onPressed: () {
                               if (!isDialogOpen()) {
                                 if (state is ShowPasswordField ||
@@ -338,12 +343,15 @@ Widget passwordOrOtpField(
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(color: Colors.black),
                 ),
-                child: CustomTextField(
-                  key: const Key('loginForm_passwordInput_textField'),
-                  keyboardType: TextInputType.text,
-                  controller: controller,
-                  hintText: "Password",
-                  obscureText: true,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: CustomTextField(
+                    key: const Key('loginForm_passwordInput_textField'),
+                    keyboardType: TextInputType.text,
+                    controller: controller,
+                    hintText: "Password",
+                    obscureText: true,
+                  ),
                 ),
               )
             : const CustomOtpInput(),

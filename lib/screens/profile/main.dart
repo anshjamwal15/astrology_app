@@ -123,6 +123,7 @@ class CompleteProfileScreen extends StatelessWidget {
                 ),
               ),
               CustomButton(
+                btnColor: AppConstants.primaryColor,
                 onPressed: () async {
                   if (!isDialogOpen()) {
                     showLoader(context);
