@@ -1,15 +1,22 @@
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/app_constants.dart';
+import 'package:astrology_app/network/services/user_api_service.dart';
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 
 class CompleteProfileScreen extends StatelessWidget {
-  CompleteProfileScreen({super.key});
+  final String userEmail;
+  CompleteProfileScreen({
+    super.key,
+    required this.userEmail,
+  });
 
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final mobileController = TextEditingController();
   final countryController = TextEditingController();
   final bioController = TextEditingController();
+  final _userApiService = UserApiService();
 
   late final List<Map<String, dynamic>> profileData = [
     {
@@ -36,17 +43,27 @@ class CompleteProfileScreen extends StatelessWidget {
       'controller': countryController,
       'label': 'Country',
     },
-    {
-      'name': 'bio',
-      'key': const Key('profile_bioInput_textField'),
-      'controller': bioController,
-      'label': 'Bio',
-    },
+    // {
+    //   'name': 'bio',
+    //   'key': const Key('profile_bioInput_textField'),
+    //   'controller': bioController,
+    //   'label': 'Bio',
+    // },
   ];
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+
+    routeToHome() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MainScreen(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppConstants.bgColor,
       appBar: AppBar(
@@ -86,21 +103,49 @@ class CompleteProfileScreen extends StatelessWidget {
                             width: 2,
                           ),
                         ),
-                        child: CustomTextField(
-                          key: field['key'],
-                          controller: field['controller'],
-                          keyboardType: field['name'] == 'mobile'
-                              ? TextInputType.phone
-                              : TextInputType.text,
-                          hintText: field['label'],
-                          obscureText: false,
-                          disabled: field['name'] == 'email',
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: CustomTextField(
+                            key: field['key'],
+                            controller: field['controller'],
+                            keyboardType: field['name'] == 'mobile'
+                                ? TextInputType.phone
+                                : TextInputType.text,
+                            hintText: field['label'],
+                            obscureText: false,
+                            disabled: field['name'] == 'email',
+                            value: field['name'] == 'email' ? userEmail : null,
+                          ),
                         ),
                       ),
                     );
                   },
                 ),
               ),
+              CustomButton(
+                onPressed: () async {
+                  if (!isDialogOpen()) {
+                    showLoader(context);
+                    final Map<String, String> dataToUpdate = {
+                      'email': userEmail
+                    };
+
+                    if (nameController.text.trim().isNotEmpty) {
+                      dataToUpdate['name'] = nameController.text.trim();
+                    }
+                    if (mobileController.text.trim().isNotEmpty) {
+                      dataToUpdate['mobile'] = mobileController.text.trim();
+                    }
+                    if (countryController.text.trim().isNotEmpty) {
+                      dataToUpdate['country'] = countryController.text.trim();
+                    }
+
+                    await _userApiService.updateUser(dataToUpdate);
+                    routeToHome();
+                  }
+                },
+                buttonName: "SAVE",
+              )
             ],
           ),
         ),

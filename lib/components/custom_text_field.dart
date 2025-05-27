@@ -51,6 +51,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
         keyboardType: widget.keyboardType,
         obscureText: _obscure,
         readOnly: widget.disabled!,
+        style: TextStyle(
+          color: widget.disabled! ? Colors.black54 : Colors.black,
+          fontStyle: widget.disabled! ? FontStyle.italic : FontStyle.normal,
+        ),
         onChanged: (val) {
           setState(() {
             _value = val;
@@ -79,7 +83,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         onTapOutside: (_) {
           FocusManager.instance.primaryFocus?.unfocus();
         },
-        enableInteractiveSelection: true,
+        enableInteractiveSelection: !widget.disabled!,
         autofillHints: const [
           AutofillHints.email,
           AutofillHints.telephoneNumberDevice,
@@ -90,24 +94,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
               const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           hintText: widget.hintText,
           hintStyle: const TextStyle(color: Colors.grey),
+          filled: true,
+          fillColor: widget.disabled! ? Colors.grey.shade300 : Colors.white,
           border: InputBorder.none,
           focusedBorder: InputBorder.none,
           enabledBorder: InputBorder.none,
           errorBorder: InputBorder.none,
           disabledBorder: InputBorder.none,
-          filled: widget.disabled,
-          fillColor: widget.disabled! ? Colors.grey : Colors.white,
           suffixIcon: widget.obscureText
               ? IconButton(
                   icon: Icon(
                     _obscure ? Icons.visibility_off : Icons.visibility,
                     color: AppConstants.primaryColor,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscure = !_obscure;
-                    });
-                  },
+                  onPressed: widget.disabled!
+                      ? null
+                      : () {
+                          setState(() {
+                            _obscure = !_obscure;
+                          });
+                        },
                 )
               : null,
         ),

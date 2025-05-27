@@ -1,8 +1,13 @@
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.onPressed, required this.buttonName});
+  const CustomButton({
+    super.key,
+    required this.onPressed,
+    required this.buttonName,
+  });
   final VoidCallback onPressed;
   final String buttonName;
 
@@ -11,7 +16,7 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
+        backgroundColor: AppConstants.primaryColor,
         elevation: 10,
         shadowColor: Colors.white.withOpacity(0.5),
         shape: RoundedRectangleBorder(
