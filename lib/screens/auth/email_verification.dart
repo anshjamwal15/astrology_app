@@ -18,22 +18,35 @@ class _EmailVerificationState extends State<EmailVerification> {
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.currentUser?.sendEmailVerification();
-    timer =
-        Timer.periodic(const Duration(seconds: 3), (_) => checkEmailVerified());
+    final user = FirebaseAuth.instance.currentUser;
+    user?.sendEmailVerification();
+
+    timer = Timer.periodic(
+      const Duration(seconds: 3),
+      (_) => checkEmailVerified(),
+    );
   }
 
-  checkEmailVerified() async {
-    await FirebaseAuth.instance.currentUser?.reload();
+  Future<void> checkEmailVerified() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    await user.reload();
+    final refreshedUser = FirebaseAuth.instance.currentUser;
+
+    final verified = refreshedUser?.emailVerified ?? false;
+    if (!mounted) return;
 
     setState(() {
-      isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+      isEmailVerified = verified;
     });
 
     if (isEmailVerified) {
-      _showSnackBar();
       timer?.cancel();
-      _navigateBack();
+      if (mounted) {
+        _showSnackBar();
+        _navigateBack();
+      }
     }
   }
 
@@ -48,18 +61,18 @@ class _EmailVerificationState extends State<EmailVerification> {
     return const Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Text("We have sent you a email. Please check your inbox"),
+        child: Text("We have sent you an email. Please check your inbox."),
       ),
     );
   }
 
-  _showSnackBar() {
+  void _showSnackBar() {
+    if (!mounted) return;
     showFloatingSnackBar(context, "Email Successfully Verified, Please Login");
-    // ScaffoldMessenger.of(context)
-    //     .showSnackBar(const SnackBar(content: Text()));
   }
 
-  _navigateBack() {
+  void _navigateBack() {
+    if (!mounted) return;
     Navigator.pop(context);
   }
 }

@@ -144,29 +144,31 @@ class AuthenticationRepository {
 
   Stream<User> get user {
     return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
-      var user = firebaseUser == null ? User.empty : firebaseUser.toUser;
+      var user = firebaseUser == null ? User.empty : firebaseUser.toUser();
       if (firebaseUser != null && firebaseUser.emailVerified) {
         final isMentor = await _userRepository.isUserMentor(user.id);
-        user = user.copyWith(isMentor: isMentor);
+        user = user.copyWith(isMentor: isMentor, isEmailVerified: true);
         AppConstants.isUserMentor = isMentor;
         await _userDao.insertUser(user);
-      } else {
-        await _userDao.deleteUser();
       }
+      //  else {
+      //   await _userDao.deleteUser();
+      // }
       return user;
     });
   }
 
   Future<void> signUp({required String email, required String password}) async {
     try {
-      final user = await _userApiService.getUserByEmail(email);
+      var user = await _userApiService.getUserByEmail(email);
       if (user!.isNotEmpty) {
         final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
-        await UserManager.instance.loadUser();
-        await _userRepository.saveUser(userCred.user!.toUser);
+        // await UserManager.instance.loadUser();
+        await _userRepository
+            .saveUser(userCred.user!.toUser(serverId: user.id));
       }
     } on firebase_auth.FirebaseAuthException catch (e) {
       AppLogger.error(e.toString());
@@ -188,8 +190,9 @@ class AuthenticationRepository {
       final userCred = await _firebaseAuth.signInWithCredential(credential);
       final user = await _userApiService.getUserByEmail(userCred.user!.email!);
       if (user != null) {
-        await UserManager.instance.loadUser();
-        await _userRepository.saveUser(userCred.user!.toUser);
+        // await UserManager.instance.loadUser();
+        await _userRepository
+            .saveUser(userCred.user!.toUser(serverId: user.id));
       }
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw LogInWithGoogleFailure.fromCode(e.code);
@@ -210,8 +213,10 @@ class AuthenticationRepository {
           email: email,
           password: password,
         );
-        await UserManager.instance.loadUser();
-        await _userRepository.saveUser(userCred.user!.toUser);
+        //await UserManager.instance.loadUser();
+        // await _userRepository
+        //     .saveUser();
+        //userCred.user!.toUser(serverId: user.id);
       }
     } on firebase_auth.FirebaseAuthException catch (e) {
       AppLogger.error(e.toString());
@@ -259,7 +264,11 @@ class AuthenticationRepository {
 }
 
 extension on firebase_auth.User {
-  User get toUser {
-    return User(email: email!, name: displayName ?? "", id: uid);
+  User toUser({String? serverId}) {
+    return User(
+      id: serverId ?? '',
+      email: email ?? '',
+      name: displayName ?? '',
+    );
   }
 }

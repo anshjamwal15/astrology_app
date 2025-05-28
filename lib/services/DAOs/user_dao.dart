@@ -9,9 +9,10 @@ class UserDao {
     final db = await _dbHelper.database;
     await db.insert(
       'user',
-      user.toMap(),
+      user.toLocalDb(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    await getUser();
   }
 
   Future<User?> getUser() async {
@@ -26,5 +27,19 @@ class UserDao {
   Future<void> deleteUser() async {
     final db = await _dbHelper.database;
     await db.delete('user');
+  }
+
+  Future<void> updateProfileCompleted(bool isCompleted) async {
+    final db = await _dbHelper.database;
+    await db.rawUpdate(
+      '''
+    UPDATE user
+    SET is_profile_completed = ?
+    WHERE id = (
+      SELECT id FROM user LIMIT 1
+    )
+    ''',
+      [isCompleted ? 1 : 0],
+    );
   }
 }

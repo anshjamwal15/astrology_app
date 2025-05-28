@@ -16,28 +16,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         emit(CheckEmailVerification());
       } catch (e) {
-        if (e is SignUpWithEmailAndPasswordFailure) {
-          if (e.message == "An account already exists for that email.") {
-            try {
-              await authRepository
-                  .logInWithEmailAndPassword(
-                    email: event.email,
-                    password: event.password,
-                  )
-                  .timeout(const Duration(seconds: 5));
-              emit(Authenticated());
-            } catch (e) {
-              emit(AuthError("Please provide correct email and password"));
-              emit(UnAuthenticated());
-            }
-          } else {
-            emit(AuthError(e.message));
-            emit(UnAuthenticated());
-          }
-        } else {
-          emit(AuthError('An unknown error occurred'));
-          emit(UnAuthenticated());
-        }
+        emit(AuthError('An unknown error occurred'));
+        emit(UnAuthenticated());
+        // if (e is SignUpWithEmailAndPasswordFailure) {
+        //   if (e.message == "An account already exists for that email.") {
+        //     try {
+        //       await authRepository
+        //           .logInWithEmailAndPassword(
+        //             email: event.email,
+        //             password: event.password,
+        //           )
+        //           .timeout(const Duration(seconds: 5));
+        //       emit(Authenticated());
+        //     } catch (e) {
+        //       emit(AuthError("Please provide correct email and password"));
+        //       emit(UnAuthenticated());
+        //     }
+        //   } else {
+        //     emit(AuthError(e.message));
+        //     emit(UnAuthenticated());
+        //   }
+        // } else {
+        //   emit(AuthError('An unknown error occurred'));
+        //   emit(UnAuthenticated());
+        // }
       }
     });
 

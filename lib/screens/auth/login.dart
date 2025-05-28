@@ -145,8 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () {
                               if (!isDialogOpen()) {
                                 if (state is ShowPasswordField ||
-                                    state is ShowOtpField ||
-                                    state is CheckEmailVerification) {
+                                    state is ShowOtpField) {
                                   showLoader(context);
                                   context.read<AuthBloc>().add(SignUpRequested(
                                         _emailOrPhoneController.text,

@@ -27,7 +27,8 @@ class UserRepository {
         'email': user.email,
         'mobile': user.mobile,
         'date_time': cf.Timestamp.now(),
-        'user_token': userToken
+        'user_token': userToken,
+        'is_profile_completed': false,
       }, cf.SetOptions(merge: true));
       _paymentRepository.createUserWallet(user.id);
     } else {

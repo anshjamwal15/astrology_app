@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:astrology_app/models/index.dart';
 import 'package:astrology_app/repository/index.dart';
+import 'package:astrology_app/utils/app_utils.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -26,9 +27,12 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
     if (user == User.empty) {
       emit(const AppState.unauthenticated());
-    } else if (!user.profileCompleted) {
+    }
+    if (user.isEmailVerified && !user.profileCompleted) {
       emit(AppState.incompleteProfile(user));
-    } else {
+    }
+
+    if (user.isEmailVerified && user.profileCompleted) {
       emit(AppState.authenticated(user));
     }
   }

@@ -17,7 +17,5 @@ class UserManager {
 
   User? get user => _user;
 
-  bool get isLoggedIn => _user != null;
-
   bool get profileCompleted => _user!.profileCompleted;
 }

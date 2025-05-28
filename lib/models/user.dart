@@ -2,22 +2,24 @@ import 'package:equatable/equatable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User extends Equatable {
-  const User(
-      {required this.email,
-      this.id = '',
-      this.name = '',
-      this.mobile = '',
-      this.country = '',
-      this.dateTime,
-      this.howToKnow = '',
-      this.password = '',
-      this.rating = '',
-      this.ratingCount = '',
-      this.status = '',
-      this.token = '',
-      this.userType = '',
-      this.isMentor = false,
-      this.profileCompleted = false});
+  const User({
+    required this.email,
+    this.id = '',
+    this.name = '',
+    this.mobile = '',
+    this.country = '',
+    this.dateTime,
+    this.howToKnow = '',
+    this.password = '',
+    this.rating = '',
+    this.ratingCount = '',
+    this.status = '',
+    this.token = '',
+    this.userType = '',
+    this.isMentor = false,
+    this.profileCompleted = false,
+    this.isEmailVerified = false,
+  });
 
   final String id;
   final String name;
@@ -34,11 +36,10 @@ class User extends Equatable {
   final String userType;
   final bool isMentor;
   final bool profileCompleted;
+  final bool isEmailVerified;
 
   bool get isEmpty => email.isEmpty && id.isEmpty;
   bool get isNotEmpty => !isEmpty;
-  bool get isProfileComplete =>
-      name.isNotEmpty && mobile.isNotEmpty && email.isNotEmpty;
 
   @override
   List<Object?> get props => [
@@ -56,7 +57,8 @@ class User extends Equatable {
         token,
         userType,
         isMentor,
-        profileCompleted
+        profileCompleted,
+        isEmailVerified,
       ];
 
   static User fromMap(Map<String, dynamic> map) {
@@ -81,14 +83,15 @@ class User extends Equatable {
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toLocalDb() {
     return {
       'id': id,
       'name': name,
       'email': email,
       'mobile': mobile,
       'date_time': dateTime,
-      'is_mentor': isMentor == false ? 0 : 1
+      'is_mentor': isMentor == false ? 0 : 1,
+      'is_profile_completed': profileCompleted == false ? 0 : 1,
     };
   }
 
@@ -111,7 +114,7 @@ class User extends Equatable {
     );
   }
 
-  static const empty = User(email: '');
+  static const empty = User(email: '', id: '');
 
   User copyWith({
     String? id,
@@ -128,6 +131,8 @@ class User extends Equatable {
     String? token,
     String? userType,
     bool? isMentor,
+    bool? profileCompleted,
+    bool? isEmailVerified,
   }) {
     return User(
       id: id ?? this.id,
@@ -144,6 +149,12 @@ class User extends Equatable {
       token: token ?? this.token,
       userType: userType ?? this.userType,
       isMentor: isMentor ?? this.isMentor,
+      profileCompleted: profileCompleted ?? this.profileCompleted,
+      isEmailVerified: isEmailVerified ?? this.isEmailVerified,
     );
+  }
+
+  factory User.withProfileCompleted(User user, bool completed) {
+    return user.copyWith(profileCompleted: completed);
   }
 }
