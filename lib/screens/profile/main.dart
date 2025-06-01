@@ -3,6 +3,8 @@ import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/network/services/user_api_service.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 class CompleteProfileScreen extends StatelessWidget {
   final String userEmail;
@@ -17,6 +19,8 @@ class CompleteProfileScreen extends StatelessWidget {
   final countryController = TextEditingController();
   final bioController = TextEditingController();
   final _userApiService = UserApiService();
+  final _firestore = FirebaseFirestore.instance;
+  final _auth = firebase_auth.FirebaseAuth.instance;
 
   late final List<Map<String, dynamic>> profileData = [
     {
@@ -127,8 +131,11 @@ class CompleteProfileScreen extends StatelessWidget {
                 onPressed: () async {
                   if (!isDialogOpen()) {
                     showLoader(context);
-                    final Map<String, String> dataToUpdate = {
-                      'email': userEmail
+
+                    // Update user data in API
+                    final Map<String, dynamic> dataToUpdate = {
+                      'email': userEmail,
+                      'is_profile_completed': true
                     };
 
                     if (nameController.text.trim().isNotEmpty) {
@@ -141,8 +148,29 @@ class CompleteProfileScreen extends StatelessWidget {
                       dataToUpdate['country'] = countryController.text.trim();
                     }
 
-                    await _userApiService.updateUser(dataToUpdate);
-                    routeToHome();
+                    try {
+                      // Update user data in API
+                      await _userApiService.updateUser(dataToUpdate);
+
+                      // Update profile completion status in Firestore
+                      final currentUser = _auth.currentUser;
+                      if (currentUser != null) {
+                        await _firestore
+                            .collection('users')
+                            .doc(currentUser.uid)
+                            .update({
+                          'is_profile_completed': true,
+                          'name': nameController.text.trim(),
+                          'mobile': mobileController.text.trim(),
+                          'country': countryController.text.trim(),
+                        });
+                      }
+
+                      routeToHome();
+                    } catch (e) {
+                      showFloatingSnackBar(
+                          context, 'Error updating profile: $e');
+                    }
                   }
                 },
                 buttonName: "SAVE",

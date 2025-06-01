@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:astrology_app/models/index.dart';
 import 'package:astrology_app/repository/index.dart';
-import 'package:astrology_app/utils/app_utils.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 

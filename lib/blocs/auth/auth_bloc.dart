@@ -16,45 +16,38 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         emit(CheckEmailVerification());
       } catch (e) {
-        emit(AuthError('An unknown error occurred'));
+        if (e is SignUpWithEmailAndPasswordFailure) {
+          emit(AuthError(e.message));
+        } else {
+          emit(AuthError('An unknown error occurred'));
+        }
         emit(UnAuthenticated());
-        // if (e is SignUpWithEmailAndPasswordFailure) {
-        //   if (e.message == "An account already exists for that email.") {
-        //     try {
-        //       await authRepository
-        //           .logInWithEmailAndPassword(
-        //             email: event.email,
-        //             password: event.password,
-        //           )
-        //           .timeout(const Duration(seconds: 5));
-        //       emit(Authenticated());
-        //     } catch (e) {
-        //       emit(AuthError("Please provide correct email and password"));
-        //       emit(UnAuthenticated());
-        //     }
-        //   } else {
-        //     emit(AuthError(e.message));
-        //     emit(UnAuthenticated());
-        //   }
-        // } else {
-        //   emit(AuthError('An unknown error occurred'));
-        //   emit(UnAuthenticated());
-        // }
       }
     });
 
     on<SignInRequested>((event, emit) async {
       emit(Loading());
       try {
-        await authRepository
-            .logInWithEmailAndPassword(
-              email: event.email,
-              password: event.password,
-            )
-            .timeout(const Duration(seconds: 5));
-        emit(Authenticated());
+        await authRepository.logInWithEmailAndPassword(
+          email: event.email,
+          password: event.password,
+        );
+
+        // Check user state after login
+        final user = await authRepository.user.first;
+        if (!user.isEmailVerified) {
+          emit(CheckEmailVerification());
+        } else if (!user.profileCompleted) {
+          emit(CheckProfileCompletion());
+        } else {
+          emit(Authenticated());
+        }
       } catch (e) {
-        emit(AuthError("Please provide correct email and password"));
+        if (e is LogInWithEmailAndPasswordFailure) {
+          emit(AuthError(e.message));
+        } else {
+          emit(AuthError('Please provide correct email and password'));
+        }
         emit(UnAuthenticated());
       }
     });

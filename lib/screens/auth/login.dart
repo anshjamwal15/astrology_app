@@ -4,6 +4,7 @@ import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/screens/auth/email_verification.dart';
+import 'package:astrology_app/screens/profile/main.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,6 +44,14 @@ class _LoginScreenState extends State<LoginScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => const EmailVerification(),
+              ),
+            );
+          } else if (state is CheckProfileCompletion) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CompleteProfileScreen(
+                    userEmail: _emailOrPhoneController.text),
               ),
             );
           }

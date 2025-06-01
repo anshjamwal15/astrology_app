@@ -42,4 +42,39 @@ class UserDao {
       [isCompleted ? 1 : 0],
     );
   }
+
+  Future<void> updateEmailVerified(bool isVerified) async {
+    final db = await _dbHelper.database;
+    await db.rawUpdate(
+      '''
+    UPDATE user
+    SET is_email_verified = ?
+    WHERE id = (
+      SELECT id FROM user LIMIT 1
+    )
+    ''',
+      [isVerified ? 1 : 0],
+    );
+  }
+
+  Future<void> updateUserStatus(
+      {bool? isEmailVerified, bool? isProfileCompleted}) async {
+    final db = await _dbHelper.database;
+    final updates = <String, dynamic>{};
+
+    if (isEmailVerified != null) {
+      updates['is_email_verified'] = isEmailVerified ? 1 : 0;
+    }
+    if (isProfileCompleted != null) {
+      updates['is_profile_completed'] = isProfileCompleted ? 1 : 0;
+    }
+
+    if (updates.isNotEmpty) {
+      await db.update(
+        'user',
+        updates,
+        where: 'id = (SELECT id FROM user LIMIT 1)',
+      );
+    }
+  }
 }

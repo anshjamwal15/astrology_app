@@ -6,7 +6,6 @@ import 'package:astrology_app/components/custom_app_drawer.dart';
 import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/models/chat_messages.dart';
 import 'package:astrology_app/repository/payment_repository.dart';
-import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/services/user_manager.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

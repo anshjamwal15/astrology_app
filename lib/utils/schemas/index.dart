@@ -7,6 +7,7 @@ const String userTable = '''
     mobile TEXT,
     date_time INTEGER,
     is_mentor INTEGER,
-    is_profile_completed INTEGER
+    is_profile_completed INTEGER,
+    is_email_verified INTEGER
   )
 ''';

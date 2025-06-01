@@ -19,6 +19,11 @@ class CheckEmailVerification extends AuthState {
   List<Object?> get props => [];
 }
 
+class CheckProfileCompletion extends AuthState {
+  @override
+  List<Object?> get props => [];
+}
+
 class UnAuthenticated extends AuthState {
   @override
   List<Object?> get props => [];

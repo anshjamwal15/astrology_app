@@ -69,6 +69,8 @@ class User extends Equatable {
       mobile: map['mobile'] as String? ?? '',
       dateTime: map['date_time'] as Timestamp?,
       isMentor: map['is_mentor'] == 0 ? false : true,
+      profileCompleted: map['is_profile_completed'] == 0 ? false : true,
+      isEmailVerified: map['is_email_verified'] == 0 ? false : true,
     );
   }
 
@@ -92,6 +94,7 @@ class User extends Equatable {
       'date_time': dateTime,
       'is_mentor': isMentor == false ? 0 : 1,
       'is_profile_completed': profileCompleted == false ? 0 : 1,
+      'is_email_verified': isEmailVerified == false ? 0 : 1,
     };
   }
 
