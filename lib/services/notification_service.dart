@@ -27,14 +27,20 @@ class NotificationService {
       iOS: initializationSettingsIOS,
     );
 
-    final NotificationAppLaunchDetails? notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+    final NotificationAppLaunchDetails? notificationAppLaunchDetails =
+        await _flutterLocalNotificationsPlugin
+            .getNotificationAppLaunchDetails();
 
-    if (notificationAppLaunchDetails != null && notificationAppLaunchDetails.didNotificationLaunchApp) {
-      notificationTapBackground(notificationAppLaunchDetails.notificationResponse!, navigatorKey);
+    if (notificationAppLaunchDetails != null &&
+        notificationAppLaunchDetails.didNotificationLaunchApp) {
+      notificationTapBackground(
+          notificationAppLaunchDetails.notificationResponse!, navigatorKey);
     }
 
-    _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+/*    _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();*/
 
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,

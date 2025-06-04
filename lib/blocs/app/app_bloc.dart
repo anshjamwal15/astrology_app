@@ -21,18 +21,25 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   final AuthenticationRepository _authenticationRepository;
   late final StreamSubscription<User> _userSubscription;
 
-  void _onUserChanged(_AppUserChanged event, Emitter<AppState> emit) {
+  void _onUserChanged(_AppUserChanged event, Emitter<AppState> emit) async {
+    // Add a delay to show splash screen
+    await Future.delayed(const Duration(seconds: 2));
+
     final user = event.user;
 
     if (user == User.empty) {
       emit(const AppState.unauthenticated());
+      return;
     }
+
     if (user.isEmailVerified && !user.profileCompleted) {
       emit(AppState.incompleteProfile(user));
+      return;
     }
 
     if (user.isEmailVerified && user.profileCompleted) {
       emit(AppState.authenticated(user));
+      return;
     }
   }
 

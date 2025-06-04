@@ -45,7 +45,7 @@ class UserApiService {
 
   Future<User> updateUser(Map<String, dynamic> data) async {
     try {
-      final response = await _dio.post("$endpoint/update", data: data);
+      final response = await _dio.put("$endpoint/update", data: data);
       return User.fromJSON(response.data);
     } catch (e) {
       rethrow;

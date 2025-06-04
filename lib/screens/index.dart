@@ -56,7 +56,6 @@ class AppView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = context.select((AppBloc bloc) => bloc.state.status);
-    final user = context.select((AppBloc bloc) => bloc.state.user);
     return OverlaySupport(
       child: MaterialApp(
         title: 'Mindaro Sewa',
@@ -77,10 +76,7 @@ class AppView extends StatelessWidget {
               case AppStatus.unauthenticated:
                 return [const MaterialPage(child: LoginScreen())];
               case AppStatus.incompleteProfile:
-                return [
-                  MaterialPage(
-                      child: CompleteProfileScreen(userEmail: user.email))
-                ];
+                return [MaterialPage(child: CompleteProfileScreen())];
               case AppStatus.authenticated:
                 return [const MaterialPage(child: MainScreen())];
             }

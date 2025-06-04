@@ -1,5 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
+import 'package:astrology_app/models/index.dart';
 import 'package:flutter/material.dart';
 
 export 'test_data_astrologer.dart';
@@ -23,6 +24,8 @@ class AppConstants {
   static const Color accentColor = Color(0xFFff811d);
 
   static bool isUserMentor = false;
+
+  static User localUser = User.empty;
 
   static bool isLoaderRunning = false;
 

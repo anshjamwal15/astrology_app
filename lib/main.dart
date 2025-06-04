@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'firebase_options.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final AuthenticationRepository _authRepository = AuthenticationRepository();
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -40,8 +41,7 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   FirebaseMessaging.onMessage.listen(_firebaseMessagingBackgroundHandler);
   await NotificationService.initializeNotifications(navigatorKey);
-  await UserManager.instance.loadUser();
+  await _authRepository.refreshUser();
   runApp(App(
-      navigatorKey: navigatorKey,
-      authenticationRepository: AuthenticationRepository()));
+      navigatorKey: navigatorKey, authenticationRepository: _authRepository));
 }

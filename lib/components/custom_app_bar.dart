@@ -14,7 +14,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       surfaceTintColor: Colors.white,
       systemOverlayStyle:
           SystemUiOverlayStyle(statusBarColor: Colors.blue.shade900),
-      leading: isBackNav != null && isBackNav! ? IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back)) : null,
+      leading: isBackNav != null && isBackNav!
+          ? IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back))
+          : null,
       actions: [
         GestureDetector(
           onTap: () => {

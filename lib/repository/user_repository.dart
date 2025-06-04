@@ -1,7 +1,10 @@
 import 'package:astrology_app/models/index.dart';
+import 'package:astrology_app/network/services/user_api_service.dart';
 import 'package:astrology_app/repository/payment_repository.dart';
+import 'package:astrology_app/services/DAOs/user_dao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as cf;
 import 'package:firebase_messaging/firebase_messaging.dart' as firebase;
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 class UserRepository {
   UserRepository({cf.FirebaseFirestore? firestore})
@@ -9,8 +12,55 @@ class UserRepository {
 
   final cf.FirebaseFirestore _firestore;
   final PaymentRepository _paymentRepository = PaymentRepository();
+  final _userApiservice = UserApiService();
+
+  Future<User> fetchAndSyncUser(
+      firebase_auth.User firebaseUser, UserDao userDao) async {
+    final localUser = await userDao.getUser();
+    final backendUser =
+        await _userApiservice.getUserByEmail(firebaseUser.email!);
+
+    if (backendUser == null || backendUser.isEmpty) {
+      await userDao.deleteUser();
+      return User.empty;
+    }
+
+    final userDocRef = _firestore.collection('users').doc(backendUser.id);
+    final userDoc = await userDocRef.get();
+    final firestoreData = userDoc.data() as Map<String, dynamic>? ?? {};
+
+    if (localUser != null && localUser.email == firebaseUser.email) {
+      final updatedUser = localUser.copyWith(
+        isEmailVerified: firebaseUser.emailVerified,
+        profileCompleted: firestoreData['is_profile_completed'] ?? false,
+      );
+      return updatedUser;
+    }
+
+    var newUser = User(
+      id: backendUser.id,
+      email: firebaseUser.email!,
+      isEmailVerified: firebaseUser.emailVerified,
+    );
+
+    final isMentor = await isUserMentor(newUser.id);
+    newUser = newUser.copyWith(
+      isMentor: isMentor,
+      profileCompleted: firestoreData['is_profile_completed'] ?? false,
+    );
+
+    if (!userDoc.exists) {
+      await saveUser(newUser);
+    }
+
+    return newUser;
+  }
 
   Future<void> saveUser(User user) async {
+    if (user.id.isEmpty) {
+      throw Exception('Cannot save user with empty ID');
+    }
+
     final userRef = _firestore.collection('users').doc(user.id);
     // TODO: don't update token everytime
     final userToken = await firebase.FirebaseMessaging.instance.getToken();

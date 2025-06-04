@@ -1,16 +1,16 @@
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/network/services/user_api_service.dart';
+import 'package:astrology_app/repository/index.dart';
+import 'package:astrology_app/services/user_manager.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 class CompleteProfileScreen extends StatelessWidget {
-  final String userEmail;
   CompleteProfileScreen({
     super.key,
-    required this.userEmail,
   });
 
   final nameController = TextEditingController();
@@ -19,6 +19,7 @@ class CompleteProfileScreen extends StatelessWidget {
   final countryController = TextEditingController();
   final bioController = TextEditingController();
   final _userApiService = UserApiService();
+  final _authRepository = AuthenticationRepository();
   final _firestore = FirebaseFirestore.instance;
   final _auth = firebase_auth.FirebaseAuth.instance;
 
@@ -29,12 +30,12 @@ class CompleteProfileScreen extends StatelessWidget {
       'controller': nameController,
       'label': 'Name',
     },
-    {
+/*    {
       'name': 'email',
       'key': const Key('profile_emailInput_textField'),
       'controller': emailController,
       'label': 'Email',
-    },
+    },*/
     {
       'name': 'mobile',
       'key': const Key('profile_mobileInput_textField'),
@@ -58,9 +59,9 @@ class CompleteProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-
+    final user = UserManager.instance.user!;
     routeToHome() {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => const MainScreen(),
@@ -118,7 +119,7 @@ class CompleteProfileScreen extends StatelessWidget {
                             hintText: field['label'],
                             obscureText: false,
                             disabled: field['name'] == 'email',
-                            value: field['name'] == 'email' ? userEmail : null,
+                            value: field['name'] == 'email' ? user.email : null,
                           ),
                         ),
                       ),
@@ -129,48 +130,40 @@ class CompleteProfileScreen extends StatelessWidget {
               CustomButton(
                 btnColor: AppConstants.primaryColor,
                 onPressed: () async {
-                  if (!isDialogOpen()) {
-                    showLoader(context);
+                  showLoader(context);
 
-                    // Update user data in API
-                    final Map<String, dynamic> dataToUpdate = {
-                      'email': userEmail,
-                      'is_profile_completed': true
-                    };
+                  final Map<String, dynamic> dataToUpdate = {
+                    'email': user.email,
+                  };
 
-                    if (nameController.text.trim().isNotEmpty) {
-                      dataToUpdate['name'] = nameController.text.trim();
+                  if (nameController.text.trim().isNotEmpty) {
+                    dataToUpdate['name'] = nameController.text.trim();
+                  }
+                  if (mobileController.text.trim().isNotEmpty) {
+                    dataToUpdate['mobile'] = mobileController.text.trim();
+                  }
+                  if (countryController.text.trim().isNotEmpty) {
+                    dataToUpdate['country'] = countryController.text.trim();
+                  }
+
+                  try {
+                    await _userApiService.updateUser(dataToUpdate);
+
+                    final currentUser = _auth.currentUser;
+                    if (currentUser != null) {
+                      await _firestore.collection('users').doc(user.id).update({
+                        'is_profile_completed': true,
+                        'name': nameController.text.trim(),
+                        'mobile': mobileController.text.trim(),
+                        'country': countryController.text.trim(),
+                      });
                     }
-                    if (mobileController.text.trim().isNotEmpty) {
-                      dataToUpdate['mobile'] = mobileController.text.trim();
-                    }
-                    if (countryController.text.trim().isNotEmpty) {
-                      dataToUpdate['country'] = countryController.text.trim();
-                    }
 
-                    try {
-                      // Update user data in API
-                      await _userApiService.updateUser(dataToUpdate);
+                    await _authRepository.refreshUser();
 
-                      // Update profile completion status in Firestore
-                      final currentUser = _auth.currentUser;
-                      if (currentUser != null) {
-                        await _firestore
-                            .collection('users')
-                            .doc(currentUser.uid)
-                            .update({
-                          'is_profile_completed': true,
-                          'name': nameController.text.trim(),
-                          'mobile': mobileController.text.trim(),
-                          'country': countryController.text.trim(),
-                        });
-                      }
-
-                      routeToHome();
-                    } catch (e) {
-                      showFloatingSnackBar(
-                          context, 'Error updating profile: $e');
-                    }
+                    routeToHome();
+                  } catch (e) {
+                    showFloatingSnackBar(context, 'Error updating profile: $e');
                   }
                 },
                 buttonName: "SAVE",

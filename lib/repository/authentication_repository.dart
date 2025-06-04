@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/models/user.dart';
 import 'package:astrology_app/network/services/user_api_service.dart';
@@ -50,6 +51,10 @@ class LogInWithEmailAndPasswordFailure implements Exception {
 
   factory LogInWithEmailAndPasswordFailure.fromCode(String code) {
     switch (code) {
+      case 'too-many-requests':
+        return const LogInWithEmailAndPasswordFailure(
+          'Access temporarily blocked due to too many attempts. Please try again later or reset your password.',
+        );
       case 'invalid-credential':
         return const LogInWithEmailAndPasswordFailure(
             'Invalid credentials, Please try again.');
@@ -145,62 +150,110 @@ class AuthenticationRepository {
   final UserApiService _userApiService = UserApiService();
   final FirebaseFirestore _firestore;
 
+  Future<void> refreshUser() async {
+    final firebaseUser = _firebaseAuth.currentUser;
+    if (firebaseUser != null) {
+      final freshUser =
+          await _userRepository.fetchAndSyncUser(firebaseUser, _userDao);
+      AppConstants.localUser = freshUser;
+      AppConstants.isUserMentor = freshUser.isMentor;
+      await _userDao.insertUser(freshUser);
+    }
+  }
+
+  Future<User> _getUserData(firebase_auth.User firebaseUser) async {
+    final localUser = await _userDao.getUser();
+    final backendUser =
+        await _userApiService.getUserByEmail(firebaseUser.email!);
+
+    if (backendUser == null || backendUser.isEmpty) {
+      await _userDao.deleteUser();
+      return User.empty;
+    }
+
+    final userDocRef = _firestore.collection('users').doc(backendUser.id);
+    final userDoc = await userDocRef.get();
+    final firestoreData = userDoc.data() as Map<String, dynamic>? ?? {};
+
+    if (localUser != null && localUser.email == firebaseUser.email) {
+      final updatedUser = localUser.copyWith(
+        isEmailVerified: firebaseUser.emailVerified,
+        profileCompleted: firestoreData['is_profile_completed'] ?? false,
+      );
+      return updatedUser;
+    }
+
+    var newUser = User(
+      id: backendUser.id,
+      email: firebaseUser.email!,
+      isEmailVerified: firebaseUser.emailVerified,
+    );
+
+    final isMentor = await _userRepository.isUserMentor(newUser.id);
+    newUser = newUser.copyWith(
+      isMentor: isMentor,
+      profileCompleted: firestoreData['is_profile_completed'] ?? false,
+    );
+    if (!userDoc.exists) {
+      await _userRepository.saveUser(newUser);
+    }
+
+    return newUser;
+  }
+
   Stream<User> get user {
     return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
       if (firebaseUser == null) {
         await _userDao.deleteUser();
+        AppConstants.localUser = User.empty;
+        AppConstants.isUserMentor = false;
         return User.empty;
       }
 
-      // Get user data from Firestore
-      final userDoc =
-          await _firestore.collection('users').doc(firebaseUser.uid).get();
-      var user = firebaseUser.toUser();
-
-      if (userDoc.exists) {
-        final data = userDoc.data() as Map<String, dynamic>;
-        final isMentor = await _userRepository.isUserMentor(user.id);
-        user = user.copyWith(
-          isMentor: isMentor,
-          isEmailVerified: firebaseUser.emailVerified,
-          profileCompleted: data['is_profile_completed'] ?? false,
-        );
-        AppConstants.isUserMentor = isMentor;
-
-        // Update local storage with latest states
-        await _userDao.updateUserStatus(
-          isEmailVerified: firebaseUser.emailVerified,
-          isProfileCompleted: data['is_profile_completed'] ?? false,
-        );
-
-        await _userDao.insertUser(user);
-      } else {
-        // If no Firestore document exists, create one
-        await _userRepository.saveUser(user.copyWith(
-          isEmailVerified: firebaseUser.emailVerified,
-          profileCompleted: false,
-        ));
-      }
+      final user = await _userRepository.fetchAndSyncUser(
+        firebaseUser,
+        _userDao,
+      );
+      AppConstants.localUser = user;
+      AppConstants.isUserMentor = user.isMentor;
+      await _userDao.insertUser(user);
       return user;
     });
   }
 
-  Future<firebase_auth.UserCredential> signUp(
-      {required String email, required String password}) async {
+  Future<void> signUp({required String email, required String password}) async {
     try {
-      // Create Firebase user first
-      final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
+      var backendUser = await _userApiService.getUserByEmail(email);
+      if (backendUser == null || backendUser.isEmpty) {
+        throw const SignUpWithEmailAndPasswordFailure(
+          'User not found',
+        );
+      }
+
+      // Create Firebase user
+      final firebaseUserCredential =
+          await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
+      // Create user with backend ID and save to Firestore
+      final user = User(
+          id: backendUser.id,
+          email: email,
+          isEmailVerified: firebaseUserCredential.user?.emailVerified ?? false);
+
+      // Save to Firestore
+      await _userRepository.saveUser(user);
+
+      // Save to local storage
+      await _userDao.insertUser(user);
+
       // Send email verification
-      await userCred.user?.sendEmailVerification();
-
-      // Save user to Firestore
-      await _userRepository.saveUser(userCred.user!.toUser());
-
-      return userCred;
+      if (firebaseUserCredential.user != null &&
+          !firebaseUserCredential.user!.emailVerified) {
+        await firebaseUserCredential.user!.sendEmailVerification();
+      }
     } on firebase_auth.FirebaseAuthException catch (e) {
       AppLogger.error(e.toString());
       throw SignUpWithEmailAndPasswordFailure.fromCode(e.code);
@@ -220,11 +273,13 @@ class AuthenticationRepository {
         idToken: googleAuth.idToken,
       );
       final userCred = await _firebaseAuth.signInWithCredential(credential);
-      final user = await _userApiService.getUserByEmail(userCred.user!.email!);
-      if (user != null) {
-        // await UserManager.instance.loadUser();
-        await _userRepository
-            .saveUser(userCred.user!.toUser(serverId: user.id));
+
+      // Get user from backend
+      final backendUser =
+          await _userApiService.getUserByEmail(userCred.user!.email!);
+      if (backendUser != null) {
+        final user = User(id: backendUser.id, email: userCred.user!.email!);
+        await _userRepository.saveUser(user);
       }
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw LogInWithGoogleFailure.fromCode(e.code);
@@ -234,27 +289,38 @@ class AuthenticationRepository {
     }
   }
 
-  Future<firebase_auth.UserCredential> logInWithEmailAndPassword({
+  Future<void> logInWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
     try {
-      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Check if user exists in backend
+      // Check if user exists in backend first
       var user = await _userApiService.getUserByEmail(email);
       if (user == null || user.isEmpty) {
-        // If user doesn't exist in backend, save them to Firestore
-        await _userRepository.saveUser(userCredential.user!.toUser());
+        throw const LogInWithEmailAndPasswordFailure(
+          'User not found.',
+        );
       }
 
-      return userCredential;
-    } on firebase_auth.FirebaseAuthException catch (e) {
-      throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
-    } catch (_) {
+      try {
+        await _firebaseAuth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      } on firebase_auth.FirebaseAuthException catch (e) {
+        if (e.code == 'too-many-requests') {
+          // Log the error for monitoring
+          AppLogger.error('Rate limit exceeded for user: $email');
+          throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
+        }
+        throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
+      }
+
+      await _userRepository.saveUser(User(id: user.id, email: email));
+    } catch (e) {
+      if (e is LogInWithEmailAndPasswordFailure) {
+        rethrow;
+      }
       throw const LogInWithEmailAndPasswordFailure();
     }
   }
@@ -293,15 +359,5 @@ class AuthenticationRepository {
       return true;
     }
     return false;
-  }
-}
-
-extension on firebase_auth.User {
-  User toUser({String? serverId}) {
-    return User(
-      id: serverId ?? '',
-      email: email ?? '',
-      name: displayName ?? '',
-    );
   }
 }

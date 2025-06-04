@@ -1,3 +1,4 @@
+import 'package:astrology_app/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 4),
+      duration: const Duration(seconds: 1),
     );
 
     _fadeIn = Tween<double>(begin: 0, end: 1).animate(
@@ -51,9 +52,9 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 20),
               Text(
                 'Mindaro Sewa',
-                style: GoogleFonts.acme(
+                style: TextStyle(
                   fontSize: 24,
-                  color: Colors.deepPurple,
+                  color: AppConstants.primaryColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),

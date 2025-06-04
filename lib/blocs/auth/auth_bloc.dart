@@ -1,5 +1,6 @@
 import 'package:astrology_app/blocs/auth/auth_event.dart';
 import 'package:astrology_app/blocs/auth/auth_state.dart';
+import 'package:astrology_app/blocs/index.dart';
 import 'package:astrology_app/repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 
@@ -33,13 +34,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           password: event.password,
         );
 
-        // Check user state after login
         final user = await authRepository.user.first;
         if (!user.isEmailVerified) {
           emit(CheckEmailVerification());
         } else if (!user.profileCompleted) {
           emit(CheckProfileCompletion());
         } else {
+          await Future.delayed(const Duration(milliseconds: 500));
           emit(Authenticated());
         }
       } catch (e) {

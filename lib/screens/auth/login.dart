@@ -1,10 +1,13 @@
 import 'package:astrology_app/blocs/auth/auth_event.dart';
 import 'package:astrology_app/blocs/auth/auth_state.dart';
 import 'package:astrology_app/blocs/index.dart';
+import 'package:astrology_app/blocs/app/app_bloc.dart';
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/screens/auth/email_verification.dart';
+import 'package:astrology_app/screens/home/main.dart';
 import 'package:astrology_app/screens/profile/main.dart';
+import 'package:astrology_app/services/user_manager.dart';
 import 'package:astrology_app/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,9 +40,24 @@ class _LoginScreenState extends State<LoginScreen> {
         listener: (context, state) {
           if (state is Authenticated) {
             showFloatingSnackBar(context, 'Login Successful');
+            if (isDialogOpen()) {
+              Navigator.of(context, rootNavigator: true).pop();
+            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomeScreen(),
+              ),
+            );
           } else if (state is AuthError) {
             showFloatingSnackBar(context, state.error);
+            if (isDialogOpen()) {
+              Navigator.of(context, rootNavigator: true).pop();
+            }
           } else if (state is CheckEmailVerification) {
+            if (isDialogOpen()) {
+              Navigator.of(context, rootNavigator: true).pop();
+            }
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -47,11 +65,13 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             );
           } else if (state is CheckProfileCompletion) {
-            Navigator.pushReplacement(
+            if (isDialogOpen()) {
+              Navigator.of(context, rootNavigator: true).pop();
+            }
+            Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CompleteProfileScreen(
-                    userEmail: _emailOrPhoneController.text),
+                builder: (context) => CompleteProfileScreen(),
               ),
             );
           }
@@ -151,15 +171,33 @@ class _LoginScreenState extends State<LoginScreen> {
                           SizedBox(height: size.height * 0.02),
                           CustomButton(
                             btnColor: Colors.black,
-                            onPressed: () {
+                            onPressed: () async {
                               if (!isDialogOpen()) {
                                 if (state is ShowPasswordField ||
                                     state is ShowOtpField) {
                                   showLoader(context);
-                                  context.read<AuthBloc>().add(SignUpRequested(
-                                        _emailOrPhoneController.text,
-                                        _passwordController.text,
-                                      ));
+                                  await UserManager.instance.loadUser();
+                                  final localUser = UserManager.instance.user;
+
+                                  if (localUser != null &&
+                                      localUser.email ==
+                                          _emailOrPhoneController.text) {
+                                    // User exists locally, try sign in
+                                    context
+                                        .read<AuthBloc>()
+                                        .add(SignInRequested(
+                                          _emailOrPhoneController.text,
+                                          _passwordController.text,
+                                        ));
+                                  } else {
+                                    // User doesn't exist locally, try sign up
+                                    context
+                                        .read<AuthBloc>()
+                                        .add(SignUpRequested(
+                                          _emailOrPhoneController.text,
+                                          _passwordController.text,
+                                        ));
+                                  }
                                 } else {
                                   if (isEmailOrPhone(
                                       _emailOrPhoneController.text)) {

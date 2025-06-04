@@ -12,7 +12,6 @@ class UserDao {
       user.toLocalDb(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    await getUser();
   }
 
   Future<User?> getUser() async {
@@ -29,36 +28,13 @@ class UserDao {
     await db.delete('user');
   }
 
-  Future<void> updateProfileCompleted(bool isCompleted) async {
-    final db = await _dbHelper.database;
-    await db.rawUpdate(
-      '''
-    UPDATE user
-    SET is_profile_completed = ?
-    WHERE id = (
-      SELECT id FROM user LIMIT 1
-    )
-    ''',
-      [isCompleted ? 1 : 0],
-    );
-  }
-
-  Future<void> updateEmailVerified(bool isVerified) async {
-    final db = await _dbHelper.database;
-    await db.rawUpdate(
-      '''
-    UPDATE user
-    SET is_email_verified = ?
-    WHERE id = (
-      SELECT id FROM user LIMIT 1
-    )
-    ''',
-      [isVerified ? 1 : 0],
-    );
-  }
-
-  Future<void> updateUserStatus(
-      {bool? isEmailVerified, bool? isProfileCompleted}) async {
+  Future<void> updateUserStatus({
+    bool? isEmailVerified,
+    bool? isProfileCompleted,
+    String? name,
+    String? mobile,
+    String? country,
+  }) async {
     final db = await _dbHelper.database;
     final updates = <String, dynamic>{};
 
@@ -67,6 +43,15 @@ class UserDao {
     }
     if (isProfileCompleted != null) {
       updates['is_profile_completed'] = isProfileCompleted ? 1 : 0;
+    }
+    if (name != null) {
+      updates['name'] = name;
+    }
+    if (mobile != null) {
+      updates['mobile'] = mobile;
+    }
+    if (country != null) {
+      updates['country'] = country;
     }
 
     if (updates.isNotEmpty) {
