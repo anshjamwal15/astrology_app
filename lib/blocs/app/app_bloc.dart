@@ -23,7 +23,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   void _onUserChanged(_AppUserChanged event, Emitter<AppState> emit) async {
     // Add a delay to show splash screen
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
     final user = event.user;
 

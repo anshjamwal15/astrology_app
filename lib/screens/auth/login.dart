@@ -1,7 +1,6 @@
 import 'package:astrology_app/blocs/auth/auth_event.dart';
 import 'package:astrology_app/blocs/auth/auth_state.dart';
 import 'package:astrology_app/blocs/index.dart';
-import 'package:astrology_app/blocs/app/app_bloc.dart';
 import 'package:astrology_app/components/index.dart';
 import 'package:astrology_app/constants/app_constants.dart';
 import 'package:astrology_app/screens/auth/email_verification.dart';

@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     user = context.read<AppBloc>().state.user;
     UserManager.instance.loadUser();
     context.read<ChatBloc>().add(GetUnreadCount(user.id));

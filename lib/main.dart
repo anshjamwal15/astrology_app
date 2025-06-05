@@ -2,7 +2,6 @@ import 'package:astrology_app/repository/authentication_repository.dart';
 import 'package:astrology_app/repository/index.dart';
 import 'package:astrology_app/screens/index.dart';
 import 'package:astrology_app/services/notification_service.dart';
-import 'package:astrology_app/services/user_manager.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';

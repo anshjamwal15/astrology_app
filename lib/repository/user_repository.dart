@@ -15,45 +15,49 @@ class UserRepository {
   final _userApiservice = UserApiService();
 
   Future<User> fetchAndSyncUser(
-      firebase_auth.User firebaseUser, UserDao userDao) async {
-    final localUser = await userDao.getUser();
-    final backendUser =
-        await _userApiservice.getUserByEmail(firebaseUser.email!);
+    firebase_auth.User firebaseUser,
+    UserDao userDao,
+  ) async {
+    // Step 1: Ensure the email is available
+    final email = firebaseUser.email;
+    if (email == null) return User.empty;
 
+    // Step 2: Fetch backend user using email
+    final backendUser = await _userApiservice.getUserByEmail(email);
     if (backendUser == null || backendUser.isEmpty) {
-      await userDao.deleteUser();
+      await userDao.deleteUser(); // Clear invalid local user
       return User.empty;
     }
 
+    // Step 3: Fetch Firestore data
     final userDocRef = _firestore.collection('users').doc(backendUser.id);
     final userDoc = await userDocRef.get();
     final firestoreData = userDoc.data() as Map<String, dynamic>? ?? {};
 
-    if (localUser != null && localUser.email == firebaseUser.email) {
-      final updatedUser = localUser.copyWith(
-        isEmailVerified: firebaseUser.emailVerified,
-        profileCompleted: firestoreData['is_profile_completed'] ?? false,
-      );
-      return updatedUser;
-    }
-
-    var newUser = User(
+    // Step 4: Build updated user object
+    final updatedUser = User(
       id: backendUser.id,
-      email: firebaseUser.email!,
+      email: email,
       isEmailVerified: firebaseUser.emailVerified,
-    );
-
-    final isMentor = await isUserMentor(newUser.id);
-    newUser = newUser.copyWith(
-      isMentor: isMentor,
+      name: firestoreData['name'] ?? '',
+      mobile: firestoreData['mobile'] ?? '',
+      country: firestoreData['country'] ?? '',
       profileCompleted: firestoreData['is_profile_completed'] ?? false,
     );
 
+    // Step 5: Determine user type (mentor or not)
+    final isMentor = await isUserMentor(updatedUser.id);
+    final finalUser = updatedUser.copyWith(isMentor: isMentor);
+
+    // Step 6: Save to Firestore if not already there
     if (!userDoc.exists) {
-      await saveUser(newUser);
+      await saveUser(finalUser);
     }
 
-    return newUser;
+    // Step 7: Save to local DB
+    await userDao.insertUser(finalUser);
+
+    return finalUser;
   }
 
   Future<void> saveUser(User user) async {
