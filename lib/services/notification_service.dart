@@ -8,8 +8,12 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
+  static GlobalKey<NavigatorState>? _navigatorKey;
+
   static Future<void> initializeNotifications(
       GlobalKey<NavigatorState> navigatorKey) async {
+    _navigatorKey = navigatorKey;
+
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -18,6 +22,9 @@ class NotificationService {
       onDidReceiveLocalNotification:
           (int id, String? title, String? body, String? payload) async {
         // Handle iOS local notification
+        if (payload != null) {
+          _handleNotificationPayload(payload);
+        }
       },
     );
 
@@ -27,27 +34,52 @@ class NotificationService {
       iOS: initializationSettingsIOS,
     );
 
+    // Check if app was launched from notification
     final NotificationAppLaunchDetails? notificationAppLaunchDetails =
         await _flutterLocalNotificationsPlugin
             .getNotificationAppLaunchDetails();
 
-    if (notificationAppLaunchDetails != null &&
-        notificationAppLaunchDetails.didNotificationLaunchApp) {
-      notificationTapBackground(
-          notificationAppLaunchDetails.notificationResponse!, navigatorKey);
-    }
-
-/*    _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();*/
-
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        notificationTapBackground(response, navigatorKey);
+        _handleNotificationResponse(response);
       },
     );
+
+    // Handle app launch from notification in killed state
+    if (notificationAppLaunchDetails != null &&
+        notificationAppLaunchDetails.didNotificationLaunchApp &&
+        notificationAppLaunchDetails.notificationResponse != null) {
+      // Delay handling to ensure app is fully initialized
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        _handleNotificationResponse(
+            notificationAppLaunchDetails.notificationResponse!);
+      });
+    }
+
+    // Request notification permissions
+    await _requestNotificationPermissions();
+  }
+
+  static Future<void> _requestNotificationPermissions() async {
+    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidImplementation != null) {
+      await androidImplementation.requestNotificationsPermission();
+      await androidImplementation.requestExactAlarmsPermission();
+    }
+
+    const DarwinInitializationSettings iosImplementation =
+        DarwinInitializationSettings();
+
+    /*  await iosImplementation.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    */
   }
 
   static Future<void> createCallNotification(
@@ -60,23 +92,27 @@ class NotificationService {
     String calleeId,
   ) async {
     var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
-      'call_channel', // Channel ID
-      'Call Notifications', // Channel Name
+      'call_channel',
+      'Call Notifications',
+      channelDescription: 'Notifications for incoming calls',
       importance: Importance.max,
       priority: Priority.max,
       fullScreenIntent: true,
       playSound: true,
       sound: RawResourceAndroidNotificationSound("incoming_call"),
+      category: AndroidNotificationCategory.call,
+      ongoing: true,
+      autoCancel: false,
       actions: [
         AndroidNotificationAction(
-          'ANSWER', // Action Key
-          'Answer', // Action Title
+          'ANSWER',
+          'Answer',
           titleColor: Colors.green,
           showsUserInterface: true,
         ),
         AndroidNotificationAction(
-          'DECLINE', // Action Key
-          'Decline', // Action Title
+          'DECLINE',
+          'Decline',
           titleColor: Colors.red,
           showsUserInterface: false,
           cancelNotification: true,
@@ -84,29 +120,34 @@ class NotificationService {
       ],
     );
 
-    var iOSPlatformChannelSpecifics = const DarwinNotificationDetails();
+    var iOSPlatformChannelSpecifics = const DarwinNotificationDetails(
+      categoryIdentifier: 'call_category',
+      interruptionLevel: InterruptionLevel.critical,
+    );
 
     var platformChannelSpecifics = NotificationDetails(
         android: androidPlatformChannelSpecifics,
         iOS: iOSPlatformChannelSpecifics);
 
     await _flutterLocalNotificationsPlugin.show(
-      0, // Notification ID
+      0,
       title,
       body,
       platformChannelSpecifics,
       payload:
-          'roomId=$roomId&type=$type&callerId=$callerId&calleeId=$calleeId&callType=$callType', // Custom payload to handle tap
+          'roomId=$roomId&type=$type&callerId=$callerId&calleeId=$calleeId&callType=$callType',
     );
   }
 
   static Future<void> createMessageNotification(
       String title, String body, String senderId, String type) async {
     var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
-      'message_channel', // Channel ID
-      'Message Notifications', // Channel Name
-      importance: Importance.defaultImportance,
-      priority: Priority.defaultPriority,
+      'message_channel',
+      'Message Notifications',
+      channelDescription: 'Notifications for new messages',
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: true,
     );
 
     var iOSPlatformChannelSpecifics = const DarwinNotificationDetails();
@@ -117,62 +158,94 @@ class NotificationService {
     );
 
     await _flutterLocalNotificationsPlugin.show(
-      1, // Notification ID
+      1,
       title,
       body,
       platformChannelSpecifics,
-      payload: 'senderId=$senderId&type=$type', // Custom payload to handle tap
+      payload: 'senderId=$senderId&type=$type',
     );
   }
 
-  @pragma('vm:entry-point')
-  static void notificationTapBackground(
-      NotificationResponse notificationResponse,
-      GlobalKey<NavigatorState> navigatorKey) {
-    String? payload = notificationResponse.payload;
-    if (payload != null) {
-      var data = Uri.splitQueryString(payload);
-      if (data['type'] == 'call') {
-        String roomId = data['roomId']!;
-        String callerId = data['callerId']!;
-        String calleeId = data['calleeId']!;
-        String callType = data['callType']!;
-        _isCallScreen(true, navigatorKey, roomId, callType, callerId, calleeId);
-      } else if (data['type'] == 'message') {
-        String senderId = data['senderId']!;
-        _isCallScreen(false, navigatorKey, senderId);
-      }
+  static void _handleNotificationResponse(NotificationResponse response) {
+    if (response.payload != null) {
+      _handleNotificationPayload(response.payload!);
     }
   }
 
-  static _isCallScreen(
-      bool isCall, GlobalKey<NavigatorState> navigatorKey, String id,
-      [String? callType, String? callerId, String? calleeId]) {
-    if (isCall) {
-      Navigator.of(navigatorKey.currentState!.context).pushReplacement(
-        MaterialPageRoute(
-          builder: (builder) => (callType == "video" || callType == null)
-              ? VideoCallScreen(
-                  roomId: id,
-                  isCreating: false,
-                  mentorId: calleeId,
-                  creatorId: callerId,
-                  isMentor: false,
-                )
-              : VoiceCall(
-                  roomId: id,
-                  isCreating: false,
-                  mentorId: calleeId,
-                  creatorId: callerId,
-                  isMentor: false,
-                ),
-        ),
-      );
+  static void _handleNotificationPayload(String payload) {
+    final context = _navigatorKey?.currentContext;
+    if (context == null) {
+      // If context is not available, retry after a delay
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _handleNotificationPayload(payload);
+      });
       return;
     }
-    Navigator.of(navigatorKey.currentState!.context)
-        .pushReplacement(MaterialPageRoute(
-      builder: (builder) => ChatScreen(senderId: id, isMentor: true),
-    ));
+
+    var data = Uri.splitQueryString(payload);
+    String type = data['type'] ?? 'message';
+
+    if (type == 'call') {
+      String roomId = data['roomId'] ?? '';
+      String callerId = data['callerId'] ?? '';
+      String calleeId = data['calleeId'] ?? '';
+      String callType = data['callType'] ?? 'video';
+
+      navigateToCallScreen(context, roomId, callType, callerId, calleeId);
+    } else if (type == 'message') {
+      String senderId = data['senderId'] ?? '';
+      navigateToMessageScreen(context, senderId);
+    }
+  }
+
+  static void navigateToCallScreen(
+    BuildContext context,
+    String roomId,
+    String callType,
+    String callerId,
+    String calleeId,
+  ) {
+    // Cancel any existing call notifications
+    _flutterLocalNotificationsPlugin.cancel(0);
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => (callType == "video")
+            ? VideoCallScreen(
+                roomId: roomId,
+                isCreating: false,
+                mentorId: calleeId,
+                creatorId: callerId,
+                isMentor: false,
+              )
+            : VoiceCall(
+                roomId: roomId,
+                isCreating: false,
+                mentorId: calleeId,
+                creatorId: callerId,
+                isMentor: false,
+              ),
+      ),
+      (route) => false,
+    );
+  }
+
+  static void navigateToMessageScreen(BuildContext context, String senderId) {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => ChatScreen(senderId: senderId, isMentor: true),
+      ),
+      (route) => false,
+    );
+  }
+
+  // Method to clear all notifications
+  static Future<void> clearAllNotifications() async {
+    await _flutterLocalNotificationsPlugin.cancelAll();
+  }
+
+  // Method to clear specific notification
+  static Future<void> clearNotification(int id) async {
+    await _flutterLocalNotificationsPlugin.cancel(id);
   }
 }

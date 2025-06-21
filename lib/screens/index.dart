@@ -6,6 +6,7 @@ import 'package:astrology_app/screens/profile/main.dart';
 import 'package:astrology_app/screens/home/cubits/home_cubit.dart';
 import 'package:astrology_app/screens/splash/main.dart';
 import 'package:astrology_app/services/route_generator.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,11 +16,13 @@ class App extends StatelessWidget {
   const App({
     required this.navigatorKey,
     required AuthenticationRepository authenticationRepository,
+    this.initialMessage,
     super.key,
   }) : _authenticationRepository = authenticationRepository;
 
   final AuthenticationRepository _authenticationRepository;
   final GlobalKey<NavigatorState> navigatorKey;
+  final RemoteMessage? initialMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +47,25 @@ class App extends StatelessWidget {
             create: (_) => UserBloc(),
           ),
         ],
-        child: AppView(navigatorKey: navigatorKey),
+        child: AppView(
+          navigatorKey: navigatorKey,
+          initialMessage: initialMessage,
+        ),
       ),
     );
   }
 }
 
 class AppView extends StatelessWidget {
-  const AppView({super.key, required this.navigatorKey});
+  const AppView({
+    super.key, 
+    required this.navigatorKey,
+    this.initialMessage,
+  });
+  
   final GlobalKey<NavigatorState> navigatorKey;
+  final RemoteMessage? initialMessage;
+
   @override
   Widget build(BuildContext context) {
     final status = context.select((AppBloc bloc) => bloc.state.status);
@@ -72,7 +85,7 @@ class AppView extends StatelessWidget {
           onGeneratePages: (status, pages) {
             switch (status) {
               case AppStatus.loading:
-                return [const MaterialPage(child: SplashScreen())];
+                return [MaterialPage(child: SplashScreen(initialMessage: initialMessage))];
               case AppStatus.unauthenticated:
                 return [const MaterialPage(child: LoginScreen())];
               case AppStatus.incompleteProfile:
